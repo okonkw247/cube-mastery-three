@@ -7,12 +7,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Loader2, Shield, CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
+interface InviteData {
+  id: string;
+  role: string;
+  email: string | null;
+  expires_at: string;
+  used_at: string | null;
+  created_at: string;
+}
+
 export default function AdminInviteAccept() {
   const { token } = useParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [status, setStatus] = useState<"loading" | "valid" | "invalid" | "expired" | "used" | "accepting" | "success">("loading");
-  const [invite, setInvite] = useState<any>(null);
+  const [invite, setInvite] = useState<InviteData | null>(null);
 
   useEffect(() => {
     checkInvite();
@@ -24,28 +33,30 @@ export default function AdminInviteAccept() {
       return;
     }
 
+    // Use the secure function to validate the token without exposing all invites
     const { data, error } = await supabase
-      .from("admin_invites")
-      .select("*")
-      .eq("token", token)
-      .single();
+      .rpc('validate_invite_token' as any, { invite_token: token });
 
-    if (error || !data) {
+    const results = data as InviteData[] | null;
+
+    if (error || !results || results.length === 0) {
       setStatus("invalid");
       return;
     }
 
-    if (data.used_at) {
+    const inviteData = results[0];
+
+    if (inviteData.used_at) {
       setStatus("used");
       return;
     }
 
-    if (new Date(data.expires_at) < new Date()) {
+    if (new Date(inviteData.expires_at) < new Date()) {
       setStatus("expired");
       return;
     }
 
-    setInvite(data);
+    setInvite(inviteData);
     setStatus("valid");
   };
 
@@ -69,7 +80,7 @@ export default function AdminInviteAccept() {
         .from("user_roles")
         .insert({
           user_id: user.id,
-          role: invite.role,
+          role: invite.role as "super_admin" | "content_admin",
         });
 
       if (roleError) {
