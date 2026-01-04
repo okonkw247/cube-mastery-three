@@ -18,6 +18,7 @@ import {
   Bookmark,
   Timer,
   TrendingUp,
+  Shield,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
@@ -32,6 +33,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { PracticeCoach } from "@/components/PracticeCoach";
 import { StreakTracker } from "@/components/dashboard/StreakTracker";
 import { BookmarkedLessons } from "@/components/dashboard/BookmarkedLessons";
+import { useAdmin } from "@/hooks/useAdmin";
 import {
   LineChart,
   Line,
@@ -57,6 +59,7 @@ const Dashboard = () => {
   const { lessons, progress, progressPercent, completedCount, loading: lessonsLoading } = useLessons();
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const { totalAttempts, attempts } = usePracticeAttempts();
+  const { isAdmin } = useAdmin();
   const [chartPeriod, setChartPeriod] = useState("Year");
   const [todoModalOpen, setTodoModalOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState<TodoItem | null>(null);
@@ -161,6 +164,14 @@ const Dashboard = () => {
             <span className="text-lg sm:text-xl font-bold text-foreground hidden xs:inline">JSN Cubing</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
+            {isAdmin && (
+              <Link to="/admin">
+                <Button variant="outline" size="sm" className="gap-2 text-xs sm:text-sm border-red-500/20 text-red-500 hover:bg-red-500/10">
+                  <Shield className="w-4 h-4" />
+                  <span className="hidden sm:inline">Admin</span>
+                </Button>
+              </Link>
+            )}
             {!isPro && (
               <Button variant="default" size="sm" className="hidden md:flex text-xs sm:text-sm" onClick={scrollToPricing}>
                 Upgrade to Pro
