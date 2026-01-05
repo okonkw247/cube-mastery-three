@@ -5,7 +5,8 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
+  :root,
+  .dark {
     --background: 220 20% 4%;
     --foreground: 210 40% 98%;
 
@@ -57,11 +58,6 @@
 
     --glass-bg: hsl(220 18% 10% / 0.6);
     --glass-border: hsl(220 15% 25% / 0.3);
-  }
-
-  .dark {
-    --background: 220 20% 4%;
-    --foreground: 210 40% 98%;
   }
 
   .light {
