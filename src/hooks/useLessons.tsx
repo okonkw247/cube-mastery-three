@@ -11,12 +11,6 @@ export interface Lesson {
   skill_level: string;
   order_index: number;
   is_free: boolean;
-  status: string | null;
-  thumbnail_url: string | null;
-  tags: string[] | null;
-  prerequisites: string[] | null;
-  preview_duration: number | null;
-  video_quality: string | null;
   created_at: string;
 }
 

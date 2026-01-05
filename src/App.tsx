@@ -13,7 +13,6 @@ import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import Lesson from "./pages/Lesson";
 import NotFound from "./pages/NotFound";
-import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminLessons from "./pages/admin/AdminLessons";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -42,7 +41,6 @@ const App = () => (
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/lesson/:id" element={<Lesson />} />
                 {/* Admin Routes */}
-                <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/lessons" element={<AdminLessons />} />
                 <Route path="/admin/users" element={<AdminUsers />} />

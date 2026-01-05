@@ -26,7 +26,7 @@ export function AdminLayout({ children, requiredPermission }: AdminLayoutProps) 
   }
 
   if (!user) {
-    return <Navigate to="/admin/login" replace />;
+    return <Navigate to="/auth" replace />;
   }
 
   if (!isAdmin) {
