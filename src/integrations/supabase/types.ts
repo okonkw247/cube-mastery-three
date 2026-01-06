@@ -205,8 +205,10 @@ export type Database = {
           created_by: string | null
           description: string | null
           duration: string | null
+          hologram_sheet_url: string | null
           id: string
           is_free: boolean
+          lesson_notes: string | null
           order_index: number
           prerequisites: string[] | null
           preview_duration: number | null
@@ -223,8 +225,10 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           duration?: string | null
+          hologram_sheet_url?: string | null
           id?: string
           is_free?: boolean
+          lesson_notes?: string | null
           order_index: number
           prerequisites?: string[] | null
           preview_duration?: number | null
@@ -241,8 +245,10 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           duration?: string | null
+          hologram_sheet_url?: string | null
           id?: string
           is_free?: boolean
+          lesson_notes?: string | null
           order_index?: number
           prerequisites?: string[] | null
           preview_duration?: number | null
@@ -253,6 +259,69 @@ export type Database = {
           title?: string
           video_quality?: string | null
           video_url?: string | null
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          reference_id: string | null
+          title: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          reference_id?: string | null
+          title: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          reference_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      otp_codes: {
+        Row: {
+          code: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          type: string
+          used_at: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          type: string
+          used_at?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          type?: string
+          used_at?: string | null
         }
         Relationships: []
       }
@@ -468,6 +537,15 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      notify_all_users: {
+        Args: {
+          p_message: string
+          p_reference_id?: string
+          p_title: string
+          p_type: string
+        }
+        Returns: undefined
+      }
       validate_invite_token: {
         Args: { invite_token: string }
         Returns: {

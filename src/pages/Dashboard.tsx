@@ -32,6 +32,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { PracticeCoach } from "@/components/PracticeCoach";
 import { StreakTracker } from "@/components/dashboard/StreakTracker";
 import { BookmarkedLessons } from "@/components/dashboard/BookmarkedLessons";
+import { NotificationBell } from "@/components/NotificationBell";
 import {
   LineChart,
   Line,
@@ -166,6 +167,7 @@ const Dashboard = () => {
                 Upgrade to Pro
               </Button>
             )}
+            <NotificationBell />
             <ThemeToggle />
             <Link to="/settings">
               <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9"><Settings className="w-4 h-4" /></Button>
