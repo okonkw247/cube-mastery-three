@@ -8,10 +8,13 @@ interface AuthContextType {
   loading: boolean;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signInWithGoogle: () => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
   updatePassword: (newPassword: string) => Promise<{ error: Error | null }>;
+  sendOTP: (email: string, type: 'login' | 'password_reset') => Promise<{ error: Error | null }>;
+  verifyOTP: (email: string, code: string, type: 'login' | 'password_reset') => Promise<{ error: Error | null; actionLink?: string }>;
+  resetPasswordWithCode: (email: string, newPassword: string) => Promise<{ error: Error | null }>;
+  sendLoginNotification: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -67,17 +70,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error as Error | null };
   };
 
-  const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-      },
-    });
-    
-    return { error: error as Error | null };
-  };
-
   const resetPassword = async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/auth?mode=reset`,
@@ -94,6 +86,95 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error as Error | null };
   };
 
+  const sendOTP = async (email: string, type: 'login' | 'password_reset') => {
+    try {
+      const response = await supabase.functions.invoke('send-otp', {
+        body: { email, type },
+      });
+
+      if (response.error) {
+        return { error: new Error(response.error.message || 'Failed to send code') };
+      }
+
+      return { error: null };
+    } catch (err: any) {
+      return { error: new Error(err.message || 'Failed to send code') };
+    }
+  };
+
+  const verifyOTP = async (email: string, code: string, type: 'login' | 'password_reset') => {
+    try {
+      const response = await supabase.functions.invoke('verify-otp', {
+        body: { email, code, type },
+      });
+
+      if (response.error) {
+        return { error: new Error(response.error.message || 'Invalid or expired code') };
+      }
+
+      const data = response.data;
+
+      if (data.error) {
+        return { error: new Error(data.error) };
+      }
+
+      // For login, use the magic link to sign in
+      if (type === 'login' && data.actionLink) {
+        // Extract token from action link and verify
+        const url = new URL(data.actionLink);
+        const token = url.searchParams.get('token');
+        const tokenType = url.searchParams.get('type') || 'magiclink';
+
+        if (token) {
+          const { error: verifyError } = await supabase.auth.verifyOtp({
+            token_hash: token,
+            type: tokenType as any,
+          });
+
+          if (verifyError) {
+            return { error: verifyError as Error };
+          }
+        }
+      }
+
+      return { error: null, actionLink: data.actionLink };
+    } catch (err: any) {
+      return { error: new Error(err.message || 'Failed to verify code') };
+    }
+  };
+
+  const resetPasswordWithCode = async (email: string, newPassword: string) => {
+    try {
+      const response = await supabase.functions.invoke('reset-password', {
+        body: { email, newPassword },
+      });
+
+      if (response.error) {
+        return { error: new Error(response.error.message || 'Failed to reset password') };
+      }
+
+      const data = response.data;
+
+      if (data.error) {
+        return { error: new Error(data.error) };
+      }
+
+      return { error: null };
+    } catch (err: any) {
+      return { error: new Error(err.message || 'Failed to reset password') };
+    }
+  };
+
+  const sendLoginNotification = async (email: string) => {
+    try {
+      await supabase.functions.invoke('send-login-notification', {
+        body: { email, userAgent: navigator.userAgent },
+      });
+    } catch (err) {
+      console.error('Failed to send login notification:', err);
+    }
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
   };
@@ -105,10 +186,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading, 
       signUp, 
       signIn, 
-      signInWithGoogle,
       signOut, 
       resetPassword,
-      updatePassword 
+      updatePassword,
+      sendOTP,
+      verifyOTP,
+      resetPasswordWithCode,
+      sendLoginNotification,
     }}>
       {children}
     </AuthContext.Provider>
