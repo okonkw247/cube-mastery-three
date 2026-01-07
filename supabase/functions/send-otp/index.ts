@@ -104,8 +104,23 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (emailError) {
       console.error("Failed to send email:", emailError);
+      
+      // Check if it's a domain verification issue
+      const errorMessage = typeof emailError === 'object' && 'message' in emailError 
+        ? (emailError as any).message 
+        : String(emailError);
+        
+      if (errorMessage.includes("verify a domain") || errorMessage.includes("testing emails")) {
+        return new Response(
+          JSON.stringify({ 
+            error: "Resend requires domain verification. For testing, use your Resend account email or verify a domain at resend.com/domains" 
+          }),
+          { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+      
       return new Response(
-        JSON.stringify({ error: "Failed to send email" }),
+        JSON.stringify({ error: "Failed to send email. Please try again." }),
         { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
