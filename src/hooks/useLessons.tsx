@@ -12,6 +12,8 @@ export interface Lesson {
   order_index: number;
   is_free: boolean;
   created_at: string;
+  lesson_notes: string | null;
+  hologram_sheet_url: string | null;
 }
 
 export interface LessonProgress {

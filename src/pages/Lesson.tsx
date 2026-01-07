@@ -200,31 +200,44 @@ const Lesson = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="lg:w-80 shrink-0">
+          <div className="lg:w-80 shrink-0 space-y-4">
+            {/* Lesson Notes Section */}
+            {lesson.lesson_notes && (
+              <div className="card-gradient rounded-2xl p-6 border border-border">
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <Download className="w-4 h-4 text-primary" />
+                  Lesson Notes
+                </h3>
+                <div className="prose prose-sm prose-invert max-w-none">
+                  <pre className="whitespace-pre-wrap text-sm text-muted-foreground bg-secondary/50 p-4 rounded-lg overflow-x-auto">
+                    {lesson.lesson_notes}
+                  </pre>
+                </div>
+              </div>
+            )}
+
+            {/* Resources Section */}
             <div className="card-gradient rounded-2xl p-6 border border-border sticky top-24">
               <h3 className="font-semibold mb-4">Resources</h3>
               
-              <button 
-                onClick={() => handleDownload("Lesson Notes")}
-                className="w-full flex items-center gap-3 p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors text-left mb-3"
-              >
-                <Download className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="font-medium text-sm">Lesson Notes</p>
-                  <p className="text-xs text-muted-foreground">PDF</p>
+              {lesson.hologram_sheet_url ? (
+                <a 
+                  href={lesson.hologram_sheet_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center gap-3 p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors text-left"
+                >
+                  <Download className="w-5 h-5 text-primary" />
+                  <div>
+                    <p className="font-medium text-sm">Hologram Sheet</p>
+                    <p className="text-xs text-muted-foreground">PDF Download</p>
+                  </div>
+                </a>
+              ) : (
+                <div className="text-center py-4 text-muted-foreground text-sm">
+                  No resources available for this lesson yet.
                 </div>
-              </button>
-
-              <button 
-                onClick={() => handleDownload("Algorithm Sheet")}
-                className="w-full flex items-center gap-3 p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors text-left"
-              >
-                <Download className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="font-medium text-sm">Algorithm Sheet</p>
-                  <p className="text-xs text-muted-foreground">PDF</p>
-                </div>
-              </button>
+              )}
             </div>
           </div>
         </div>

@@ -17,6 +17,8 @@ export interface LessonFormData {
   preview_duration: number;
   video_quality: 'low' | 'medium' | 'high';
   thumbnail_url: string;
+  lesson_notes: string;
+  hologram_sheet_url: string;
 }
 
 export function useAdminLessons() {
