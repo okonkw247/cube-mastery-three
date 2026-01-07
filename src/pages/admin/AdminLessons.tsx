@@ -9,22 +9,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Plus, Trash2, Eye, GripVertical } from 'lucide-react';
+import { Plus, Trash2, Eye, GripVertical, FileText, Download, Edit } from 'lucide-react';
 import { InlineEdit } from '@/components/admin/InlineEdit';
 import { VideoPreviewModal } from '@/components/admin/VideoPreviewModal';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SortableLessonProps {
   lesson: any;
   onPreview: (lesson: any) => void;
   onDelete: (id: string) => void;
   onUpdate: (id: string, data: any) => Promise<void>;
+  onEdit: (lesson: any) => void;
 }
 
-function SortableLesson({ lesson, onPreview, onDelete, onUpdate }: SortableLessonProps) {
+function SortableLesson({ lesson, onPreview, onDelete, onUpdate, onEdit }: SortableLessonProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: lesson.id });
 
   const style = {
@@ -49,11 +51,26 @@ function SortableLesson({ lesson, onPreview, onDelete, onUpdate }: SortableLesso
           className="font-medium" 
         />
         <p className="text-sm text-muted-foreground truncate">{lesson.description}</p>
+        <div className="flex gap-2 mt-1">
+          {lesson.lesson_notes && (
+            <span className="text-xs px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 flex items-center gap-1">
+              <FileText className="w-3 h-3" /> Notes
+            </span>
+          )}
+          {lesson.hologram_sheet_url && (
+            <span className="text-xs px-2 py-0.5 rounded bg-purple-500/10 text-purple-500 flex items-center gap-1">
+              <Download className="w-3 h-3" /> Hologram
+            </span>
+          )}
+        </div>
       </div>
       <span className={`text-xs px-2 py-1 rounded-full ${lesson.is_free ? 'bg-green-500/10 text-green-500' : 'bg-primary/10 text-primary'}`}>
         {lesson.is_free ? 'Free' : 'Pro'}
       </span>
       <div className="flex gap-1">
+        <Button variant="ghost" size="icon" onClick={() => onEdit(lesson)} title="Edit lesson">
+          <Edit className="w-4 h-4" />
+        </Button>
         {lesson.video_url && (
           <Button variant="ghost" size="icon" onClick={() => onPreview(lesson)}>
             <Eye className="w-4 h-4" />
@@ -71,12 +88,19 @@ export default function AdminLessons() {
   const { lessons, refetch } = useLessons();
   const { createLesson, updateLesson, deleteLesson, reorderLessons, saving } = useAdminLessons();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingLesson, setEditingLesson] = useState<any>(null);
   const [previewLesson, setPreviewLesson] = useState<any>(null);
+  const [uploadingHologram, setUploadingHologram] = useState(false);
   const [formData, setFormData] = useState({
     title: '', description: '', video_url: '', duration: '', skill_level: 'beginner',
     is_free: false, order_index: lessons.length, status: 'published' as const,
     tags: [] as string[], prerequisites: [] as string[], preview_duration: 30,
-    video_quality: 'high' as const, thumbnail_url: '',
+    video_quality: 'high' as const, thumbnail_url: '', lesson_notes: '', hologram_sheet_url: '',
+  });
+  const [editFormData, setEditFormData] = useState({
+    lesson_notes: '',
+    hologram_sheet_url: '',
   });
 
   const sensors = useSensors(
@@ -101,9 +125,17 @@ export default function AdminLessons() {
     e.preventDefault();
     const result = await createLesson(formData);
     if (result) {
+      // Notify all users about new lesson
+      await supabase.rpc('notify_all_users', {
+        p_title: 'New Lesson Available!',
+        p_message: `"${formData.title}" has been added. Check it out now!`,
+        p_type: 'new_lesson',
+        p_reference_id: result.id,
+      });
       setDialogOpen(false);
       refetch();
-      setFormData({ ...formData, title: '', description: '', video_url: '' });
+      setFormData({ ...formData, title: '', description: '', video_url: '', lesson_notes: '', hologram_sheet_url: '' });
+      toast.success('Lesson created and students notified!');
     }
   };
 
@@ -117,6 +149,65 @@ export default function AdminLessons() {
   const handleUpdate = async (id: string, data: any) => {
     await updateLesson(id, data);
     refetch();
+  };
+
+  const handleEditLesson = (lesson: any) => {
+    setEditingLesson(lesson);
+    setEditFormData({
+      lesson_notes: lesson.lesson_notes || '',
+      hologram_sheet_url: lesson.hologram_sheet_url || '',
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleHologramUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      toast.error('Please upload a PDF file');
+      return;
+    }
+
+    setUploadingHologram(true);
+    const fileName = `${Date.now()}-${file.name}`;
+    
+    const { error } = await supabase.storage
+      .from('resources')
+      .upload(`hologram-sheets/${fileName}`, file);
+
+    if (error) {
+      toast.error('Failed to upload hologram sheet');
+      setUploadingHologram(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from('resources').getPublicUrl(`hologram-sheets/${fileName}`);
+    setEditFormData({ ...editFormData, hologram_sheet_url: urlData.publicUrl });
+    setUploadingHologram(false);
+    toast.success('Hologram sheet uploaded!');
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingLesson) return;
+    
+    await updateLesson(editingLesson.id, editFormData);
+    
+    // Notify users if content was updated
+    if (editFormData.lesson_notes !== editingLesson.lesson_notes || 
+        editFormData.hologram_sheet_url !== editingLesson.hologram_sheet_url) {
+      await supabase.rpc('notify_all_users', {
+        p_title: 'Lesson Updated!',
+        p_message: `"${editingLesson.title}" has new content. Check it out!`,
+        p_type: 'lesson_update',
+        p_reference_id: editingLesson.id,
+      });
+    }
+    
+    setEditDialogOpen(false);
+    setEditingLesson(null);
+    refetch();
+    toast.success('Lesson updated and students notified!');
   };
 
   const sortedLessons = [...lessons].sort((a, b) => a.order_index - b.order_index);
@@ -169,6 +260,7 @@ export default function AdminLessons() {
                   onPreview={setPreviewLesson}
                   onDelete={handleDelete}
                   onUpdate={handleUpdate}
+                  onEdit={handleEditLesson}
                 />
               ))}
             </div>
@@ -181,6 +273,70 @@ export default function AdminLessons() {
           </div>
         )}
       </div>
+
+      {/* Edit Lesson Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Lesson: {editingLesson?.title}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div>
+              <Label className="text-base font-semibold">Lesson Notes</Label>
+              <p className="text-sm text-muted-foreground mb-2">
+                Write notes that students will see when they view this lesson
+              </p>
+              <Textarea
+                value={editFormData.lesson_notes}
+                onChange={e => setEditFormData({ ...editFormData, lesson_notes: e.target.value })}
+                placeholder="Enter lesson notes, algorithms, tips, etc..."
+                className="min-h-[200px] font-mono"
+              />
+            </div>
+
+            <div>
+              <Label className="text-base font-semibold">Hologram Sheet (PDF)</Label>
+              <p className="text-sm text-muted-foreground mb-2">
+                Upload a PDF file that students can download
+              </p>
+              <div className="flex items-center gap-4">
+                <Input
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleHologramUpload}
+                  disabled={uploadingHologram}
+                  className="flex-1"
+                />
+                {uploadingHologram && <span className="text-sm text-muted-foreground">Uploading...</span>}
+              </div>
+              {editFormData.hologram_sheet_url && (
+                <div className="mt-2 p-3 bg-secondary/50 rounded-lg flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground truncate flex-1">
+                    {editFormData.hologram_sheet_url.split('/').pop()}
+                  </span>
+                  <a
+                    href={editFormData.hologram_sheet_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline text-sm"
+                  >
+                    Preview
+                  </a>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSaveEdit} disabled={saving}>
+                {saving ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {previewLesson && (
         <VideoPreviewModal open={!!previewLesson} onClose={() => setPreviewLesson(null)} videoUrl={previewLesson.video_url || ''} title={previewLesson.title} />
