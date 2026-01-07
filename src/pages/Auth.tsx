@@ -52,10 +52,10 @@ const Auth = () => {
     }
   }, [mode]);
 
-  // Redirect if already logged in
+  // Redirect if already logged in - check session for persistence
   useEffect(() => {
     if (!loading && user) {
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     }
   }, [user, loading, navigate]);
 
@@ -175,10 +175,26 @@ const Auth = () => {
     setFormData({ ...formData, code: "" });
   };
 
+  // Show loading while checking for existing session
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-[#1a1a2e]">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+          <div className="text-gray-400">Checking session...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // If user exists, they'll be redirected - don't show login form
+  if (user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#1a1a2e]">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+          <div className="text-gray-400">Redirecting...</div>
+        </div>
       </div>
     );
   }
