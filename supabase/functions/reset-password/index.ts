@@ -62,6 +62,15 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Log this activity
+    await supabase.from("activity_log").insert({
+      user_id: user.id,
+      user_email: email.toLowerCase(),
+      action: "Password reset completed",
+      action_type: "auth",
+      details: { email: email.toLowerCase() }
+    });
+
     console.log(`Password reset successful for ${email}`);
 
     return new Response(

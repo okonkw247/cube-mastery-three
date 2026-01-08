@@ -81,6 +81,29 @@ const handler = async (req: Request): Promise<Response> => {
           );
         }
 
+        // Check if there's a pending upgrade for this email
+        const { data: pendingUpgrade } = await supabase
+          .from("pending_upgrades")
+          .select("*")
+          .eq("email", email.toLowerCase())
+          .is("applied_at", null)
+          .single();
+
+        if (pendingUpgrade && newUser?.user) {
+          // Apply the pending upgrade
+          await supabase
+            .from("profiles")
+            .update({ subscription_tier: pendingUpgrade.plan })
+            .eq("user_id", newUser.user.id);
+
+          await supabase
+            .from("pending_upgrades")
+            .update({ applied_at: new Date().toISOString() })
+            .eq("id", pendingUpgrade.id);
+
+          console.log(`Applied pending upgrade to ${pendingUpgrade.plan} for ${email}`);
+        }
+
         // Generate magic link for new user
         const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
           type: "magiclink",
@@ -108,6 +131,28 @@ const handler = async (req: Request): Promise<Response> => {
           }),
           { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
         );
+      }
+
+      // Check for pending upgrade for existing user
+      const { data: pendingUpgrade } = await supabase
+        .from("pending_upgrades")
+        .select("*")
+        .eq("email", email.toLowerCase())
+        .is("applied_at", null)
+        .single();
+
+      if (pendingUpgrade) {
+        await supabase
+          .from("profiles")
+          .update({ subscription_tier: pendingUpgrade.plan })
+          .eq("user_id", existingUser.id);
+
+        await supabase
+          .from("pending_upgrades")
+          .update({ applied_at: new Date().toISOString() })
+          .eq("id", pendingUpgrade.id);
+
+        console.log(`Applied pending upgrade to ${pendingUpgrade.plan} for ${email}`);
       }
 
       // Generate magic link for existing user

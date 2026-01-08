@@ -7,6 +7,12 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, whop-signature",
 };
 
+// Whop Plan IDs
+const WHOP_PLANS = {
+  "plan_7NRvNAxpWhOse": "starter",
+  "plan_aeLinh43MkIpm": "pro",
+};
+
 interface WhopWebhookPayload {
   action: string;
   data: {
@@ -14,11 +20,11 @@ interface WhopWebhookPayload {
     email: string;
     user_id?: string;
     status: string;
-    product: {
+    product?: {
       id: string;
       name: string;
     };
-    plan: {
+    plan?: {
       id: string;
       plan_type: string;
     };
@@ -34,7 +40,6 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const whopApiKey = Deno.env.get("WHOP_API_KEY");
 
     // Create admin client
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -43,12 +48,28 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Received Whop webhook:", JSON.stringify(payload, null, 2));
 
     const { action, data } = payload;
+    const email = data.email;
+    const planId = data.plan?.id;
+
+    // Determine subscription tier from Whop plan ID
+    const subscriptionTier = planId ? (WHOP_PLANS[planId as keyof typeof WHOP_PLANS] || "pro") : "pro";
+
+    // Log this payment activity
+    await supabase.from("activity_log").insert({
+      user_email: email?.toLowerCase() || "unknown",
+      action: `Whop webhook: ${action}`,
+      action_type: "payment",
+      details: { 
+        action,
+        planId,
+        subscriptionTier,
+        membershipId: data.id,
+        status: data.status
+      }
+    });
 
     // Handle different webhook events
     if (action === "membership.went_valid" || action === "membership.renewed") {
-      // User has paid - upgrade to Pro
-      const email = data.email;
-
       if (!email) {
         console.error("No email in webhook payload");
         return new Response(
@@ -68,21 +89,28 @@ const handler = async (req: Request): Promise<Response> => {
         );
       }
 
-      const user = authUser.users.find(u => u.email === email);
+      const user = authUser.users.find(u => u.email?.toLowerCase() === email.toLowerCase());
 
       if (!user) {
         console.log(`User with email ${email} not found, storing for later activation`);
-        // Could store this in a pending_upgrades table for when user signs up
+        
+        // Store in pending_upgrades for when user signs up
+        await supabase.from("pending_upgrades").upsert({
+          email: email.toLowerCase(),
+          plan: subscriptionTier,
+          whop_membership_id: data.id,
+        }, { onConflict: "email" });
+
         return new Response(
-          JSON.stringify({ message: "User not found, webhook logged" }),
+          JSON.stringify({ message: "User not found, pending upgrade stored" }),
           { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      // Update user's subscription tier to pro
+      // Update user's subscription tier
       const { error: updateError } = await supabase
         .from("profiles")
-        .update({ subscription_tier: "pro" })
+        .update({ subscription_tier: subscriptionTier })
         .eq("user_id", user.id);
 
       if (updateError) {
@@ -93,16 +121,22 @@ const handler = async (req: Request): Promise<Response> => {
         );
       }
 
-      console.log(`Successfully upgraded user ${email} to Pro`);
+      // Send notification to user
+      await supabase.from("notifications").insert({
+        user_id: user.id,
+        title: "Subscription Activated",
+        message: `Your ${subscriptionTier.charAt(0).toUpperCase() + subscriptionTier.slice(1)} plan is now active! Enjoy all premium content.`,
+        type: "payment",
+      });
+
+      console.log(`Successfully upgraded user ${email} to ${subscriptionTier}`);
       return new Response(
-        JSON.stringify({ success: true, message: "User upgraded to Pro" }),
+        JSON.stringify({ success: true, message: `User upgraded to ${subscriptionTier}` }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
 
     } else if (action === "membership.went_invalid" || action === "membership.canceled") {
       // Subscription ended - downgrade to free
-      const email = data.email;
-
       if (!email) {
         return new Response(
           JSON.stringify({ error: "No email provided" }),
@@ -120,7 +154,7 @@ const handler = async (req: Request): Promise<Response> => {
         );
       }
 
-      const user = authUser.users.find(u => u.email === email);
+      const user = authUser.users.find(u => u.email?.toLowerCase() === email.toLowerCase());
 
       if (user) {
         const { error: updateError } = await supabase
@@ -131,6 +165,14 @@ const handler = async (req: Request): Promise<Response> => {
         if (updateError) {
           console.error("Error downgrading profile:", updateError);
         }
+
+        // Send notification to user
+        await supabase.from("notifications").insert({
+          user_id: user.id,
+          title: "Subscription Ended",
+          message: "Your subscription has ended. Upgrade again to access premium content.",
+          type: "payment",
+        });
 
         console.log(`Downgraded user ${email} to free tier`);
       }
