@@ -2,13 +2,16 @@ import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { StatCard } from '@/components/admin/StatCard';
 import { useAdminData } from '@/hooks/useAdminData';
+import { useActivityLog } from '@/hooks/useActivityLog';
 import { CelebrationPopup, useCelebration } from '@/components/admin/CelebrationPopup';
-import { Users, BookOpen, Timer, TrendingUp, AlertCircle } from 'lucide-react';
+import { Users, BookOpen, Timer, TrendingUp, AlertCircle, Activity } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { format } from 'date-fns';
 
 export default function AdminDashboard() {
   const { stats, topPerformers, weeklyActivity, loading } = useAdminData();
+  const { activities, getActivityIcon, getActivityColor } = useActivityLog();
   const { celebration, celebrate, closeCelebration } = useCelebration();
   const [celebratedMilestones, setCelebratedMilestones] = useState<Set<string>>(new Set());
 
@@ -104,6 +107,54 @@ export default function AdminDashboard() {
                 ))
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Real-Time Activity Log */}
+        <div className="bg-card rounded-xl p-6 border border-border">
+          <div className="flex items-center gap-2 mb-4">
+            <Activity className="w-5 h-5 text-primary" />
+            <h2 className="font-semibold">Live Activity Feed</h2>
+            <span className="flex items-center gap-1 text-xs text-green-500">
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              Real-time
+            </span>
+          </div>
+          
+          <div className="space-y-3 max-h-80 overflow-y-auto">
+            {activities.length === 0 ? (
+              <p className="text-muted-foreground text-sm text-center py-8">No activity yet</p>
+            ) : (
+              activities.slice(0, 20).map((activity) => (
+                <div
+                  key={activity.id}
+                  className="flex items-start gap-3 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors"
+                >
+                  <span className="text-lg">{getActivityIcon(activity.action_type)}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                        activity.action_type === 'auth' ? 'bg-blue-500/20 text-blue-500' :
+                        activity.action_type === 'content' ? 'bg-green-500/20 text-green-500' :
+                        activity.action_type === 'payment' ? 'bg-yellow-500/20 text-yellow-500' :
+                        'bg-gray-500/20 text-gray-500'
+                      }`}>
+                        {activity.action_type}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {format(new Date(activity.created_at), 'MMM d, h:mm a')}
+                      </span>
+                    </div>
+                    <p className="text-sm mt-1">{activity.action}</p>
+                    {activity.user_email && (
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {activity.user_email}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

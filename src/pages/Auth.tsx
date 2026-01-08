@@ -6,6 +6,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Mail, Lock, ArrowRight, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { isAdminEmail } from "@/hooks/useAdmin";
 import jsnLogo from "@/assets/jsn-logo.png";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
@@ -52,10 +53,17 @@ const Auth = () => {
     }
   }, [mode]);
 
-  // Redirect if already logged in - check session for persistence
+  // Redirect based on user role - ADMIN vs STUDENT routing
   useEffect(() => {
     if (!loading && user) {
-      navigate("/dashboard", { replace: true });
+      const adminRole = isAdminEmail(user.email);
+      if (adminRole) {
+        // Admin users go to admin dashboard - they CANNOT access student dashboard
+        navigate("/admin", { replace: true });
+      } else {
+        // Regular students go to student dashboard
+        navigate("/dashboard", { replace: true });
+      }
     }
   }, [user, loading, navigate]);
 
@@ -105,8 +113,16 @@ const Auth = () => {
 
       // Send login notification
       await sendLoginNotification(formData.email);
-      toast.success("Welcome to JSN Cubing!");
-      navigate("/dashboard");
+      
+      // Check if admin and route appropriately
+      const adminRole = isAdminEmail(formData.email);
+      if (adminRole) {
+        toast.success("Welcome back, Admin!");
+        navigate("/admin");
+      } else {
+        toast.success("Welcome to Cube Mastery!");
+        navigate("/dashboard");
+      }
     } else if (step === 'password_reset_code') {
       // Password reset flow - verify code
       const { error } = await verifyOTP(formData.email, formData.code, 'password_reset');
@@ -213,8 +229,8 @@ const Auth = () => {
         <div className="bg-[#2d2d44]/90 backdrop-blur-xl rounded-xl p-8 border border-white/10 shadow-2xl">
           {/* Logo */}
           <div className="flex items-center gap-3 justify-center mb-8">
-            <img src={jsnLogo} alt="JSN Logo" className="w-10 h-10 object-contain" />
-            <span className="text-xl font-bold text-white">JSN Cubing</span>
+            <img src={jsnLogo} alt="Cube Mastery Logo" className="w-10 h-10 object-contain" />
+            <span className="text-xl font-bold text-white">Cube Mastery</span>
           </div>
 
           {/* Email Entry Step */}
@@ -479,12 +495,11 @@ const Auth = () => {
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                       className="pl-11 pr-11 h-12 bg-[#1a1a2e] border-white/10 text-white placeholder:text-gray-500"
-                      minLength={6}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -502,7 +517,7 @@ const Auth = () => {
                       value={formData.confirmPassword}
                       onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                       className="pl-11 h-12 bg-[#1a1a2e] border-white/10 text-white placeholder:text-gray-500"
-                      minLength={6}
+                      onKeyDown={(e) => e.key === 'Enter' && handleResetPassword()}
                     />
                   </div>
                 </div>
@@ -513,7 +528,7 @@ const Auth = () => {
                   disabled={isLoading || !formData.password || !formData.confirmPassword}
                 >
                   {isLoading ? (
-                    <span className="animate-pulse">Updating...</span>
+                    <span className="animate-pulse">Updating password...</span>
                   ) : (
                     <>
                       Update Password
@@ -526,17 +541,11 @@ const Auth = () => {
           )}
         </div>
 
-        {/* Back to Home */}
-        <div className="text-center mt-6">
-          <Link to="/" className="text-sm text-gray-400 hover:text-white transition-colors">
+        {/* Back to home */}
+        <div className="mt-6 text-center">
+          <Link to="/" className="text-gray-400 hover:text-white text-sm transition-colors">
             ← Back to home
           </Link>
-        </div>
-
-        {/* Footer links */}
-        <div className="flex items-center justify-center gap-6 mt-8 text-xs text-gray-500">
-          <span>Terms of use</span>
-          <span>Privacy policy</span>
         </div>
       </div>
     </div>
