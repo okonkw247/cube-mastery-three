@@ -1,7 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -27,6 +30,20 @@ const handler = async (req: Request): Promise<Response> => {
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Log this sign-in activity for admin dashboard
+    await supabase.from("activity_log").insert({
+      user_email: email.toLowerCase(),
+      action: "User signed in",
+      action_type: "auth",
+      details: { 
+        email: email.toLowerCase(),
+        userAgent: userAgent || "Unknown device",
+        timestamp: new Date().toISOString()
+      }
+    });
 
     const loginTime = new Date().toLocaleString("en-US", {
       dateStyle: "full",
@@ -56,10 +73,10 @@ const handler = async (req: Request): Promise<Response> => {
       <body>
         <div class="container">
           <div class="logo">
-            <h1>🧊 JSN Cubing</h1>
+            <h1>🧊 Cube Mastery</h1>
           </div>
           <h2 style="text-align: center; color: #8b5cf6;">New Sign-In Detected</h2>
-          <p>We detected a new sign-in to your JSN Cubing account.</p>
+          <p>We detected a new sign-in to your Cube Mastery account.</p>
           
           <div class="info-box">
             <div class="info-row">
@@ -83,26 +100,24 @@ const handler = async (req: Request): Promise<Response> => {
           </div>
           
           <div class="footer">
-            <p>© ${new Date().getFullYear()} JSN Cubing. All rights reserved.</p>
+            <p>© ${new Date().getFullYear()} Cube Mastery. All rights reserved.</p>
           </div>
         </div>
       </body>
       </html>
     `;
 
+    // Send email using verified domain cube-mastery.site
     const { error: emailError } = await resend.emails.send({
-      from: "JSN Cubing <onboarding@resend.dev>",
+      from: "Cube Mastery <noreply@cube-mastery.site>",
       to: [email],
-      subject: "New Sign-In to Your JSN Cubing Account",
+      subject: "New Sign-In to Your Cube Mastery Account",
       html: emailHtml,
     });
 
     if (emailError) {
       console.error("Failed to send login notification:", emailError);
-      return new Response(
-        JSON.stringify({ error: "Failed to send notification" }),
-        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+      // Don't return error - login notification is not critical
     }
 
     console.log(`Login notification sent to ${email}`);

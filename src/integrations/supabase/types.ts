@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_log: {
+        Row: {
+          action: string
+          action_type: string
+          created_at: string
+          details: Json | null
+          id: string
+          user_email: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          action_type: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          action_type?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      admin_emails: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          role: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          role: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          role?: string
+        }
+        Relationships: []
+      }
       admin_invites: {
         Row: {
           created_at: string
@@ -210,6 +261,7 @@ export type Database = {
           is_free: boolean
           lesson_notes: string | null
           order_index: number
+          plan_access: string
           prerequisites: string[] | null
           preview_duration: number | null
           skill_level: string
@@ -230,6 +282,7 @@ export type Database = {
           is_free?: boolean
           lesson_notes?: string | null
           order_index: number
+          plan_access?: string
           prerequisites?: string[] | null
           preview_duration?: number | null
           skill_level?: string
@@ -250,6 +303,7 @@ export type Database = {
           is_free?: boolean
           lesson_notes?: string | null
           order_index?: number
+          plan_access?: string
           prerequisites?: string[] | null
           preview_duration?: number | null
           skill_level?: string
@@ -322,6 +376,33 @@ export type Database = {
           id?: string
           type?: string
           used_at?: string | null
+        }
+        Relationships: []
+      }
+      pending_upgrades: {
+        Row: {
+          applied_at: string | null
+          created_at: string
+          email: string
+          id: string
+          plan: string
+          whop_membership_id: string | null
+        }
+        Insert: {
+          applied_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          plan: string
+          whop_membership_id?: string | null
+        }
+        Update: {
+          applied_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          plan?: string
+          whop_membership_id?: string | null
         }
         Relationships: []
       }

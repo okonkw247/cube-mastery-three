@@ -6,6 +6,12 @@ import { useAuth } from "@/hooks/useAuth";
 import ContactModal from "@/components/modals/ContactModal";
 import heroCube from "@/assets/hero-cube.jpg";
 
+// Real Whop plan IDs
+const WHOP_PLAN_IDS = {
+  starter: "plan_7NRvNAxpWhOse",
+  pro: "plan_aeLinh43MkIpm",
+};
+
 const plans = [
   {
     id: "free",
@@ -82,12 +88,20 @@ const PricingSection = () => {
       return;
     }
     
-    if (user) {
-      // User is logged in - redirect to Whop checkout
-      window.open(`https://whop.com/checkout?plan=${selectedPlan}`, "_blank");
-    } else {
-      // User not logged in - redirect to signup first
-      navigate(`/auth?mode=signup&plan=${selectedPlan}`);
+    // Get the real Whop plan ID
+    const whopPlanId = WHOP_PLAN_IDS[selectedPlan as keyof typeof WHOP_PLAN_IDS];
+    
+    if (whopPlanId) {
+      // Redirect to real Whop checkout with actual plan ID
+      const whopCheckoutUrl = `https://whop.com/checkout/${whopPlanId}/`;
+      
+      if (user?.email) {
+        // Pre-fill email if user is logged in
+        window.open(`${whopCheckoutUrl}?email=${encodeURIComponent(user.email)}`, "_blank");
+      } else {
+        // User not logged in - still send to Whop, they'll enter email there
+        window.open(whopCheckoutUrl, "_blank");
+      }
     }
   };
 
@@ -109,7 +123,7 @@ const PricingSection = () => {
           <div className="relative rounded-3xl overflow-hidden h-[500px] hidden lg:block animate-on-scroll">
             <img 
               src={heroCube} 
-              alt="JSN Cubing Logo" 
+              alt="Cube Mastery" 
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent" />
@@ -145,6 +159,11 @@ const PricingSection = () => {
                     {plan.id === "free" && (
                       <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
                         Try Free
+                      </span>
+                    )}
+                    {plan.id === "pro" && (
+                      <span className="text-xs bg-green-500/20 text-green-500 px-2 py-0.5 rounded-full">
+                        Most Popular
                       </span>
                     )}
                   </div>

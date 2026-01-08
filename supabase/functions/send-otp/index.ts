@@ -59,10 +59,18 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Send email via Resend
+    // Log this activity
+    await supabase.from("activity_log").insert({
+      user_email: email.toLowerCase(),
+      action: `OTP requested for ${type}`,
+      action_type: "auth",
+      details: { type, email: email.toLowerCase() }
+    });
+
+    // Send email via Resend - USING VERIFIED DOMAIN cube-mastery.site
     const subject = type === "login" 
-      ? "Your JSN Cubing Login Code" 
-      : "Your JSN Cubing Password Reset Code";
+      ? "Your Cube Mastery Login Code" 
+      : "Your Cube Mastery Password Reset Code";
 
     const emailHtml = `
       <!DOCTYPE html>
@@ -81,14 +89,14 @@ const handler = async (req: Request): Promise<Response> => {
       <body>
         <div class="container">
           <div class="logo">
-            <h1>🧊 JSN Cubing</h1>
+            <h1>🧊 Cube Mastery</h1>
           </div>
           <p>${type === "login" ? "Use this code to sign in to your account:" : "Use this code to reset your password:"}</p>
           <div class="code">${code}</div>
           <p>This code expires in 10 minutes.</p>
           <p>If you didn't request this code, you can safely ignore this email.</p>
           <div class="footer">
-            <p>© ${new Date().getFullYear()} JSN Cubing. All rights reserved.</p>
+            <p>© ${new Date().getFullYear()} Cube Mastery. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -96,7 +104,7 @@ const handler = async (req: Request): Promise<Response> => {
     `;
 
     const { error: emailError } = await resend.emails.send({
-      from: "JSN Cubing <onboarding@resend.dev>",
+      from: "Cube Mastery <noreply@cube-mastery.site>",
       to: [email],
       subject,
       html: emailHtml,
@@ -104,21 +112,6 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (emailError) {
       console.error("Failed to send email:", emailError);
-      
-      // Check if it's a domain verification issue
-      const errorMessage = typeof emailError === 'object' && 'message' in emailError 
-        ? (emailError as any).message 
-        : String(emailError);
-        
-      if (errorMessage.includes("verify a domain") || errorMessage.includes("testing emails")) {
-        return new Response(
-          JSON.stringify({ 
-            error: "Resend requires domain verification. For testing, use your Resend account email or verify a domain at resend.com/domains" 
-          }),
-          { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
-        );
-      }
-      
       return new Response(
         JSON.stringify({ error: "Failed to send email. Please try again." }),
         { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
