@@ -14,6 +14,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Shield,
+  Eye,
+  GraduationCap,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -43,13 +45,22 @@ export function AdminSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
-  const { role, checkPermission, isSuperAdmin } = useAdmin();
+  const { role, checkPermission, isSuperAdmin, isPreviewMode, setPreviewMode } = useAdmin();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
+  };
+
+  const handlePreviewToggle = () => {
+    if (isPreviewMode) {
+      setPreviewMode(false);
+    } else {
+      setPreviewMode(true);
+      navigate('/dashboard');
+    }
   };
 
   const filteredNavItems = navItems.filter(item => {
@@ -85,6 +96,31 @@ export function AdminSidebar() {
           </div>
         </div>
       )}
+
+      {/* Preview Mode Button */}
+      <div className="px-2 py-3 border-b border-border">
+        <Button
+          variant={isPreviewMode ? "default" : "outline"}
+          size="sm"
+          className={cn(
+            "w-full gap-2",
+            collapsed && "justify-center px-2"
+          )}
+          onClick={handlePreviewToggle}
+        >
+          {isPreviewMode ? (
+            <>
+              <Eye className="w-4 h-4" />
+              {!collapsed && "Exit Preview"}
+            </>
+          ) : (
+            <>
+              <GraduationCap className="w-4 h-4" />
+              {!collapsed && "Student Preview"}
+            </>
+          )}
+        </Button>
+      </div>
 
       {/* Navigation */}
       <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
@@ -141,9 +177,18 @@ export function AdminSidebar() {
             <img src={jsnLogo} alt="Logo" className="w-8 h-8 object-contain" />
             <span className="font-bold text-foreground">Admin</span>
           </div>
-          <Button variant="ghost" size="icon" onClick={() => setMobileOpen(!mobileOpen)}>
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant={isPreviewMode ? "default" : "outline"}
+              size="sm"
+              onClick={handlePreviewToggle}
+            >
+              {isPreviewMode ? <Eye className="w-4 h-4" /> : <GraduationCap className="w-4 h-4" />}
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => setMobileOpen(!mobileOpen)}>
+              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+          </div>
         </div>
       </div>
 

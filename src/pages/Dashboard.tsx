@@ -18,12 +18,14 @@ import {
   Bookmark,
   Timer,
   TrendingUp,
+  Shield,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { useLessons } from "@/hooks/useLessons";
 import { useBookmarks } from "@/hooks/useBookmarks";
 import { usePracticeAttempts } from "@/hooks/usePracticeAttempts";
+import { useAdmin } from "@/hooks/useAdmin";
 import jsnLogo from "@/assets/jsn-logo.png";
 import TodoModal from "@/components/modals/TodoModal";
 import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
@@ -55,9 +57,10 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user, signOut, loading: authLoading } = useAuth();
   const { profile, isPro, loading: profileLoading } = useProfile();
-  const { lessons, progress, progressPercent, completedCount, loading: lessonsLoading } = useLessons();
+  const { lessons, progress, progressPercent, completedCount, loading: lessonsLoading, canAccessLesson } = useLessons();
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const { totalAttempts, attempts } = usePracticeAttempts();
+  const { isAdmin, isPreviewMode, setPreviewMode } = useAdmin();
   const [chartPeriod, setChartPeriod] = useState("Year");
   const [todoModalOpen, setTodoModalOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState<TodoItem | null>(null);
@@ -104,8 +107,14 @@ const Dashboard = () => {
   }, [user, authLoading, navigate]);
 
   const handleSignOut = async () => {
+    setPreviewMode(false); // Exit preview mode on sign out
     await signOut();
     navigate("/");
+  };
+
+  const handleBackToAdmin = () => {
+    setPreviewMode(false);
+    navigate("/admin");
   };
 
   const handleToggleTodo = (id: number) => {
@@ -154,15 +163,31 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background">
       {!isEmailVerified && user.email && <EmailVerificationBanner email={user.email} />}
 
+      {/* Admin Preview Banner */}
+      {isAdmin && isPreviewMode && (
+        <div className="bg-primary text-primary-foreground py-2 px-4 text-center text-sm flex items-center justify-center gap-3">
+          <Shield className="w-4 h-4" />
+          <span>Admin Preview Mode - Viewing as student</span>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleBackToAdmin}
+            className="ml-2"
+          >
+            Back to Admin
+          </Button>
+        </div>
+      )}
+
       {/* Header - Responsive */}
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 sm:gap-3">
-            <img src={jsnLogo} alt="JSN Logo" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
-            <span className="text-lg sm:text-xl font-bold text-foreground hidden xs:inline">JSN Cubing</span>
+            <img src={jsnLogo} alt="Cube Mastery Logo" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
+            <span className="text-lg sm:text-xl font-bold text-foreground hidden xs:inline">Cube Mastery</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
-            {!isPro && (
+            {!isPro && !isPreviewMode && (
               <Button variant="default" size="sm" className="hidden md:flex text-xs sm:text-sm" onClick={scrollToPricing}>
                 Upgrade to Pro
               </Button>
@@ -320,9 +345,10 @@ const Dashboard = () => {
           <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Lessons</h2>
           <div className="space-y-2 sm:space-y-3">
             {lessons.map((lesson) => {
-              const isLocked = !lesson.is_free && !isPro;
+              const isLocked = !canAccessLesson(lesson);
               const isCompleted = progress[lesson.id]?.completed || false;
               const bookmarked = isBookmarked(lesson.id);
+              
               return (
                 <div key={lesson.id} className={`card-gradient rounded-xl p-3 sm:p-5 border transition-all duration-300 ${isLocked ? "border-border opacity-60" : "border-border hover:border-primary/50"}`}>
                   <div className="flex items-center gap-2 sm:gap-4">
@@ -333,7 +359,16 @@ const Dashboard = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
                           <h3 className="text-sm sm:text-base font-semibold truncate">{lesson.title}</h3>
-                          {lesson.is_free && !isPro && <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full bg-primary/20 text-primary">Free</span>}
+                          {lesson.is_free && <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full bg-primary/20 text-primary">Free</span>}
+                          {lesson.plan_access && lesson.plan_access !== 'free' && (
+                            <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full ${
+                              lesson.plan_access === 'starter' ? 'bg-blue-500/20 text-blue-500' :
+                              lesson.plan_access === 'pro' ? 'bg-green-500/20 text-green-500' :
+                              'bg-purple-500/20 text-purple-500'
+                            }`}>
+                              {lesson.plan_access.charAt(0).toUpperCase() + lesson.plan_access.slice(1)}
+                            </span>
+                          )}
                         </div>
                         <p className="text-xs sm:text-sm text-muted-foreground truncate">{lesson.description}</p>
                       </div>
@@ -351,17 +386,32 @@ const Dashboard = () => {
                             <Bookmark className={`w-3 h-3 sm:w-4 sm:h-4 ${bookmarked ? "fill-current" : ""}`} />
                           </Button>
                           <Button
-                            variant="outline"
-                            size="sm"
+                            variant="ghost"
+                            size="icon"
                             onClick={() => setPracticeLesson({ id: lesson.id, title: lesson.title })}
-                            className="h-7 sm:h-9 px-2 sm:px-3 text-primary border-primary/30 hover:bg-primary/10 hover:border-primary gap-1 sm:gap-2"
+                            className="h-7 w-7 sm:h-9 sm:w-9 text-muted-foreground hover:text-primary"
                           >
                             <Timer className="w-3 h-3 sm:w-4 sm:h-4" />
-                            <span className="hidden sm:inline text-xs font-medium">Practice</span>
                           </Button>
                         </>
                       )}
-                      <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
+                      {isLocked && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-xs"
+                          onClick={scrollToPricing}
+                        >
+                          Upgrade
+                        </Button>
+                      )}
+                      {!isLocked && (
+                        <Link to={`/lesson/${lesson.id}`}>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-9 sm:w-9">
+                            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                          </Button>
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -369,39 +419,35 @@ const Dashboard = () => {
             })}
           </div>
         </div>
-
-        {/* Bonus Downloads - Responsive */}
-        <div className="card-gradient rounded-2xl p-4 sm:p-6 border border-border">
-          <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Bonus Resources</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
-            <button onClick={() => handleDownload("Algorithm Cheat Sheet")} className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors text-left">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"><Download className="w-4 h-4 sm:w-5 sm:h-5 text-primary" /></div>
-              <div className="min-w-0"><p className="text-sm sm:text-base font-medium truncate">Algorithm Cheat Sheet</p><p className="text-xs sm:text-sm text-muted-foreground">PDF Download</p></div>
-            </button>
-            <button onClick={() => handleDownload("Practice Timer App")} className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors text-left">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"><Clock className="w-4 h-4 sm:w-5 sm:h-5 text-primary" /></div>
-              <div className="min-w-0"><p className="text-sm sm:text-base font-medium truncate">Practice Timer App</p><p className="text-xs sm:text-sm text-muted-foreground">Web App</p></div>
-            </button>
-          </div>
-        </div>
       </main>
 
-      <TodoModal open={todoModalOpen} onOpenChange={setTodoModalOpen} todo={editingTodo} onSave={handleSaveTodo} />
-      
-      <OnboardingWizard 
-        open={showOnboarding} 
-        onComplete={() => {
-          setShowOnboarding(false);
-          window.location.reload();
-        }} 
+      {/* Modals */}
+      <TodoModal
+        open={todoModalOpen}
+        onOpenChange={setTodoModalOpen}
+        onSave={handleSaveTodo}
+        todo={editingTodo}
       />
 
-      <PracticeCoach
-        lessonId={practiceLesson?.id || ""}
-        lessonTitle={practiceLesson?.title || ""}
-        open={!!practiceLesson}
-        onOpenChange={(open) => !open && setPracticeLesson(null)}
-      />
+      {showOnboarding && (
+        <OnboardingWizard
+          onComplete={() => {
+            if (user) {
+              localStorage.setItem(`onboarding_complete_${user.id}`, 'true');
+            }
+            setShowOnboarding(false);
+          }}
+        />
+      )}
+
+      {practiceLesson && (
+        <PracticeCoach
+          lessonId={practiceLesson.id}
+          lessonTitle={practiceLesson.title}
+          open={!!practiceLesson}
+          onOpenChange={(open) => !open && setPracticeLesson(null)}
+        />
+      )}
     </div>
   );
 };
