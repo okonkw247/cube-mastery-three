@@ -14,6 +14,7 @@ export interface Lesson {
   created_at: string;
   lesson_notes: string | null;
   hologram_sheet_url: string | null;
+  plan_access: string | null;
 }
 
 export interface LessonProgress {
@@ -103,6 +104,17 @@ export function useLessons() {
   const completedCount = Object.values(progress).filter((p) => p.completed).length;
   const progressPercent = lessons.length > 0 ? Math.round((completedCount / lessons.length) * 100) : 0;
 
+  const canAccessLesson = (lesson: Lesson, userTier: string | null): boolean => {
+    if (lesson.is_free) return true;
+    if (!userTier) return false;
+    
+    const tierHierarchy = ['free', 'starter', 'pro', 'enterprise'];
+    const userTierIndex = tierHierarchy.indexOf(userTier);
+    const lessonTierIndex = tierHierarchy.indexOf(lesson.plan_access || 'free');
+    
+    return userTierIndex >= lessonTierIndex;
+  };
+
   return {
     lessons,
     progress,
@@ -110,6 +122,7 @@ export function useLessons() {
     completedCount,
     progressPercent,
     markComplete,
+    canAccessLesson,
     refetch: fetchLessons,
   };
 }

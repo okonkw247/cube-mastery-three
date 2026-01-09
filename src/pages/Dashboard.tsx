@@ -345,7 +345,7 @@ const Dashboard = () => {
           <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Lessons</h2>
           <div className="space-y-2 sm:space-y-3">
             {lessons.map((lesson) => {
-              const isLocked = !canAccessLesson(lesson);
+              const isLocked = !canAccessLesson(lesson, profile?.subscription_tier || null);
               const isCompleted = progress[lesson.id]?.completed || false;
               const bookmarked = isBookmarked(lesson.id);
               
@@ -429,16 +429,15 @@ const Dashboard = () => {
         todo={editingTodo}
       />
 
-      {showOnboarding && (
-        <OnboardingWizard
-          onComplete={() => {
-            if (user) {
-              localStorage.setItem(`onboarding_complete_${user.id}`, 'true');
-            }
-            setShowOnboarding(false);
-          }}
-        />
-      )}
+      <OnboardingWizard
+        open={showOnboarding}
+        onComplete={() => {
+          if (user) {
+            localStorage.setItem(`onboarding_complete_${user.id}`, 'true');
+          }
+          setShowOnboarding(false);
+        }}
+      />
 
       {practiceLesson && (
         <PracticeCoach
