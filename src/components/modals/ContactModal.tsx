@@ -5,11 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ContactModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
+
+const ADMIN_EMAILS = ["adamsproject91@gmail.com", "jihadnasr042@gmail.com"];
 
 const ContactModal = ({ open, onOpenChange }: ContactModalProps) => {
   const [formData, setFormData] = useState({
@@ -36,13 +39,29 @@ const ContactModal = ({ open, onOpenChange }: ContactModalProps) => {
     
     setLoading(true);
     
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    toast.success("Message sent! We'll get back to you within 24 hours.");
-    setFormData({ name: "", email: "", company: "", message: "" });
-    onOpenChange(false);
-    setLoading(false);
+    try {
+      // Send enterprise inquiry to both admin emails
+      const { error } = await supabase.functions.invoke("send-enterprise-inquiry", {
+        body: {
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          company: formData.company.trim(),
+          message: formData.message.trim(),
+          adminEmails: ADMIN_EMAILS,
+        },
+      });
+
+      if (error) throw error;
+      
+      toast.success("Message sent! We'll get back to you within 24 hours.");
+      setFormData({ name: "", email: "", company: "", message: "" });
+      onOpenChange(false);
+    } catch (error: any) {
+      console.error("Failed to send message:", error);
+      toast.error("Failed to send message. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

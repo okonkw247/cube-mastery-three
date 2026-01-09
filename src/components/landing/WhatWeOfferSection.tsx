@@ -103,38 +103,38 @@ const WhatWeOfferSection = () => {
         </div>
 
         {/* Stats Bar Chart Section */}
-        <div className="mt-16 card-gradient rounded-3xl p-8 border border-border animate-on-scroll">
-          <div className="grid md:grid-cols-2 gap-8 items-center">
+        <div className="mt-12 sm:mt-16 card-gradient rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 border border-border animate-on-scroll">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-center">
             <div>
-              <h3 className="text-2xl font-bold mb-4">Track Your Journey</h3>
-              <p className="text-muted-foreground mb-6">
+              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Track Your Journey</h3>
+              <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
                 Monitor your solve times, track algorithm mastery, and see your improvement over time with our comprehensive analytics dashboard.
               </p>
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                 <div className="flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-primary" />
-                  <span className="text-sm">Real-time tracking</span>
+                  <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                  <span className="text-xs sm:text-sm">Real-time tracking</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-primary" />
-                  <span className="text-sm">Detailed analytics</span>
+                  <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                  <span className="text-xs sm:text-sm">Detailed analytics</span>
                 </div>
               </div>
             </div>
 
-            {/* Mini Bar Chart */}
-            <div className="flex items-end justify-center gap-3 h-40">
+            {/* Mini Bar Chart - Responsive */}
+            <div className="flex items-end justify-center gap-1.5 sm:gap-2 md:gap-3 h-28 sm:h-32 md:h-40 mt-6 md:mt-0">
               {[40, 65, 45, 80, 55, 90, 70, 85].map((height, i) => (
                 <div
                   key={i}
-                  className="w-8 rounded-t-lg bg-gradient-to-t from-primary/50 to-primary transition-all duration-300 hover:from-primary/70 hover:to-primary"
+                  className="w-4 sm:w-6 md:w-8 rounded-t-md sm:rounded-t-lg bg-gradient-to-t from-primary/50 to-primary transition-all duration-300 hover:from-primary/70 hover:to-primary"
                   style={{ height: `${height}%` }}
                 />
               ))}
             </div>
           </div>
 
-          <div className="mt-6 flex items-center justify-between text-sm text-muted-foreground">
+          <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs sm:text-sm text-muted-foreground">
             <span>Current average: 45 seconds</span>
             <span className="text-primary font-semibold">32.5s → 18.2s</span>
           </div>

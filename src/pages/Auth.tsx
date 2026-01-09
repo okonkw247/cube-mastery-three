@@ -9,8 +9,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { isAdminEmail } from "@/hooks/useAdmin";
 import jsnLogo from "@/assets/jsn-logo.png";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import SignupQuestions, { SignupAnswers } from "@/components/onboarding/SignupQuestions";
+import { supabase } from "@/integrations/supabase/client";
 
-type AuthStep = 'email' | 'code' | 'password_reset_email' | 'password_reset_code' | 'password_reset_new';
+type AuthStep = 'email' | 'code' | 'questions' | 'password_reset_email' | 'password_reset_code' | 'password_reset_new';
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -111,17 +113,26 @@ const Auth = () => {
         return;
       }
 
-      // Send login notification
-      await sendLoginNotification(formData.email);
-      
-      // Check if admin and route appropriately
+      // Check if admin and route appropriately - admins skip questions
       const adminRole = isAdminEmail(formData.email);
       if (adminRole) {
+        await sendLoginNotification(formData.email);
         toast.success("Welcome back, Admin!");
         navigate("/admin");
       } else {
-        toast.success("Welcome to Cube Mastery!");
-        navigate("/dashboard");
+        // Check if user has already answered questions
+        const questionsKey = `signup_questions_${formData.email}`;
+        const hasAnswered = localStorage.getItem(questionsKey);
+        
+        if (hasAnswered) {
+          // Already answered, go to dashboard
+          await sendLoginNotification(formData.email);
+          toast.success("Welcome to Cube Mastery!");
+          navigate("/dashboard");
+        } else {
+          // First-time login - show mandatory questions
+          setStep('questions');
+        }
       }
     } else if (step === 'password_reset_code') {
       // Password reset flow - verify code
@@ -183,12 +194,27 @@ const Auth = () => {
   const goBack = () => {
     if (step === 'code') {
       setStep('email');
+    } else if (step === 'questions') {
+      // Can't go back from questions - they're mandatory
+      return;
     } else if (step === 'password_reset_code' || step === 'password_reset_new') {
       setStep('password_reset_email');
     } else if (step === 'password_reset_email') {
       setStep('email');
     }
     setFormData({ ...formData, code: "" });
+  };
+
+  const handleQuestionsComplete = async (answers: SignupAnswers) => {
+    // Save that user completed questions
+    const questionsKey = `signup_questions_${formData.email}`;
+    localStorage.setItem(questionsKey, JSON.stringify(answers));
+    
+    // Send login notification
+    await sendLoginNotification(formData.email);
+    
+    toast.success("Welcome to Cube Mastery! 🎉");
+    navigate("/dashboard");
   };
 
   // Show loading while checking for existing session
@@ -548,6 +574,12 @@ const Auth = () => {
           </Link>
         </div>
       </div>
+
+      {/* Mandatory Signup Questions Modal */}
+      <SignupQuestions
+        open={step === 'questions'}
+        onComplete={handleQuestionsComplete}
+      />
     </div>
   );
 };
