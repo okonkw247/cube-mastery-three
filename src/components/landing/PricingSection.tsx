@@ -29,8 +29,8 @@ const plans = [
   {
     id: "starter",
     name: "Starter Plan",
-    price: "$29",
-    period: "/month",
+    price: "$15",
+    period: " one-time",
     description: "Perfect for beginners new to speedcubing.",
     features: [
       "Access to 15 video lessons",
@@ -44,8 +44,8 @@ const plans = [
   {
     id: "pro",
     name: "Pro Plan",
-    price: "$79",
-    period: "/month",
+    price: "$40",
+    period: " one-time",
     description: "Everything to become a speedcuber.",
     features: [
       "50+ HD video lessons",
@@ -106,21 +106,21 @@ const PricingSection = () => {
   };
 
   return (
-    <section id="pricing" className="py-24 relative">
-      <div className="container mx-auto px-6">
-        <div className="text-center mb-16 animate-on-scroll">
-          <span className="text-primary font-semibold text-sm uppercase tracking-wider">Pricing</span>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mt-4 mb-6">
+    <section id="pricing" className="py-16 sm:py-20 md:py-24 relative">
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="text-center mb-10 sm:mb-12 md:mb-16 animate-on-scroll">
+          <span className="text-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">Pricing</span>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mt-3 sm:mt-4 mb-4 sm:mb-6">
             Choose A Plan That Suits You 👌
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
             99% of students excel after subscribing to one of our plans
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto items-start">
+        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 max-w-5xl mx-auto items-start">
           {/* Plan Image */}
-          <div className="relative rounded-3xl overflow-hidden h-[500px] hidden lg:block animate-on-scroll">
+          <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden h-[300px] sm:h-[400px] lg:h-[500px] hidden md:block animate-on-scroll">
             <img 
               src={heroCube} 
               alt="Cube Mastery" 
@@ -130,14 +130,14 @@ const PricingSection = () => {
           </div>
 
           {/* Plan Selection */}
-          <div className="space-y-4 animate-on-scroll">
+          <div className="space-y-3 sm:space-y-4 animate-on-scroll">
             {/* Plan Options */}
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {plans.map((plan) => (
                 <button
                   key={plan.id}
                   onClick={() => setSelectedPlan(plan.id)}
-                  className={`w-full p-4 rounded-xl border transition-all duration-300 flex items-center justify-between ${
+                  className={`w-full p-3 sm:p-4 rounded-lg sm:rounded-xl border transition-all duration-300 flex items-center justify-between ${
                     selectedPlan === plan.id
                       ? "border-primary bg-primary/5"
                       : "border-border bg-card hover:border-primary/50"

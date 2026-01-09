@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X, Volume2, VolumeX } from "lucide-react";
-import cubeVideo from "@/assets/cube-platform-preview.mp4";
+import previewVideo from "@/assets/adddd_preview.mp4";
 
 interface VideoPreviewModalProps {
   open: boolean;
@@ -61,7 +61,7 @@ const VideoPreviewModal = ({ open, onOpenChange }: VideoPreviewModalProps) => {
           <div className="aspect-video bg-black rounded-xl overflow-hidden">
             <video
               ref={videoRef}
-              src={cubeVideo}
+              src={previewVideo}
               autoPlay
               muted={isMuted}
               loop
