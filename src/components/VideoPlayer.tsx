@@ -5,6 +5,24 @@ interface VideoPlayerProps {
   title: string;
 }
 
+const isDirectVideoUrl = (url: string): boolean => {
+  // Check if it's a direct video file (mp4, webm, etc.) or from our storage
+  const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov'];
+  const lowerUrl = url.toLowerCase();
+  
+  // Check for video file extensions
+  if (videoExtensions.some(ext => lowerUrl.includes(ext))) {
+    return true;
+  }
+  
+  // Check if it's from our Supabase storage
+  if (url.includes('supabase.co/storage')) {
+    return true;
+  }
+  
+  return false;
+};
+
 const getEmbedUrl = (url: string): string | null => {
   // YouTube URLs
   const youtubePatterns = [
@@ -48,6 +66,23 @@ const VideoPlayer = ({ videoUrl, title }: VideoPlayerProps) => {
           </p>
         </div>
       </div>
+    );
+  }
+
+  // Check if it's a direct video file
+  if (isDirectVideoUrl(videoUrl)) {
+    return (
+      <video
+        src={videoUrl}
+        title={title}
+        className="absolute inset-0 w-full h-full object-contain bg-black"
+        controls
+        controlsList="nodownload"
+        playsInline
+        preload="metadata"
+      >
+        Your browser does not support the video tag.
+      </video>
     );
   }
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { AdminInviteModal } from '@/components/admin/AdminInviteModal';
+import { NotificationComposer } from '@/components/admin/NotificationComposer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -79,16 +80,26 @@ export default function AdminSettings() {
             <Card>
               <CardHeader>
                 <CardTitle>Notifications</CardTitle>
-                <CardDescription>Email and notification settings</CardDescription>
+                <CardDescription>Send notifications and manage email settings</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div><Label>Welcome Email</Label><p className="text-sm text-muted-foreground">Send welcome email to new users</p></div>
-                  <Switch defaultChecked />
+              <CardContent className="space-y-6">
+                <div className="bg-muted/50 rounded-lg p-4 border border-border">
+                  <p className="text-sm font-medium mb-2">Broadcast to Students</p>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    Send announcements, updates, or alerts to all registered students.
+                  </p>
+                  <NotificationComposer />
                 </div>
-                <div className="flex items-center justify-between">
-                  <div><Label>Streak Reminders</Label><p className="text-sm text-muted-foreground">Remind users about their streak</p></div>
-                  <Switch defaultChecked />
+                
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div><Label>Welcome Email</Label><p className="text-sm text-muted-foreground">Send welcome email to new users</p></div>
+                    <Switch defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div><Label>Streak Reminders</Label><p className="text-sm text-muted-foreground">Remind users about their streak</p></div>
+                    <Switch defaultChecked />
+                  </div>
                 </div>
                 <Button onClick={handleSave}>Save Changes</Button>
               </CardContent>

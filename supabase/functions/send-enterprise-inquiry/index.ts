@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -108,6 +109,39 @@ serve(async (req) => {
     await Promise.all(emailPromises);
 
     console.log(`Enterprise inquiry sent to ${adminEmails.length} admin(s)`);
+
+    // Create in-app notification for admins
+    try {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+      // Get admin user IDs from profiles that match admin emails
+      const { data: adminProfiles } = await supabase
+        .from("profiles")
+        .select("user_id")
+        .in("user_id", 
+          (await supabase.auth.admin.listUsers()).data.users
+            .filter(u => adminEmails.includes(u.email || ""))
+            .map(u => u.id)
+        );
+
+      if (adminProfiles && adminProfiles.length > 0) {
+        const notifications = adminProfiles.map(profile => ({
+          user_id: profile.user_id,
+          title: "New Enterprise Inquiry",
+          message: `${name} from ${company || "N/A"} submitted an enterprise inquiry.`,
+          type: "announcement",
+          is_read: false,
+        }));
+
+        await supabase.from("notifications").insert(notifications);
+        console.log(`Created ${notifications.length} admin notification(s)`);
+      }
+    } catch (notifError) {
+      console.error("Failed to create admin notifications:", notifError);
+      // Don't fail the request if notification creation fails
+    }
 
     return new Response(
       JSON.stringify({ success: true, message: "Inquiry sent successfully" }),
