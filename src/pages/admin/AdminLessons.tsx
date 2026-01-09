@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Plus, Trash2, Eye, GripVertical, FileText, Download, Edit } from 'lucide-react';
+import { Plus, Trash2, Eye, GripVertical, FileText, Download, Edit, Upload, Video } from 'lucide-react';
 import { InlineEdit } from '@/components/admin/InlineEdit';
 import { VideoPreviewModal } from '@/components/admin/VideoPreviewModal';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
@@ -92,6 +92,7 @@ export default function AdminLessons() {
   const [editingLesson, setEditingLesson] = useState<any>(null);
   const [previewLesson, setPreviewLesson] = useState<any>(null);
   const [uploadingHologram, setUploadingHologram] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
   const [formData, setFormData] = useState({
     title: '', description: '', video_url: '', duration: '', skill_level: 'beginner',
     is_free: false, order_index: lessons.length, status: 'published' as const,
@@ -101,7 +102,52 @@ export default function AdminLessons() {
   const [editFormData, setEditFormData] = useState({
     lesson_notes: '',
     hologram_sheet_url: '',
+    video_url: '',
   });
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>, isEdit = false) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('video/')) {
+      toast.error('Please upload a video file');
+      return;
+    }
+
+    // Max 500MB
+    if (file.size > 500 * 1024 * 1024) {
+      toast.error('Video must be under 500MB');
+      return;
+    }
+
+    setUploadingVideo(true);
+    const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+
+    const { error } = await supabase.storage
+      .from('videos')
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (error) {
+      console.error('Video upload error:', error);
+      toast.error('Failed to upload video');
+      setUploadingVideo(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from('videos').getPublicUrl(fileName);
+    
+    if (isEdit) {
+      setEditFormData({ ...editFormData, video_url: urlData.publicUrl });
+    } else {
+      setFormData({ ...formData, video_url: urlData.publicUrl });
+    }
+    
+    setUploadingVideo(false);
+    toast.success('Video uploaded successfully!');
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -156,6 +202,7 @@ export default function AdminLessons() {
     setEditFormData({
       lesson_notes: lesson.lesson_notes || '',
       hologram_sheet_url: lesson.hologram_sheet_url || '',
+      video_url: lesson.video_url || '',
     });
     setEditDialogOpen(true);
   };
@@ -194,12 +241,22 @@ export default function AdminLessons() {
     await updateLesson(editingLesson.id, editFormData);
     
     // Notify users if content was updated
-    if (editFormData.lesson_notes !== editingLesson.lesson_notes || 
-        editFormData.hologram_sheet_url !== editingLesson.hologram_sheet_url) {
+    const hasNewVideo = editFormData.video_url !== editingLesson.video_url && editFormData.video_url;
+    const hasNewNotes = editFormData.lesson_notes !== editingLesson.lesson_notes;
+    const hasNewHologram = editFormData.hologram_sheet_url !== editingLesson.hologram_sheet_url;
+    
+    if (hasNewVideo) {
+      await supabase.rpc('notify_all_users', {
+        p_title: 'New Video Available!',
+        p_message: `"${editingLesson.title}" has a new video. Watch it now!`,
+        p_type: 'new_video',
+        p_reference_id: editingLesson.id,
+      });
+    } else if (hasNewNotes || hasNewHologram) {
       await supabase.rpc('notify_all_users', {
         p_title: 'Lesson Updated!',
         p_message: `"${editingLesson.title}" has new content. Check it out!`,
-        p_type: 'lesson_update',
+        p_type: hasNewHologram ? 'new_hologram_sheet' : 'new_notes',
         p_reference_id: editingLesson.id,
       });
     }
@@ -229,7 +286,39 @@ export default function AdminLessons() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div><Label>Title</Label><Input value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} required /></div>
                 <div><Label>Description</Label><Textarea value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} /></div>
-                <div><Label>Video URL</Label><Input value={formData.video_url} onChange={e => setFormData({ ...formData, video_url: e.target.value })} placeholder="YouTube, TikTok, or direct URL" /></div>
+                <div>
+                  <Label>Video</Label>
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <Input 
+                        value={formData.video_url} 
+                        onChange={e => setFormData({ ...formData, video_url: e.target.value })} 
+                        placeholder="Paste URL or upload below" 
+                        className="flex-1"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="new-video-upload" className="cursor-pointer flex items-center gap-2 px-3 py-2 bg-secondary hover:bg-secondary/80 rounded-md text-sm transition-colors">
+                        <Upload className="w-4 h-4" />
+                        {uploadingVideo ? 'Uploading...' : 'Upload Video'}
+                      </Label>
+                      <Input
+                        id="new-video-upload"
+                        type="file"
+                        accept="video/*"
+                        onChange={(e) => handleVideoUpload(e, false)}
+                        disabled={uploadingVideo}
+                        className="hidden"
+                      />
+                      <span className="text-xs text-muted-foreground">Max 500MB</span>
+                    </div>
+                    {formData.video_url && formData.video_url.includes('supabase') && (
+                      <div className="flex items-center gap-2 text-xs text-green-500">
+                        <Video className="w-3 h-3" /> Video will play directly on site
+                      </div>
+                    )}
+                  </div>
+                </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div><Label>Duration</Label><Input value={formData.duration} onChange={e => setFormData({ ...formData, duration: e.target.value })} placeholder="e.g., 10:30" /></div>
                   <div><Label>Skill Level</Label>
@@ -281,6 +370,42 @@ export default function AdminLessons() {
             <DialogTitle>Edit Lesson: {editingLesson?.title}</DialogTitle>
           </DialogHeader>
           <div className="space-y-6">
+            <div>
+              <Label className="text-base font-semibold flex items-center gap-2">
+                <Video className="w-4 h-4" /> Video
+              </Label>
+              <p className="text-sm text-muted-foreground mb-2">
+                Upload a video directly or paste an external URL
+              </p>
+              <div className="space-y-3">
+                <Input 
+                  value={editFormData.video_url} 
+                  onChange={e => setEditFormData({ ...editFormData, video_url: e.target.value })} 
+                  placeholder="Video URL (or upload below)"
+                />
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="edit-video-upload" className="cursor-pointer flex items-center gap-2 px-3 py-2 bg-secondary hover:bg-secondary/80 rounded-md text-sm transition-colors">
+                    <Upload className="w-4 h-4" />
+                    {uploadingVideo ? 'Uploading...' : 'Upload New Video'}
+                  </Label>
+                  <Input
+                    id="edit-video-upload"
+                    type="file"
+                    accept="video/*"
+                    onChange={(e) => handleVideoUpload(e, true)}
+                    disabled={uploadingVideo}
+                    className="hidden"
+                  />
+                  <span className="text-xs text-muted-foreground">Max 500MB</span>
+                </div>
+                {editFormData.video_url && editFormData.video_url.includes('supabase') && (
+                  <div className="flex items-center gap-2 text-xs text-green-500">
+                    <Video className="w-3 h-3" /> Video will play directly on site
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div>
               <Label className="text-base font-semibold">Lesson Notes</Label>
               <p className="text-sm text-muted-foreground mb-2">
