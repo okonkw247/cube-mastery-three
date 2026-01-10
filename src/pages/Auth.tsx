@@ -929,7 +929,7 @@ const Auth = () => {
 
           {/* Signup Questions Step */}
           {step === 'questions' && (
-            <SignupQuestions onComplete={handleQuestionsComplete} />
+            <SignupQuestions onComplete={handleQuestionsComplete} inline />
           )}
         </div>
 
