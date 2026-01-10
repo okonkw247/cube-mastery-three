@@ -8,13 +8,17 @@ interface AuthContextType {
   loading: boolean;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  verifyPassword: (email: string, password: string) => Promise<{ valid: boolean; error: Error | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
   updatePassword: (newPassword: string) => Promise<{ error: Error | null }>;
   sendOTP: (email: string, type: 'login' | 'password_reset') => Promise<{ error: Error | null }>;
   verifyOTP: (email: string, code: string, type: 'login' | 'password_reset') => Promise<{ error: Error | null; actionLink?: string }>;
+  completeLogin: (email: string, code: string, isNewUser?: boolean) => Promise<{ error: Error | null; userId?: string; isNewUser?: boolean }>;
   resetPasswordWithCode: (email: string, newPassword: string) => Promise<{ error: Error | null }>;
   sendLoginNotification: (email: string) => Promise<void>;
+  sendWelcomeEmail: (email: string, name?: string) => Promise<void>;
+  signOutAllDevices: () => Promise<{ error: Error | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -68,6 +72,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     
     return { error: error as Error | null };
+  };
+
+  // New: Verify password without creating session (for OTP flow)
+  const verifyPassword = async (email: string, password: string) => {
+    try {
+      const response = await supabase.functions.invoke('verify-password', {
+        body: { email, password },
+      });
+
+      if (response.error) {
+        return { valid: false, error: new Error(response.error.message || 'Failed to verify password') };
+      }
+
+      const data = response.data;
+      
+      if (!data.valid) {
+        return { valid: false, error: new Error(data.error || 'Invalid credentials') };
+      }
+
+      return { valid: true, error: null };
+    } catch (err: any) {
+      return { valid: false, error: new Error(err.message || 'Failed to verify password') };
+    }
   };
 
   const resetPassword = async (email: string) => {
@@ -143,6 +170,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // New: Complete login after OTP verification (creates session)
+  const completeLogin = async (email: string, code: string, isNewUser?: boolean) => {
+    try {
+      const response = await supabase.functions.invoke('complete-login', {
+        body: { email, code, isNewUser },
+      });
+
+      if (response.error) {
+        return { error: new Error(response.error.message || 'Failed to complete login') };
+      }
+
+      const data = response.data;
+
+      if (data.error) {
+        return { error: new Error(data.error) };
+      }
+
+      // Use the magic link token to create session
+      if (data.actionLink) {
+        const url = new URL(data.actionLink);
+        const token = url.searchParams.get('token');
+        const tokenType = url.searchParams.get('type') || 'magiclink';
+
+        if (token) {
+          const { error: verifyError } = await supabase.auth.verifyOtp({
+            token_hash: token,
+            type: tokenType as any,
+          });
+
+          if (verifyError) {
+            return { error: verifyError as Error };
+          }
+        }
+      }
+
+      return { error: null, userId: data.userId, isNewUser: data.isNewUser };
+    } catch (err: any) {
+      return { error: new Error(err.message || 'Failed to complete login') };
+    }
+  };
+
   const resetPasswordWithCode = async (email: string, newPassword: string) => {
     try {
       const response = await supabase.functions.invoke('reset-password', {
@@ -175,6 +243,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const sendWelcomeEmail = async (email: string, name?: string) => {
+    try {
+      await supabase.functions.invoke('send-welcome-email', {
+        body: { email, name },
+      });
+    } catch (err) {
+      console.error('Failed to send welcome email:', err);
+    }
+  };
+
+  const signOutAllDevices = async () => {
+    try {
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      return { error: error as Error | null };
+    } catch (err: any) {
+      return { error: new Error(err.message || 'Failed to sign out of all devices') };
+    }
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
   };
@@ -185,14 +272,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session, 
       loading, 
       signUp, 
-      signIn, 
+      signIn,
+      verifyPassword,
       signOut, 
       resetPassword,
       updatePassword,
       sendOTP,
       verifyOTP,
+      completeLogin,
       resetPasswordWithCode,
       sendLoginNotification,
+      sendWelcomeEmail,
+      signOutAllDevices,
     }}>
       {children}
     </AuthContext.Provider>

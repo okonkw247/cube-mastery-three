@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { toast } from "sonner";
-import { Mail, Lock, ArrowRight, Eye, EyeOff, ArrowLeft, User } from "lucide-react";
+import { Mail, Lock, ArrowRight, Eye, EyeOff, ArrowLeft, User, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { isAdminEmail } from "@/hooks/useAdmin";
 import jsnLogo from "@/assets/jsn-logo.png";
@@ -32,12 +32,13 @@ const Auth = () => {
   const [countdown, setCountdown] = useState(0);
   const navigate = useNavigate();
   const { 
-    signIn, 
-    signUp, 
+    signUp,
+    verifyPassword,
     sendOTP, 
-    verifyOTP, 
+    verifyOTP,
+    completeLogin,
     resetPasswordWithCode,
-    sendLoginNotification,
+    sendWelcomeEmail,
     user, 
     loading 
   } = useAuth();
@@ -67,17 +68,21 @@ const Auth = () => {
     }
   }, [mode]);
 
-  // Redirect based on user role - ADMIN vs STUDENT routing
+  // Redirect based on user role - ONLY after proper authentication
+  // This only triggers when user has a valid session (after OTP verification)
   useEffect(() => {
     if (!loading && user) {
-      const adminRole = isAdminEmail(user.email);
-      if (adminRole) {
-        navigate("/admin", { replace: true });
-      } else {
-        navigate("/dashboard", { replace: true });
+      // Only redirect if we're not in an OTP or questions step
+      if (step === 'email' || step === 'signup_password' || step === 'login_password') {
+        const adminRole = isAdminEmail(user.email);
+        if (adminRole) {
+          navigate("/admin", { replace: true });
+        } else {
+          navigate("/dashboard", { replace: true });
+        }
       }
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, step]);
 
   // Handle email submission - determine if signup or login
   const handleEmailSubmit = () => {
@@ -112,7 +117,7 @@ const Auth = () => {
 
     setIsLoading(true);
     
-    // First create the account
+    // Create the account (but don't use the session yet)
     const { error } = await signUp(formData.email, formData.password, formData.fullName);
     
     if (error) {
@@ -121,7 +126,7 @@ const Auth = () => {
       return;
     }
 
-    // Then send OTP for verification
+    // Send OTP for verification - user must verify email before access
     const { error: otpError } = await sendOTP(formData.email, 'login');
     setIsLoading(false);
 
@@ -135,7 +140,7 @@ const Auth = () => {
     setStep('signup_otp');
   };
 
-  // Handle login with password, then send OTP
+  // Handle login with password verification (NO session creation)
   const handleLoginPassword = async () => {
     if (formData.password.length < 1) {
       toast.error("Please enter your password");
@@ -144,37 +149,28 @@ const Auth = () => {
 
     setIsLoading(true);
     
-    // First verify password
-    const { error } = await signIn(formData.email, formData.password);
+    // Verify password without creating session
+    const { valid, error } = await verifyPassword(formData.email, formData.password);
     
-    if (error) {
+    if (error || !valid) {
       setIsLoading(false);
       
-      // Check if it's an invalid credentials error
-      if (error.message.includes("Invalid login credentials")) {
+      if (error?.message.includes("Invalid login credentials") || !valid) {
         toast.error("Invalid email or password");
         return;
       }
       
-      toast.error(error.message);
+      toast.error(error?.message || "Invalid credentials");
       return;
     }
 
     // Password correct - now send OTP for 2FA
+    // NO session is created yet - user MUST verify OTP first
     const { error: otpError } = await sendOTP(formData.email, 'login');
     setIsLoading(false);
 
     if (otpError) {
-      // If OTP sending fails, still allow login since password was correct
-      await sendLoginNotification(formData.email);
-      toast.success("Welcome back!");
-      
-      const adminRole = isAdminEmail(formData.email);
-      if (adminRole) {
-        navigate("/admin");
-      } else {
-        navigate("/dashboard");
-      }
+      toast.error("Failed to send verification code. Please try again.");
       return;
     }
 
@@ -183,7 +179,7 @@ const Auth = () => {
     setStep('login_otp');
   };
 
-  // Verify OTP for signup
+  // Verify OTP for signup - then create session
   const handleVerifySignupOTP = async () => {
     if (formData.code.length !== 6) {
       toast.error("Please enter the 6-digit code");
@@ -191,7 +187,9 @@ const Auth = () => {
     }
 
     setIsLoading(true);
-    const { error } = await verifyOTP(formData.email, formData.code, 'login');
+    
+    // Complete the login - this creates the session ONLY after OTP verification
+    const { error, isNewUser } = await completeLogin(formData.email, formData.code, true);
     setIsLoading(false);
 
     if (error) {
@@ -199,11 +197,14 @@ const Auth = () => {
       return;
     }
 
+    // Send welcome email for new users
+    await sendWelcomeEmail(formData.email, formData.fullName);
+
     // New user - show mandatory questions
     setStep('questions');
   };
 
-  // Verify OTP for login
+  // Verify OTP for login - then create session
   const handleVerifyLoginOTP = async () => {
     if (formData.code.length !== 6) {
       toast.error("Please enter the 6-digit code");
@@ -211,7 +212,9 @@ const Auth = () => {
     }
 
     setIsLoading(true);
-    const { error } = await verifyOTP(formData.email, formData.code, 'login');
+    
+    // Complete the login - this creates the session ONLY after OTP verification
+    const { error } = await completeLogin(formData.email, formData.code, false);
     setIsLoading(false);
 
     if (error) {
@@ -222,7 +225,6 @@ const Auth = () => {
     // Check if admin
     const adminRole = isAdminEmail(formData.email);
     if (adminRole) {
-      await sendLoginNotification(formData.email);
       toast.success("Welcome back, Admin!");
       navigate("/admin");
       return;
@@ -233,7 +235,6 @@ const Auth = () => {
     const hasAnswered = localStorage.getItem(questionsKey);
     
     if (hasAnswered) {
-      await sendLoginNotification(formData.email);
       toast.success("Welcome back!");
       navigate("/dashboard");
     } else {
@@ -345,8 +346,6 @@ const Auth = () => {
     const questionsKey = `signup_questions_${formData.email}`;
     localStorage.setItem(questionsKey, JSON.stringify(answers));
     
-    await sendLoginNotification(formData.email);
-    
     toast.success("Welcome to Cube Mastery! 🎉");
     navigate("/dashboard");
   };
@@ -363,7 +362,8 @@ const Auth = () => {
     );
   }
 
-  if (user) {
+  // If user exists and we're not in OTP/questions step, they'll be redirected by useEffect
+  if (user && step !== 'signup_otp' && step !== 'login_otp' && step !== 'questions') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#1a1a2e]">
         <div className="text-center">
@@ -617,9 +617,15 @@ const Auth = () => {
               </button>
 
               <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <ShieldCheck className="w-8 h-8 text-primary" />
+                </div>
                 <h1 className="text-xl sm:text-2xl font-bold mb-2 text-white">Verify your email</h1>
                 <p className="text-sm text-gray-400">
-                  Enter the code sent to <span className="text-white">{formData.email}</span>
+                  Enter the 6-digit code sent to <span className="text-white">{formData.email}</span>
+                </p>
+                <p className="text-xs text-gray-500 mt-2">
+                  You must verify your email to access your dashboard
                 </p>
               </div>
 
@@ -679,9 +685,15 @@ const Auth = () => {
               </button>
 
               <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <ShieldCheck className="w-8 h-8 text-primary" />
+                </div>
                 <h1 className="text-xl sm:text-2xl font-bold mb-2 text-white">Two-Factor Verification</h1>
                 <p className="text-sm text-gray-400">
-                  Enter the code sent to <span className="text-white">{formData.email}</span>
+                  Enter the 6-digit code sent to <span className="text-white">{formData.email}</span>
+                </p>
+                <p className="text-xs text-gray-500 mt-2">
+                  This is required to access your account
                 </p>
               </div>
 
@@ -900,7 +912,7 @@ const Auth = () => {
                 <Button
                   onClick={handleResetPassword}
                   className="w-full h-11 sm:h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold gap-2 text-sm sm:text-base"
-                  disabled={isLoading || !formData.password || !formData.confirmPassword}
+                  disabled={isLoading || !formData.password}
                 >
                   {isLoading ? (
                     <span className="animate-pulse">Updating password...</span>
@@ -914,21 +926,18 @@ const Auth = () => {
               </div>
             </>
           )}
+
+          {/* Signup Questions Step */}
+          {step === 'questions' && (
+            <SignupQuestions onComplete={handleQuestionsComplete} />
+          )}
         </div>
 
-        {/* Back to home */}
-        <div className="mt-6 text-center">
-          <Link to="/" className="text-gray-400 hover:text-white text-sm transition-colors">
-            ← Back to home
-          </Link>
+        {/* Footer */}
+        <div className="mt-6 text-center text-gray-500 text-xs sm:text-sm">
+          <p>By continuing, you agree to our Terms of Service and Privacy Policy</p>
         </div>
       </div>
-
-      {/* Mandatory Signup Questions Modal */}
-      <SignupQuestions
-        open={step === 'questions'}
-        onComplete={handleQuestionsComplete}
-      />
     </div>
   );
 };
