@@ -605,6 +605,63 @@ export type Database = {
         }
         Relationships: []
       }
+      user_settings: {
+        Row: {
+          activity_tracking: boolean
+          browser_notifications: boolean
+          connected_apps: Json
+          created_at: string
+          data_sharing: boolean
+          email_notifications: boolean
+          id: string
+          language: string
+          marketing_emails: boolean
+          profile_visibility: string
+          progress_reminders: boolean
+          support_access: boolean
+          timezone: string
+          two_step_enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_tracking?: boolean
+          browser_notifications?: boolean
+          connected_apps?: Json
+          created_at?: string
+          data_sharing?: boolean
+          email_notifications?: boolean
+          id?: string
+          language?: string
+          marketing_emails?: boolean
+          profile_visibility?: string
+          progress_reminders?: boolean
+          support_access?: boolean
+          timezone?: string
+          two_step_enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_tracking?: boolean
+          browser_notifications?: boolean
+          connected_apps?: Json
+          created_at?: string
+          data_sharing?: boolean
+          email_notifications?: boolean
+          id?: string
+          language?: string
+          marketing_emails?: boolean
+          profile_visibility?: string
+          progress_reminders?: boolean
+          support_access?: boolean
+          timezone?: string
+          two_step_enabled?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
