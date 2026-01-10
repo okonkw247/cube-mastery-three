@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+import { useTheme } from "@/hooks/useTheme";
+import { useUserSettings } from "@/hooks/useUserSettings";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -25,6 +27,7 @@ import {
   Send,
   Loader2,
   MessageSquare,
+  ExternalLink,
 } from "lucide-react";
 import jsnLogo from "@/assets/jsn-logo.png";
 import EditProfileModal from "@/components/modals/EditProfileModal";
@@ -154,68 +157,66 @@ const timezones = [
   { id: "UTC", label: "UTC (Coordinated Universal Time)", region: "UTC" },
 ];
 
+// Plugin configurations with real links
+const pluginConfigs = [
+  { 
+    name: "Google Calendar", 
+    description: "Sync practice reminders with your calendar", 
+    icon: "📅",
+    connectUrl: "https://calendar.google.com",
+    color: "bg-blue-500/10"
+  },
+  { 
+    name: "Discord", 
+    description: "Join our community server for tips and support", 
+    icon: "💬",
+    connectUrl: "https://discord.gg/cubemastery",
+    color: "bg-indigo-500/10"
+  },
+  { 
+    name: "Notion", 
+    description: "Export notes and progress to your Notion workspace", 
+    icon: "📝",
+    connectUrl: "https://notion.so",
+    color: "bg-gray-500/10"
+  },
+  { 
+    name: "Spotify", 
+    description: "Listen to focus playlists while practicing", 
+    icon: "🎵",
+    connectUrl: "https://open.spotify.com/playlist/37i9dQZF1DX8Uebhn9wzrS",
+    color: "bg-green-500/10"
+  },
+];
+
 const Settings = () => {
   const navigate = useNavigate();
   const { user, signOut, signOutAllDevices, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading, refetch: refetchProfile } = useProfile();
+  const { theme, toggleTheme } = useTheme();
+  const { settings, loading: settingsLoading, updateSetting, toggleConnectedApp } = useUserSettings();
+  
   const [activeTab, setActiveTab] = useState("profile");
-  const [twoStepEnabled, setTwoStepEnabled] = useState(true); // Default enabled for OTP flow
-  const [supportAccess, setSupportAccess] = useState(false);
   
   // Modal states
   const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [deleteAccountOpen, setDeleteAccountOpen] = useState(false);
 
-  // Theme state
-  const [selectedTheme, setSelectedTheme] = useState("dark");
-  
-  // Language state
-  const [selectedLanguage, setSelectedLanguage] = useState("en");
-  const [selectedTimezone, setSelectedTimezone] = useState("UTC");
+  // Search states
   const [languageSearch, setLanguageSearch] = useState("");
   const [timezoneSearch, setTimezoneSearch] = useState("");
-
-  // Notification states
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [pushNotifications, setPushNotifications] = useState(false);
-  const [progressReminders, setProgressReminders] = useState(true);
-  const [marketingEmails, setMarketingEmails] = useState(false);
-  const [browserNotifications, setBrowserNotifications] = useState(false);
-
-  // Privacy states
-  const [profileVisibility, setProfileVisibility] = useState("private");
-  const [activityTracking, setActivityTracking] = useState(true);
-  const [dataSharing, setDataSharing] = useState(false);
 
   // Support states
   const [supportMessage, setSupportMessage] = useState("");
   const [supportSubject, setSupportSubject] = useState("");
   const [isSendingSupport, setIsSendingSupport] = useState(false);
 
-  // Plugin connection states
-  const [connectedApps, setConnectedApps] = useState<string[]>([]);
-
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/auth");
     }
   }, [user, authLoading, navigate]);
-
-  // Load saved preferences
-  useEffect(() => {
-    if (user) {
-      const savedTheme = localStorage.getItem(`theme_${user.id}`) || "dark";
-      const savedLanguage = localStorage.getItem(`language_${user.id}`) || "en";
-      const savedTimezone = localStorage.getItem(`timezone_${user.id}`) || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-      const savedApps = JSON.parse(localStorage.getItem(`connected_apps_${user.id}`) || "[]");
-      
-      setSelectedTheme(savedTheme);
-      setSelectedLanguage(savedLanguage);
-      setSelectedTimezone(savedTimezone);
-      setConnectedApps(savedApps);
-    }
-  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -232,55 +233,52 @@ const Settings = () => {
     }
   };
 
+  // Theme change - syncs with global theme system
   const handleThemeChange = (themeId: string) => {
-    setSelectedTheme(themeId);
-    if (user) {
-      localStorage.setItem(`theme_${user.id}`, themeId);
+    if (theme !== themeId) {
+      toggleTheme();
     }
-    document.documentElement.classList.toggle("dark", themeId === "dark");
     toast.success(`Theme changed to ${themeId}`);
   };
 
-  const handleLanguageChange = (langId: string) => {
-    setSelectedLanguage(langId);
-    if (user) {
-      localStorage.setItem(`language_${user.id}`, langId);
-    }
+  // Language change - persists to database
+  const handleLanguageChange = async (langId: string) => {
+    await updateSetting('language', langId);
+    document.documentElement.lang = langId;
     toast.success("Language preference saved");
   };
 
-  const handleTimezoneChange = (tzId: string) => {
-    setSelectedTimezone(tzId);
-    if (user) {
-      localStorage.setItem(`timezone_${user.id}`, tzId);
-    }
-    toast.success("Timezone updated");
+  // Timezone change - persists to database
+  const handleTimezoneChange = async (tzId: string) => {
+    await updateSetting('timezone', tzId);
+    toast.success("Timezone updated - timestamps will reflect this change");
   };
 
-  const handleToggle2FA = (enabled: boolean) => {
-    setTwoStepEnabled(enabled);
-    toast.success(enabled ? "2-step verification enabled" : "2-step verification disabled");
-    // Note: Our OTP system enforces 2FA by default
+  // 2FA toggle - persists to database
+  const handleToggle2FA = async (enabled: boolean) => {
+    await updateSetting('two_step_enabled', enabled);
     if (!enabled) {
       toast.info("Note: Email verification is still required for security");
     }
   };
 
+  // Browser notifications with permission request
   const handleBrowserNotifications = async (enabled: boolean) => {
     if (enabled && "Notification" in window) {
       const permission = await Notification.requestPermission();
       if (permission === "granted") {
-        setBrowserNotifications(true);
+        await updateSetting('browser_notifications', true);
         toast.success("Browser notifications enabled");
       } else {
         toast.error("Notification permission denied");
+        return;
       }
     } else {
-      setBrowserNotifications(false);
-      toast.success("Browser notifications disabled");
+      await updateSetting('browser_notifications', false);
     }
   };
 
+  // Support request submission
   const handleSendSupport = async () => {
     if (!supportSubject.trim() || !supportMessage.trim()) {
       toast.error("Please fill in both subject and message");
@@ -294,7 +292,7 @@ const Settings = () => {
         title: `Support Request: ${supportSubject}`,
         message: supportMessage,
         type: "support",
-        user_id: null, // null means for all admins
+        user_id: null,
         reference_id: user?.id,
       });
 
@@ -317,23 +315,30 @@ const Settings = () => {
     }
   };
 
-  const handleConnectApp = (appName: string) => {
-    // Simulate app connection
-    if (connectedApps.includes(appName)) {
-      const updated = connectedApps.filter(a => a !== appName);
-      setConnectedApps(updated);
-      if (user) {
-        localStorage.setItem(`connected_apps_${user.id}`, JSON.stringify(updated));
-      }
-      toast.success(`${appName} disconnected`);
+  // Plugin connection with real URL redirect
+  const handleConnectApp = async (appName: string, connectUrl: string) => {
+    const isConnected = settings?.connected_apps?.includes(appName);
+    
+    if (isConnected) {
+      // Disconnect
+      await toggleConnectedApp(appName);
     } else {
-      const updated = [...connectedApps, appName];
-      setConnectedApps(updated);
-      if (user) {
-        localStorage.setItem(`connected_apps_${user.id}`, JSON.stringify(updated));
-      }
-      toast.success(`${appName} connected!`);
+      // Connect - open the app URL in new tab and mark as connected
+      window.open(connectUrl, '_blank', 'noopener,noreferrer');
+      await toggleConnectedApp(appName);
     }
+  };
+
+  // Navigate to pricing section for upgrades
+  const handleUpgrade = () => {
+    navigate('/#pricing');
+    // Scroll to pricing section after navigation
+    setTimeout(() => {
+      const pricingSection = document.getElementById('pricing');
+      if (pricingSection) {
+        pricingSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
   };
 
   const filteredLanguages = languages.filter(lang => 
@@ -351,7 +356,7 @@ const Settings = () => {
     return acc;
   }, {} as Record<string, typeof timezones>);
 
-  if (authLoading || profileLoading) {
+  if (authLoading || profileLoading || settingsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-pulse text-muted-foreground">Loading...</div>
@@ -364,6 +369,20 @@ const Settings = () => {
   const displayName = profile?.full_name || user.email?.split("@")[0] || "User";
   const email = user.email || "";
   const currentPlan = profile?.subscription_tier || "free";
+  
+  // Use settings from database with fallbacks
+  const selectedLanguage = settings?.language || 'en';
+  const selectedTimezone = settings?.timezone || 'UTC';
+  const emailNotifications = settings?.email_notifications ?? true;
+  const progressReminders = settings?.progress_reminders ?? true;
+  const marketingEmails = settings?.marketing_emails ?? false;
+  const browserNotifications = settings?.browser_notifications ?? false;
+  const profileVisibility = settings?.profile_visibility || 'private';
+  const activityTracking = settings?.activity_tracking ?? true;
+  const dataSharing = settings?.data_sharing ?? false;
+  const twoStepEnabled = settings?.two_step_enabled ?? true;
+  const supportAccess = settings?.support_access ?? false;
+  const connectedApps = settings?.connected_apps || [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -521,10 +540,7 @@ const Settings = () => {
                       </div>
                       <Switch
                         checked={supportAccess}
-                        onCheckedChange={(checked) => {
-                          setSupportAccess(checked);
-                          toast.success(checked ? "Support access granted" : "Support access revoked");
-                        }}
+                        onCheckedChange={(checked) => updateSetting('support_access', checked)}
                       />
                     </div>
 
@@ -563,31 +579,31 @@ const Settings = () => {
               <div className="space-y-6">
                 <div>
                   <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Appearance</h3>
-                  <p className="text-muted-foreground mb-4 sm:mb-6 text-sm sm:text-base">Choose how Cube Mastery looks to you.</p>
+                  <p className="text-muted-foreground mb-4 sm:mb-6 text-sm sm:text-base">Choose how Cube Mastery looks to you. This syncs across the entire platform.</p>
                   
                   <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
-                    {themes.map((theme) => (
+                    {themes.map((themeOption) => (
                       <button
-                        key={theme.id}
-                        onClick={() => handleThemeChange(theme.id)}
+                        key={themeOption.id}
+                        onClick={() => handleThemeChange(themeOption.id)}
                         className={`p-4 sm:p-6 rounded-xl border transition-all flex items-center gap-3 sm:gap-4 ${
-                          selectedTheme === theme.id
+                          theme === themeOption.id
                             ? "border-primary bg-primary/5"
                             : "border-border hover:border-primary/50"
                         }`}
                       >
                         <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center ${
-                          theme.id === "dark" ? "bg-secondary" : "bg-yellow-100"
+                          themeOption.id === "dark" ? "bg-secondary" : "bg-yellow-100"
                         }`}>
-                          <theme.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${theme.id === "dark" ? "text-foreground" : "text-yellow-600"}`} />
+                          <themeOption.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${themeOption.id === "dark" ? "text-foreground" : "text-yellow-600"}`} />
                         </div>
                         <div className="text-left flex-1">
-                          <p className="font-medium text-sm sm:text-base">{theme.label}</p>
+                          <p className="font-medium text-sm sm:text-base">{themeOption.label}</p>
                           <p className="text-xs sm:text-sm text-muted-foreground">
-                            {theme.id === "dark" ? "Easy on the eyes" : "Classic bright mode"}
+                            {themeOption.id === "dark" ? "Easy on the eyes" : "Classic bright mode"}
                           </p>
                         </div>
-                        {selectedTheme === theme.id && (
+                        {theme === themeOption.id && (
                           <Check className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                         )}
                       </button>
@@ -602,6 +618,7 @@ const Settings = () => {
               <div className="space-y-6 sm:space-y-8">
                 <div>
                   <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Language</h3>
+                  <p className="text-muted-foreground mb-4 text-sm">Your language preference is saved and applied across the platform.</p>
                   <Input
                     placeholder="Search languages..."
                     value={languageSearch}
@@ -631,6 +648,7 @@ const Settings = () => {
 
                 <div>
                   <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Timezone</h3>
+                  <p className="text-muted-foreground mb-4 text-sm">Your timezone affects timestamps for lessons, activity, and notifications.</p>
                   <Input
                     placeholder="Search timezones..."
                     value={timezoneSearch}
@@ -671,6 +689,7 @@ const Settings = () => {
               <div className="space-y-6">
                 <div>
                   <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Email Notifications</h3>
+                  <p className="text-muted-foreground mb-4 text-sm">These preferences are saved and control what emails you receive.</p>
                   <div className="space-y-3 sm:space-y-4">
                     <div className="flex items-center justify-between py-2 sm:py-3">
                       <div>
@@ -679,10 +698,7 @@ const Settings = () => {
                       </div>
                       <Switch
                         checked={emailNotifications}
-                        onCheckedChange={(checked) => {
-                          setEmailNotifications(checked);
-                          toast.success("Preference saved");
-                        }}
+                        onCheckedChange={(checked) => updateSetting('email_notifications', checked)}
                       />
                     </div>
                     <div className="flex items-center justify-between py-2 sm:py-3">
@@ -692,10 +708,7 @@ const Settings = () => {
                       </div>
                       <Switch
                         checked={progressReminders}
-                        onCheckedChange={(checked) => {
-                          setProgressReminders(checked);
-                          toast.success("Preference saved");
-                        }}
+                        onCheckedChange={(checked) => updateSetting('progress_reminders', checked)}
                       />
                     </div>
                     <div className="flex items-center justify-between py-2 sm:py-3">
@@ -705,10 +718,7 @@ const Settings = () => {
                       </div>
                       <Switch
                         checked={marketingEmails}
-                        onCheckedChange={(checked) => {
-                          setMarketingEmails(checked);
-                          toast.success("Preference saved");
-                        }}
+                        onCheckedChange={(checked) => updateSetting('marketing_emails', checked)}
                       />
                     </div>
                   </div>
@@ -735,14 +745,12 @@ const Settings = () => {
               <div className="space-y-6">
                 <div>
                   <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Profile Visibility</h3>
+                  <p className="text-muted-foreground mb-4 text-sm">Control who can see your profile and progress.</p>
                   <div className="space-y-2">
                     {["public", "private"].map((visibility) => (
                       <button
                         key={visibility}
-                        onClick={() => {
-                          setProfileVisibility(visibility);
-                          toast.success(`Profile set to ${visibility}`);
-                        }}
+                        onClick={() => updateSetting('profile_visibility', visibility)}
                         className={`w-full p-3 sm:p-4 rounded-xl border transition-all flex items-center justify-between ${
                           profileVisibility === visibility
                             ? "border-primary bg-primary/5"
@@ -773,10 +781,7 @@ const Settings = () => {
                   </div>
                   <Switch
                     checked={activityTracking}
-                    onCheckedChange={(checked) => {
-                      setActivityTracking(checked);
-                      toast.success("Preference saved");
-                    }}
+                    onCheckedChange={(checked) => updateSetting('activity_tracking', checked)}
                   />
                 </div>
 
@@ -787,10 +792,7 @@ const Settings = () => {
                   </div>
                   <Switch
                     checked={dataSharing}
-                    onCheckedChange={(checked) => {
-                      setDataSharing(checked);
-                      toast.success("Preference saved");
-                    }}
+                    onCheckedChange={(checked) => updateSetting('data_sharing', checked)}
                   />
                 </div>
               </div>
@@ -809,12 +811,12 @@ const Settings = () => {
                       </div>
                       {currentPlan === "free" && (
                         <div className="flex flex-col sm:flex-row gap-2">
-                          <Link to="/#pricing">
-                            <Button size="sm" variant="outline">Starter - $15</Button>
-                          </Link>
-                          <Link to="/#pricing">
-                            <Button size="sm">Pro - $40</Button>
-                          </Link>
+                          <Button size="sm" variant="outline" onClick={handleUpgrade}>
+                            Starter - $15
+                          </Button>
+                          <Button size="sm" onClick={handleUpgrade}>
+                            Pro - $40
+                          </Button>
                         </div>
                       )}
                     </div>
@@ -832,11 +834,22 @@ const Settings = () => {
                     <CreditCard className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground mb-4 text-sm sm:text-base">No payment methods added yet</p>
                     <p className="text-xs text-muted-foreground mb-4">
-                      Payment methods are securely managed through our payment provider.
+                      Payment methods are securely managed through our payment provider during checkout.
                     </p>
-                    <Link to="/#pricing">
-                      <Button variant="outline" size="sm">Add Payment Method</Button>
-                    </Link>
+                    <Button variant="outline" size="sm" onClick={handleUpgrade}>
+                      Add Payment Method
+                    </Button>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Billing History</h3>
+                  <div className="p-4 rounded-xl border border-border bg-secondary/20">
+                    <p className="text-sm text-muted-foreground">
+                      {currentPlan === "free" 
+                        ? "No billing history. Upgrade to a paid plan to start."
+                        : "View your billing history and invoices in the payment portal."}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -847,35 +860,55 @@ const Settings = () => {
               <div className="space-y-6">
                 <div>
                   <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Connected Apps</h3>
-                  <p className="text-muted-foreground mb-4 sm:mb-6 text-sm sm:text-base">Connect third-party apps to enhance your learning experience.</p>
+                  <p className="text-muted-foreground mb-4 sm:mb-6 text-sm sm:text-base">Connect third-party apps to enhance your learning experience. Connections are saved to your account.</p>
                   
                   <div className="space-y-2 sm:space-y-3">
-                    {[
-                      { name: "Google Calendar", description: "Sync practice reminders with your calendar", icon: "📅" },
-                      { name: "Discord", description: "Join our community server for tips and support", icon: "💬" },
-                      { name: "Notion", description: "Export notes and progress to your Notion workspace", icon: "📝" },
-                      { name: "Spotify", description: "Listen to focus playlists while practicing", icon: "🎵" },
-                    ].map((app) => (
-                      <div
-                        key={app.name}
-                        className="p-3 sm:p-4 rounded-xl border border-border flex items-center justify-between"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-xl sm:text-2xl">{app.icon}</span>
-                          <div>
-                            <p className="font-medium text-sm sm:text-base">{app.name}</p>
-                            <p className="text-xs sm:text-sm text-muted-foreground">{app.description}</p>
+                    {pluginConfigs.map((app) => {
+                      const isConnected = connectedApps.includes(app.name);
+                      return (
+                        <div
+                          key={app.name}
+                          className={`p-3 sm:p-4 rounded-xl border transition-all ${
+                            isConnected ? "border-primary/50 bg-primary/5" : "border-border"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${app.color}`}>
+                                <span className="text-xl sm:text-2xl">{app.icon}</span>
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <p className="font-medium text-sm sm:text-base">{app.name}</p>
+                                  {isConnected && (
+                                    <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">Connected</span>
+                                  )}
+                                </div>
+                                <p className="text-xs sm:text-sm text-muted-foreground">{app.description}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {isConnected && (
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => window.open(app.connectUrl, '_blank', 'noopener,noreferrer')}
+                                >
+                                  <ExternalLink className="w-4 h-4" />
+                                </Button>
+                              )}
+                              <Button 
+                                variant={isConnected ? "destructive" : "outline"}
+                                size="sm"
+                                onClick={() => handleConnectApp(app.name, app.connectUrl)}
+                              >
+                                {isConnected ? "Disconnect" : "Connect"}
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                        <Button 
-                          variant={connectedApps.includes(app.name) ? "destructive" : "outline"}
-                          size="sm"
-                          onClick={() => handleConnectApp(app.name)}
-                        >
-                          {connectedApps.includes(app.name) ? "Disconnect" : "Connect"}
-                        </Button>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -933,7 +966,7 @@ const Settings = () => {
                   <div className="space-y-2">
                     {[
                       { question: "How do I reset my password?", answer: "Go to Profile → Password → Change Password" },
-                      { question: "How do I upgrade my plan?", answer: "Go to Payment tab and select a plan" },
+                      { question: "How do I upgrade my plan?", answer: "Go to Payment tab and select a plan, or click the upgrade buttons" },
                       { question: "Can I download lessons for offline?", answer: "Yes, videos can be downloaded on Pro plan" },
                     ].map((faq, i) => (
                       <div key={i} className="p-3 sm:p-4 rounded-xl bg-secondary/30">
