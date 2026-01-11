@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { StatCard } from '@/components/admin/StatCard';
 import { useAdminData } from '@/hooks/useAdminData';
@@ -7,11 +8,11 @@ import { CelebrationPopup, useCelebration } from '@/components/admin/Celebration
 import { Users, BookOpen, Timer, TrendingUp, AlertCircle, Activity } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { format } from 'date-fns';
 
 export default function AdminDashboard() {
+  const { t } = useTranslation();
   const { stats, topPerformers, weeklyActivity, loading } = useAdminData();
-  const { activities, getActivityIcon, getActivityColor } = useActivityLog();
+  const { activities, getActivityIcon, getActivityColor, formatTimestamp } = useActivityLog();
   const { celebration, celebrate, closeCelebration } = useCelebration();
   const [celebratedMilestones, setCelebratedMilestones] = useState<Set<string>>(new Set());
 
@@ -49,24 +50,24 @@ export default function AdminDashboard() {
     <AdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Dashboard Overview</h1>
-          <p className="text-muted-foreground">Welcome back! Here's what's happening.</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t('admin.adminDashboard')}</h1>
+          <p className="text-muted-foreground">{t('auth.welcomeBack')}! Here's what's happening.</p>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-          <StatCard title="Total Students" value={stats.totalStudents} icon={<Users className="w-5 h-5 text-primary" />} />
-          <StatCard title="Active Today" value={stats.activeToday} icon={<TrendingUp className="w-5 h-5 text-primary" />} />
-          <StatCard title="Lessons" value={stats.lessonsUploaded} icon={<BookOpen className="w-5 h-5 text-primary" />} />
-          <StatCard title="Completed" value={stats.lessonsCompleted} icon={<BookOpen className="w-5 h-5 text-primary" />} />
-          <StatCard title="Avg Practice" value={`${Math.round(stats.avgPracticeTime / 60)}m`} icon={<Timer className="w-5 h-5 text-primary" />} />
-          <StatCard title="Pending" value={stats.pendingApprovals} icon={<AlertCircle className="w-5 h-5 text-primary" />} />
+          <StatCard title={t('admin.totalStudents')} value={stats.totalStudents} icon={<Users className="w-5 h-5 text-primary" />} />
+          <StatCard title={t('admin.activeToday')} value={stats.activeToday} icon={<TrendingUp className="w-5 h-5 text-primary" />} />
+          <StatCard title={t('admin.lessons')} value={stats.lessonsUploaded} icon={<BookOpen className="w-5 h-5 text-primary" />} />
+          <StatCard title={t('common.completed')} value={stats.lessonsCompleted} icon={<BookOpen className="w-5 h-5 text-primary" />} />
+          <StatCard title={t('admin.avgPracticeTime')} value={`${Math.round(stats.avgPracticeTime / 60)}m`} icon={<Timer className="w-5 h-5 text-primary" />} />
+          <StatCard title={t('admin.pendingApprovals')} value={stats.pendingApprovals} icon={<AlertCircle className="w-5 h-5 text-primary" />} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Chart */}
           <div className="lg:col-span-2 bg-card rounded-xl p-6 border border-border">
-            <h2 className="font-semibold mb-4">Weekly Activity</h2>
+            <h2 className="font-semibold mb-4">{t('admin.weeklyActivity')}</h2>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={weeklyActivity.length > 0 ? weeklyActivity : [
@@ -87,7 +88,7 @@ export default function AdminDashboard() {
 
           {/* Top Performers */}
           <div className="bg-card rounded-xl p-6 border border-border">
-            <h2 className="font-semibold mb-4">Top Performers</h2>
+            <h2 className="font-semibold mb-4">{t('admin.topPerformers')}</h2>
             <div className="space-y-4">
               {topPerformers.length === 0 ? (
                 <p className="text-muted-foreground text-sm">No data yet</p>
@@ -113,8 +114,7 @@ export default function AdminDashboard() {
         {/* Real-Time Activity Log */}
         <div className="bg-card rounded-xl p-6 border border-border">
           <div className="flex items-center gap-2 mb-4">
-            <Activity className="w-5 h-5 text-primary" />
-            <h2 className="font-semibold">Live Activity Feed</h2>
+            <h2 className="font-semibold">{t('admin.recentActivity')}</h2>
             <span className="flex items-center gap-1 text-xs text-green-500">
               <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
               Real-time
@@ -142,7 +142,7 @@ export default function AdminDashboard() {
                         {activity.action_type}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {format(new Date(activity.created_at), 'MMM d, h:mm a')}
+                        {formatTimestamp(activity.created_at)}
                       </span>
                     </div>
                     <p className="text-sm mt-1">{activity.action}</p>

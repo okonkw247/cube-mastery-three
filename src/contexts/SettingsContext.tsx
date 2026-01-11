@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, ReactNode, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useUserSettings, UserSettings } from '@/hooks/useUserSettings';
 import { useTheme } from '@/hooks/useTheme';
 import {
@@ -34,6 +35,7 @@ interface SettingsContextType {
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
+  const { i18n } = useTranslation();
   const userSettings = useUserSettings();
   const { theme, toggleTheme } = useTheme();
 
@@ -41,10 +43,13 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const language = userSettings.settings?.language || 'en';
   const timezone = userSettings.settings?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 
-  // Apply language to document
+  // Apply language to document and i18n
   useEffect(() => {
     document.documentElement.lang = language;
-  }, [language]);
+    if (i18n.language !== language) {
+      i18n.changeLanguage(language);
+    }
+  }, [language, i18n]);
 
   // Memoized date formatting functions that use the user's timezone
   const dateFormatters = useMemo(() => ({
