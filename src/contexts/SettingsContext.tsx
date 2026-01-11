@@ -1,6 +1,15 @@
-import { createContext, useContext, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useEffect, ReactNode, useMemo } from 'react';
 import { useUserSettings, UserSettings } from '@/hooks/useUserSettings';
 import { useTheme } from '@/hooks/useTheme';
+import {
+  formatInUserTimezone,
+  formatShortDate,
+  formatDateTime,
+  formatTime,
+  formatActivityTimestamp,
+  formatSmartDate,
+  formatRelativeTime,
+} from '@/lib/dateFormatter';
 
 interface SettingsContextType {
   settings: UserSettings | null;
@@ -12,6 +21,14 @@ interface SettingsContextType {
   // Computed values
   language: string;
   timezone: string;
+  // Date formatting utilities
+  formatDate: (date: string | Date, formatString?: string) => string;
+  formatShort: (date: string | Date) => string;
+  formatWithTime: (date: string | Date) => string;
+  formatTimeOnly: (date: string | Date) => string;
+  formatActivity: (date: string | Date) => string;
+  formatSmart: (date: string | Date) => string;
+  formatRelative: (date: string | Date) => string;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -29,11 +46,24 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = language;
   }, [language]);
 
+  // Memoized date formatting functions that use the user's timezone
+  const dateFormatters = useMemo(() => ({
+    formatDate: (date: string | Date, formatString?: string) => 
+      formatInUserTimezone(date, formatString, timezone),
+    formatShort: (date: string | Date) => formatShortDate(date, timezone),
+    formatWithTime: (date: string | Date) => formatDateTime(date, timezone),
+    formatTimeOnly: (date: string | Date) => formatTime(date, timezone),
+    formatActivity: (date: string | Date) => formatActivityTimestamp(date, timezone),
+    formatSmart: (date: string | Date) => formatSmartDate(date, timezone),
+    formatRelative: formatRelativeTime,
+  }), [timezone]);
+
   return (
     <SettingsContext.Provider value={{
       ...userSettings,
       language,
       timezone,
+      ...dateFormatters,
     }}>
       {children}
     </SettingsContext.Provider>

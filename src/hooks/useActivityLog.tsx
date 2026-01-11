@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAdmin } from './useAdmin';
+import { useSettingsContext } from '@/contexts/SettingsContext';
 
 export interface ActivityLogEntry {
   id: string;
@@ -16,6 +17,11 @@ export function useActivityLog() {
   const { isAdmin } = useAdmin();
   const [activities, setActivities] = useState<ActivityLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Get timezone-aware formatters from context
+  const settingsContext = useSettingsContext();
+  const formatActivityTime = settingsContext?.formatActivity || ((date: string) => date);
+  const formatSmartTime = settingsContext?.formatSmart || ((date: string) => date);
 
   const fetchActivities = useCallback(async (limit = 50) => {
     if (!isAdmin) return;
@@ -88,11 +94,22 @@ export function useActivityLog() {
     }
   };
 
+  // Format an activity's timestamp in user's timezone
+  const formatTimestamp = useCallback((timestamp: string) => {
+    return formatActivityTime(timestamp);
+  }, [formatActivityTime]);
+
+  const formatTimestampSmart = useCallback((timestamp: string) => {
+    return formatSmartTime(timestamp);
+  }, [formatSmartTime]);
+
   return {
     activities,
     loading,
     refetch: fetchActivities,
     getActivityIcon,
     getActivityColor,
+    formatTimestamp,
+    formatTimestampSmart,
   };
 }
