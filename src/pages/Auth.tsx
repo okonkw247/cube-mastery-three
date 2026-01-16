@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Mail, Lock, ArrowRight, Eye, EyeOff, ArrowLeft, User, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { isAdminEmail } from "@/hooks/useAdmin";
-import jsnLogo from "@/assets/jsn-logo.png";
+import { LogoWithGlow } from "@/components/LogoWithGlow";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import SignupQuestions, { SignupAnswers } from "@/components/onboarding/SignupQuestions";
 
@@ -390,8 +390,8 @@ const Auth = () => {
         <div className="bg-[#2d2d44]/90 backdrop-blur-xl rounded-xl p-6 sm:p-8 border border-white/10 shadow-2xl">
           {/* Logo */}
           <div className="flex items-center gap-3 justify-center mb-6 sm:mb-8">
-            <img src={jsnLogo} alt="Cube Mastery Logo" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
-            <span className="text-lg sm:text-xl font-bold text-white">Cube Mastery</span>
+            <LogoWithGlow size="md" />
+            <span className="text-lg sm:text-xl font-bold text-white">{t('common.cubeMastery')}</span>
           </div>
 
           {/* Email Entry Step */}
@@ -399,20 +399,20 @@ const Auth = () => {
             <>
               <div className="text-center mb-6">
                 <h1 className="text-xl sm:text-2xl font-bold mb-2 text-white">
-                  {isSignup ? "Create your account" : "Sign in to your account"}
+                  {isSignup ? t('auth.createAccount') : t('auth.signInToAccount')}
                 </h1>
-                <p className="text-sm sm:text-base text-gray-400">Enter your email to get started</p>
+                <p className="text-sm sm:text-base text-gray-400">{t('auth.enterEmailToStart')}</p>
               </div>
 
               <div className="space-y-4 sm:space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-gray-300 text-sm">Email</Label>
+                  <Label htmlFor="email" className="text-gray-300 text-sm">{t('auth.email')}</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
                     <Input
                       id="email"
                       type="email"
-                      placeholder="you@example.com"
+                      placeholder={t('auth.emailPlaceholder')}
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="pl-10 sm:pl-11 h-11 sm:h-12 bg-[#1a1a2e] border-white/10 text-white placeholder:text-gray-500 text-sm sm:text-base"
@@ -426,7 +426,7 @@ const Auth = () => {
                   className="w-full h-11 sm:h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold gap-2 text-sm sm:text-base"
                   disabled={isLoading || !formData.email}
                 >
-                  Continue
+                  {t('common.continue')}
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </div>
@@ -437,7 +437,7 @@ const Auth = () => {
                   onClick={() => setIsSignup(!isSignup)}
                   className="text-sm text-primary hover:underline"
                 >
-                  {isSignup ? "Already have an account? Sign in" : "Don't have an account? Sign up"}
+                  {isSignup ? t('auth.alreadyHaveAccount') : t('auth.dontHaveAccount')}
                 </button>
                 <br />
                 <button
@@ -445,7 +445,7 @@ const Auth = () => {
                   onClick={() => setStep('password_reset_email')}
                   className="text-sm text-gray-400 hover:text-gray-300"
                 >
-                  Forgot password?
+                  {t('auth.forgotPassword')}
                 </button>
               </div>
             </>

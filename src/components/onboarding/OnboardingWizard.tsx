@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,7 @@ interface OnboardingWizardProps {
 }
 
 const OnboardingWizard = ({ open, onComplete }: OnboardingWizardProps) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [displayName, setDisplayName] = useState("");
@@ -26,9 +28,9 @@ const OnboardingWizard = ({ open, onComplete }: OnboardingWizardProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const goals = [
-    { id: "beginner", label: "Learn the basics", description: "I'm new to cubing" },
-    { id: "intermediate", label: "Improve my speed", description: "I can solve but want to be faster" },
-    { id: "advanced", label: "Master advanced techniques", description: "I want expert-level skills" },
+    { id: "beginner", label: t('onboarding.learnBasics'), description: t('onboarding.newToCubing') },
+    { id: "intermediate", label: t('onboarding.improveSpeed'), description: t('onboarding.canSolveWantFaster') },
+    { id: "advanced", label: t('onboarding.masterAdvanced'), description: t('onboarding.wantExpertSkills') },
   ];
 
   const handleAvatarClick = () => {
@@ -40,12 +42,12 @@ const OnboardingWizard = ({ open, onComplete }: OnboardingWizardProps) => {
     if (!file || !user) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
+      toast.error(t('profile.pleaseSelectImage'));
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      toast.error("Image must be less than 2MB");
+      toast.error(t('profile.imageTooLarge'));
       return;
     }
 
@@ -66,9 +68,9 @@ const OnboardingWizard = ({ open, onComplete }: OnboardingWizardProps) => {
         .getPublicUrl(filePath);
 
       setAvatarUrl(publicUrl);
-      toast.success("Avatar uploaded!");
+      toast.success(t('onboarding.avatarUploaded'));
     } catch (error: any) {
-      toast.error(error.message || "Failed to upload avatar");
+      toast.error(error.message || t('errors.failedToUpload'));
     } finally {
       setIsUploading(false);
     }
@@ -95,10 +97,10 @@ const OnboardingWizard = ({ open, onComplete }: OnboardingWizardProps) => {
       // Mark onboarding as complete in localStorage
       localStorage.setItem(`onboarding_complete_${user.id}`, "true");
       
-      toast.success("Welcome to JSN Cubing! 🎉");
+      toast.success(t('onboarding.welcomeMessage'));
       onComplete();
     } catch (error: any) {
-      toast.error(error.message || "Failed to save profile");
+      toast.error(error.message || t('errors.failedToSave'));
     } finally {
       setIsSaving(false);
     }
@@ -124,10 +126,12 @@ const OnboardingWizard = ({ open, onComplete }: OnboardingWizardProps) => {
         {/* Header with Progress */}
         <div className="bg-gradient-to-r from-primary/20 to-primary/5 p-6 border-b border-border">
           <div className="flex items-center gap-3 mb-4">
-            <img src={jsnLogo} alt="JSN Logo" className="w-10 h-10 object-contain" />
+            <div className="w-10 h-10 rounded-full overflow-hidden shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center justify-center bg-background">
+              <img src={jsnLogo} alt="JSN Logo" className="w-8 h-8 object-contain" />
+            </div>
             <div>
-              <h2 className="text-xl font-bold">Welcome to JSN Cubing!</h2>
-              <p className="text-sm text-muted-foreground">Let's set up your profile</p>
+              <h2 className="text-xl font-bold">{t('onboarding.welcome')}</h2>
+              <p className="text-sm text-muted-foreground">{t('onboarding.letsSetup')}</p>
             </div>
           </div>
           {/* Progress Steps */}
@@ -150,14 +154,14 @@ const OnboardingWizard = ({ open, onComplete }: OnboardingWizardProps) => {
             <div className="space-y-6 animate-fade-in">
               <div className="text-center">
                 <Sparkles className="w-12 h-12 text-primary mx-auto mb-3" />
-                <h3 className="text-lg font-semibold">What should we call you?</h3>
-                <p className="text-sm text-muted-foreground">This will be your display name</p>
+                <h3 className="text-lg font-semibold">{t('onboarding.whatToCallYou')}</h3>
+                <p className="text-sm text-muted-foreground">{t('onboarding.thisWillBeDisplayName')}</p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="name">Display Name</Label>
+                <Label htmlFor="name">{t('onboarding.displayName')}</Label>
                 <Input
                   id="name"
-                  placeholder="Enter your name"
+                  placeholder={t('onboarding.enterYourName')}
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   className="h-12 text-center text-lg"
@@ -171,8 +175,8 @@ const OnboardingWizard = ({ open, onComplete }: OnboardingWizardProps) => {
           {step === 2 && (
             <div className="space-y-6 animate-fade-in">
               <div className="text-center">
-                <h3 className="text-lg font-semibold">Add a profile picture</h3>
-                <p className="text-sm text-muted-foreground">This is optional but helps personalize your account</p>
+                <h3 className="text-lg font-semibold">{t('onboarding.addProfilePicture')}</h3>
+                <p className="text-sm text-muted-foreground">{t('onboarding.optionalButHelps')}</p>
               </div>
               <div className="flex flex-col items-center">
                 <div className="relative group">
@@ -207,7 +211,7 @@ const OnboardingWizard = ({ open, onComplete }: OnboardingWizardProps) => {
                   disabled={isUploading}
                   className="mt-4"
                 >
-                  {avatarUrl ? "Change Photo" : "Upload Photo"}
+                  {avatarUrl ? t('common.changePhoto') : t('common.uploadPhoto')}
                 </Button>
               </div>
             </div>
@@ -217,8 +221,8 @@ const OnboardingWizard = ({ open, onComplete }: OnboardingWizardProps) => {
           {step === 3 && (
             <div className="space-y-6 animate-fade-in">
               <div className="text-center">
-                <h3 className="text-lg font-semibold">What's your cubing goal?</h3>
-                <p className="text-sm text-muted-foreground">This helps us personalize your experience</p>
+                <h3 className="text-lg font-semibold">{t('onboarding.whatsYourGoal')}</h3>
+                <p className="text-sm text-muted-foreground">{t('onboarding.helpPersonalize')}</p>
               </div>
               <div className="space-y-3">
                 {goals.map((goal) => (
@@ -252,7 +256,7 @@ const OnboardingWizard = ({ open, onComplete }: OnboardingWizardProps) => {
           {step > 1 ? (
             <Button variant="ghost" onClick={() => setStep(step - 1)}>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
+              {t('common.back')}
             </Button>
           ) : (
             <div />
@@ -260,7 +264,7 @@ const OnboardingWizard = ({ open, onComplete }: OnboardingWizardProps) => {
           
           {step < 3 ? (
             <Button onClick={() => setStep(step + 1)} disabled={!canProceed()}>
-              Next
+              {t('common.next')}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           ) : (
@@ -268,11 +272,11 @@ const OnboardingWizard = ({ open, onComplete }: OnboardingWizardProps) => {
               {isSaving ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Saving...
+                  {t('common.saving')}
                 </>
               ) : (
                 <>
-                  Get Started
+                  {t('common.getStarted')}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </>
               )}
