@@ -121,27 +121,27 @@ const Dashboard = () => {
 
   const handleToggleTodo = (id: number) => {
     setTodos(todos.map(t => t.id === id ? { ...t, done: !t.done } : t));
-    toast.success("Task updated");
+    toast.success(t('dashboard.taskUpdated'));
   };
 
   const handleDeleteTodo = (id: number) => {
     setTodos(todos.filter(t => t.id !== id));
-    toast.success("Task deleted");
+    toast.success(t('dashboard.taskDeleted'));
   };
 
   const handleSaveTodo = (todo: Omit<TodoItem, "id"> & { id?: number }) => {
     if (todo.id) {
       setTodos(todos.map(t => t.id === todo.id ? { ...t, ...todo } : t));
-      toast.success("Task updated");
+      toast.success(t('dashboard.taskUpdated'));
     } else {
       setTodos([...todos, { ...todo, id: Date.now() }]);
-      toast.success("Task added");
+      toast.success(t('dashboard.taskAdded'));
     }
     setEditingTodo(null);
   };
 
   const handleDownload = (name: string) => {
-    toast.success(`Downloading ${name}...`);
+    toast.success(t('common.downloading', { name }));
   };
 
   const scrollToPricing = () => {
@@ -151,7 +151,7 @@ const Dashboard = () => {
   if (authLoading || profileLoading || lessonsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
+        <div className="animate-pulse text-muted-foreground">{t('common.loading')}</div>
       </div>
     );
   }
@@ -169,14 +169,14 @@ const Dashboard = () => {
       {isAdmin && isPreviewMode && (
         <div className="bg-primary text-primary-foreground py-2 px-4 text-center text-sm flex items-center justify-center gap-3">
           <Shield className="w-4 h-4" />
-          <span>Admin Preview Mode - Viewing as student</span>
+          <span>{t('dashboard.adminPreviewMode')}</span>
           <Button
             variant="secondary"
             size="sm"
             onClick={handleBackToAdmin}
             className="ml-2"
           >
-            Back to Admin
+            {t('dashboard.backToAdmin')}
           </Button>
         </div>
       )}
@@ -186,12 +186,12 @@ const Dashboard = () => {
         <div className="container mx-auto px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 sm:gap-3">
             <img src={jsnLogo} alt="Cube Mastery Logo" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
-            <span className="text-lg sm:text-xl font-bold text-foreground hidden xs:inline">Cube Mastery</span>
+            <span className="text-lg sm:text-xl font-bold text-foreground hidden xs:inline">{t('common.cubeMastery')}</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
             {!isPro && !isPreviewMode && (
               <Button variant="default" size="sm" className="hidden md:flex text-xs sm:text-sm" onClick={scrollToPricing}>
-                Upgrade to Pro
+                {t('common.upgradeToPro')}
               </Button>
             )}
             <NotificationBell />
@@ -201,7 +201,7 @@ const Dashboard = () => {
             </Link>
             <button onClick={handleSignOut} className="flex items-center gap-1 sm:gap-2 text-muted-foreground hover:text-foreground transition-colors">
               <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline text-sm">Sign Out</span>
+              <span className="hidden sm:inline text-sm">{t('common.signOut')}</span>
             </button>
           </div>
         </div>
@@ -211,14 +211,14 @@ const Dashboard = () => {
         {/* Welcome Section - Responsive */}
         <div className="text-center mb-6 sm:mb-12">
           <h1 className="text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-2 sm:mb-4">
-            Welcome back, {displayName}!
+            {t('dashboard.welcomeBack', { name: displayName })}
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto mb-4 sm:mb-6 px-2">
-            Track your progress and continue your speedcubing journey.
+            {t('dashboard.trackProgress')}
           </p>
           <Link to={lessons[0] ? `/lesson/${lessons[0].id}` : "#"}>
             <Button variant="outline" size="default" className="rounded-full text-sm sm:text-base">
-              Continue Learning
+              {t('dashboard.continueLearning')}
             </Button>
           </Link>
         </div>
@@ -227,7 +227,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-8">
           <div className="card-gradient rounded-xl sm:rounded-2xl p-3 sm:p-6 border border-border">
             <div className="flex items-center justify-between mb-2 sm:mb-4">
-              <span className="text-xs sm:text-sm text-muted-foreground">Progress</span>
+              <span className="text-xs sm:text-sm text-muted-foreground">{t('common.progress')}</span>
               <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                 <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
               </div>
@@ -236,7 +236,7 @@ const Dashboard = () => {
           </div>
           <div className="card-gradient rounded-xl sm:rounded-2xl p-3 sm:p-6 border border-border">
             <div className="flex items-center justify-between mb-2 sm:mb-4">
-              <span className="text-xs sm:text-sm text-muted-foreground">Attempts</span>
+              <span className="text-xs sm:text-sm text-muted-foreground">{t('common.attempts')}</span>
               <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Timer className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
               </div>
@@ -245,7 +245,7 @@ const Dashboard = () => {
           </div>
           <div className="card-gradient rounded-xl sm:rounded-2xl p-3 sm:p-6 border border-border">
             <div className="flex items-center justify-between mb-2 sm:mb-4">
-              <span className="text-xs sm:text-sm text-muted-foreground">Completed</span>
+              <span className="text-xs sm:text-sm text-muted-foreground">{t('common.completed')}</span>
               <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                 <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
               </div>
@@ -254,7 +254,7 @@ const Dashboard = () => {
           </div>
           <div className="card-gradient rounded-xl sm:rounded-2xl p-3 sm:p-6 border border-border">
             <div className="flex items-center justify-between mb-2 sm:mb-4">
-              <span className="text-xs sm:text-sm text-muted-foreground">Remaining</span>
+              <span className="text-xs sm:text-sm text-muted-foreground">{t('common.remaining')}</span>
               <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
               </div>
@@ -279,9 +279,9 @@ const Dashboard = () => {
           <div className="lg:col-span-2 xl:col-span-1">
             <div className="card-gradient rounded-2xl p-4 sm:p-6 border border-border h-full">
               <div className="flex items-center justify-between mb-4 sm:mb-6">
-                <h2 className="font-semibold text-sm sm:text-base">My To Do Items</h2>
+                <h2 className="font-semibold text-sm sm:text-base">{t('dashboard.myTodoItems')}</h2>
                 <button onClick={() => { setEditingTodo(null); setTodoModalOpen(true); }} className="text-xs sm:text-sm text-primary hover:underline flex items-center gap-1">
-                  <Plus className="w-3 h-3 sm:w-4 sm:h-4" /> Add
+                  <Plus className="w-3 h-3 sm:w-4 sm:h-4" /> {t('common.add')}
                 </button>
               </div>
               <div className="space-y-2 sm:space-y-4 max-h-60 sm:max-h-80 overflow-y-auto">
@@ -291,7 +291,7 @@ const Dashboard = () => {
                       <input type="checkbox" checked={item.done} onChange={() => handleToggleTodo(item.id)} className="rounded shrink-0" />
                       <div className="min-w-0">
                         <p className="text-xs sm:text-sm truncate">{item.title}</p>
-                        {item.urgent && <span className="text-[10px] sm:text-xs text-destructive">Urgent</span>}
+                        {item.urgent && <span className="text-[10px] sm:text-xs text-destructive">{t('common.urgent')}</span>}
                       </div>
                     </div>
                     <div className="flex gap-1 sm:gap-2 shrink-0">
@@ -302,7 +302,7 @@ const Dashboard = () => {
                 ))}
                 {todos.filter(t => t.done).length > 0 && (
                   <div className="pt-2 sm:pt-4 border-t border-border">
-                    <p className="text-xs sm:text-sm text-muted-foreground mb-2 flex items-center gap-2"><CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4" /> Completed</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-2 flex items-center gap-2"><CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4" /> {t('common.completed')}</p>
                     {todos.filter(t => t.done).map((item) => (
                       <div key={item.id} className="flex items-center justify-between p-2 sm:p-3 bg-secondary/30 rounded-lg mb-2">
                         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -322,10 +322,15 @@ const Dashboard = () => {
         {/* Progress Chart - Full Width */}
         <div className="card-gradient rounded-2xl p-4 sm:p-6 border border-border mb-4 sm:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-6">
-            <h2 className="font-semibold text-sm sm:text-base">Progress Overview</h2>
+            <h2 className="font-semibold text-sm sm:text-base">{t('dashboard.progressOverview')}</h2>
             <div className="flex gap-1 bg-secondary rounded-lg p-1 self-start sm:self-auto">
-              {["Week", "Month", "Year", "All"].map((period) => (
-                <button key={period} onClick={() => setChartPeriod(period)} className={`px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm transition-colors ${chartPeriod === period ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>{period}</button>
+              {[
+                { key: "Week", label: t('dashboard.week') },
+                { key: "Month", label: t('dashboard.month') },
+                { key: "Year", label: t('dashboard.year') },
+                { key: "All", label: t('dashboard.all') }
+              ].map((period) => (
+                <button key={period.key} onClick={() => setChartPeriod(period.key)} className={`px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm transition-colors ${chartPeriod === period.key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>{period.label}</button>
               ))}
             </div>
           </div>
@@ -344,7 +349,7 @@ const Dashboard = () => {
 
         {/* Lessons - Responsive */}
         <div className="mb-4 sm:mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Lessons</h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">{t('dashboard.lessons')}</h2>
           <div className="space-y-2 sm:space-y-3">
             {lessons.map((lesson) => {
               const isLocked = !canAccessLesson(lesson, profile?.subscription_tier || null);

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +24,7 @@ type AuthStep =
   | 'password_reset_new';
 
 const Auth = () => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const mode = searchParams.get("mode");
   const [step, setStep] = useState<AuthStep>('email');

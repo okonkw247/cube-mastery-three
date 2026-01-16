@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import jsnLogo from "@/assets/jsn-logo.png";
 
 const Profile = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading, refetch } = useProfile();
@@ -45,13 +47,13 @@ const Profile = () => {
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
+      toast.error(t('profile.pleaseSelectImage'));
       return;
     }
 
     // Validate file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
-      toast.error("Image must be less than 2MB");
+      toast.error(t('profile.imageTooLarge'));
       return;
     }
 
@@ -86,11 +88,11 @@ const Profile = () => {
       }
 
       setAvatarUrl(publicUrl);
-      toast.success("Avatar updated successfully!");
+      toast.success(t('profile.avatarUpdated'));
       refetch();
     } catch (error: any) {
       console.error("Error uploading avatar:", error);
-      toast.error(error.message || "Failed to upload avatar");
+      toast.error(error.message || t('errors.failedToUpload'));
     } finally {
       setIsUploading(false);
     }
@@ -110,11 +112,11 @@ const Profile = () => {
         throw error;
       }
 
-      toast.success("Profile updated successfully!");
+      toast.success(t('profile.profileUpdated'));
       refetch();
     } catch (error: any) {
       console.error("Error updating profile:", error);
-      toast.error(error.message || "Failed to update profile");
+      toast.error(error.message || t('errors.failedToSave'));
     } finally {
       setIsSaving(false);
     }
@@ -123,7 +125,7 @@ const Profile = () => {
   if (authLoading || profileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
+        <div className="animate-pulse text-muted-foreground">{t('common.loading')}</div>
       </div>
     );
   }
@@ -147,7 +149,7 @@ const Profile = () => {
               </Link>
               <div className="flex items-center gap-3">
                 <img src={jsnLogo} alt="JSN Logo" className="w-8 h-8 object-contain" />
-                <span className="text-lg font-bold text-foreground">Profile</span>
+                <span className="text-lg font-bold text-foreground">{t('profile.profile')}</span>
               </div>
             </div>
           </div>
@@ -187,14 +189,14 @@ const Profile = () => {
                 />
               </div>
               <p className="text-sm text-muted-foreground mt-3">
-                Click to upload a new avatar
+                {t('common.clickToUpload')}
               </p>
             </div>
 
             {/* Profile Form */}
             <div className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-muted-foreground">Email</Label>
+                <Label htmlFor="email" className="text-muted-foreground">{t('profile.email')}</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
@@ -205,15 +207,15 @@ const Profile = () => {
                     className="pl-11 h-12 bg-secondary border-border opacity-60"
                   />
                 </div>
-                <p className="text-xs text-muted-foreground">Email cannot be changed</p>
+                <p className="text-xs text-muted-foreground">{t('profile.emailCannotChange')}</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="displayName">Display Name</Label>
+                <Label htmlFor="displayName">{t('profile.displayName')}</Label>
                 <Input
                   id="displayName"
                   type="text"
-                  placeholder="Enter your display name"
+                  placeholder={t('profile.displayNamePlaceholder')}
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   className="h-12 bg-secondary border-border"
@@ -221,19 +223,19 @@ const Profile = () => {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-muted-foreground">Subscription</Label>
+                <Label className="text-muted-foreground">{t('profile.subscription')}</Label>
                 <div className="flex items-center gap-3 p-4 bg-secondary rounded-lg border border-border">
                   <div className={`px-3 py-1 rounded-full text-sm font-medium ${
                     profile?.subscription_tier === 'pro' 
                       ? 'bg-primary/20 text-primary' 
                       : 'bg-muted text-muted-foreground'
                   }`}>
-                    {profile?.subscription_tier === 'pro' ? 'Pro' : 'Free'}
+                    {profile?.subscription_tier === 'pro' ? t('profile.pro') : t('profile.free')}
                   </div>
                   {profile?.subscription_tier !== 'pro' && (
                     <Link to="/#pricing">
                       <Button variant="link" className="text-primary p-0 h-auto">
-                        Upgrade to Pro
+                        {t('common.upgradeToPro')}
                       </Button>
                     </Link>
                   )}
@@ -248,12 +250,12 @@ const Profile = () => {
                 {isSaving ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Saving...
+                    {t('common.saving')}
                   </>
                 ) : (
                   <>
                     <Save className="w-4 h-4" />
-                    Save Changes
+                    {t('common.saveChanges')}
                   </>
                 )}
               </Button>

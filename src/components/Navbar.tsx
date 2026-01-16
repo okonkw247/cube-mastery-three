@@ -35,16 +35,16 @@ const Navbar = () => {
             {isLanding && (
               <>
                 <a href="#problem" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Why Us
+                  {t('nav.whyUs')}
                 </a>
                 <a href="#offers" className="text-muted-foreground hover:text-foreground transition-colors">
-                  What We Offer
+                  {t('nav.whatWeOffer')}
                 </a>
                 <a href="#solution" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Method
+                  {t('nav.method')}
                 </a>
                 <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Pricing
+                  {t('nav.pricing')}
                 </a>
               </>
             )}
@@ -54,10 +54,10 @@ const Navbar = () => {
             {user ? (
               <>
                 <Link to="/dashboard">
-                  <Button variant="ghost">Dashboard</Button>
+                  <Button variant="ghost">{t('nav.dashboard')}</Button>
                 </Link>
                 <Link to="/profile">
-                  <Button variant="ghost">Profile</Button>
+                  <Button variant="ghost">{t('common.profile')}</Button>
                 </Link>
                 <Link to="/settings">
                   <Button variant="ghost" size="icon">
@@ -66,16 +66,16 @@ const Navbar = () => {
                 </Link>
                 <Button variant="outline" onClick={handleSignOut} className="gap-2">
                   <LogOut className="w-4 h-4" />
-                  Sign Out
+                  {t('common.signOut')}
                 </Button>
               </>
             ) : (
               <>
                 <Link to="/auth">
-                  <Button variant="ghost">Log In</Button>
+                  <Button variant="ghost">{t('nav.logIn')}</Button>
                 </Link>
                 <Link to="/auth?mode=signup">
-                  <Button variant="default">Start Free</Button>
+                  <Button variant="default">{t('nav.startFree')}</Button>
                 </Link>
               </>
             )}
@@ -91,59 +91,59 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Navigation */}
-        {isOpen && (
-          <div className="md:hidden mt-4 pb-4 border-t border-border pt-4 animate-fade-in">
-            <div className="flex flex-col gap-4">
-              {isLanding && (
-                <>
-                  <a href="#problem" className="text-muted-foreground hover:text-foreground transition-colors">
-                    Why Us
-                  </a>
-                  <a href="#offers" className="text-muted-foreground hover:text-foreground transition-colors">
-                    What We Offer
-                  </a>
-                  <a href="#solution" className="text-muted-foreground hover:text-foreground transition-colors">
-                    Method
-                  </a>
-                  <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">
-                    Pricing
-                  </a>
-                </>
-              )}
-              <div className="flex flex-col gap-2 mt-4">
-                {user ? (
+          {isOpen && (
+            <div className="md:hidden mt-4 pb-4 border-t border-border pt-4 animate-fade-in">
+              <div className="flex flex-col gap-4">
+                {isLanding && (
                   <>
-                    <Link to="/dashboard">
-                      <Button variant="ghost" className="w-full">Dashboard</Button>
-                    </Link>
-                    <Link to="/profile">
-                      <Button variant="ghost" className="w-full">Profile</Button>
-                    </Link>
-                    <Link to="/settings">
-                      <Button variant="ghost" className="w-full gap-2">
-                        <Settings className="w-4 h-4" />
-                        Settings
-                      </Button>
-                    </Link>
-                    <Button variant="outline" onClick={handleSignOut} className="w-full gap-2">
-                      <LogOut className="w-4 h-4" />
-                      Sign Out
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Link to="/auth">
-                      <Button variant="ghost" className="w-full">Log In</Button>
-                    </Link>
-                    <Link to="/auth?mode=signup">
-                      <Button variant="default" className="w-full">Start Free</Button>
-                    </Link>
+                    <a href="#problem" className="text-muted-foreground hover:text-foreground transition-colors">
+                      {t('nav.whyUs')}
+                    </a>
+                    <a href="#offers" className="text-muted-foreground hover:text-foreground transition-colors">
+                      {t('nav.whatWeOffer')}
+                    </a>
+                    <a href="#solution" className="text-muted-foreground hover:text-foreground transition-colors">
+                      {t('nav.method')}
+                    </a>
+                    <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">
+                      {t('nav.pricing')}
+                    </a>
                   </>
                 )}
+                <div className="flex flex-col gap-2 mt-4">
+                  {user ? (
+                    <>
+                      <Link to="/dashboard">
+                        <Button variant="ghost" className="w-full">{t('nav.dashboard')}</Button>
+                      </Link>
+                      <Link to="/profile">
+                        <Button variant="ghost" className="w-full">{t('common.profile')}</Button>
+                      </Link>
+                      <Link to="/settings">
+                        <Button variant="ghost" className="w-full gap-2">
+                          <Settings className="w-4 h-4" />
+                          {t('common.settings')}
+                        </Button>
+                      </Link>
+                      <Button variant="outline" onClick={handleSignOut} className="w-full gap-2">
+                        <LogOut className="w-4 h-4" />
+                        {t('common.signOut')}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Link to="/auth">
+                        <Button variant="ghost" className="w-full">{t('nav.logIn')}</Button>
+                      </Link>
+                      <Link to="/auth?mode=signup">
+                        <Button variant="default" className="w-full">{t('nav.startFree')}</Button>
+                      </Link>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
       </div>
     </nav>
   );

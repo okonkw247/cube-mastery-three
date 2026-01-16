@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -190,6 +191,7 @@ const pluginConfigs = [
 ];
 
 const Settings = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, signOut, signOutAllDevices, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading, refetch: refetchProfile } = useProfile();

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
@@ -11,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
 const Lesson = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
@@ -28,7 +30,7 @@ const Lesson = () => {
   if (authLoading || profileLoading || lessonsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
+        <div className="animate-pulse text-muted-foreground">{t('common.loading')}</div>
       </div>
     );
   }
@@ -41,9 +43,9 @@ const Lesson = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Lesson not found</h1>
+          <h1 className="text-2xl font-bold mb-2">{t('lessons.lessonNotFound')}</h1>
           <Link to="/dashboard" className="text-primary hover:underline">
-            Back to Dashboard
+            {t('lessons.backToDashboard')}
           </Link>
         </div>
       </div>
@@ -62,7 +64,7 @@ const Lesson = () => {
               to="/dashboard"
               className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
-              <span>← Back to Dashboard</span>
+              <span>← {t('lessons.backToDashboard')}</span>
             </Link>
           </div>
         </header>
@@ -71,16 +73,16 @@ const Lesson = () => {
           <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
             <Lock className="w-10 h-10 text-muted-foreground" />
           </div>
-          <h1 className="text-3xl font-bold mb-4">Upgrade to Access</h1>
+          <h1 className="text-3xl font-bold mb-4">{t('lessons.upgradeToAccess')}</h1>
           <p className="text-muted-foreground mb-8">
-            This lesson is part of the Pro curriculum. Upgrade to unlock all lessons and master the cube in under 30 seconds.
+            {t('lessons.upgradeToAccessDesc')}
           </p>
           <Button 
             variant="default" 
             size="lg" 
             onClick={() => window.open("https://whop.com/checkout?plan=pro", "_blank")}
           >
-            Upgrade to Pro
+            {t('common.upgradeToPro')}
           </Button>
         </main>
       </div>
