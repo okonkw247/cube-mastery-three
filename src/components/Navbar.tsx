@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, LogOut, Settings } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import jsnLogo from "@/assets/jsn-logo.png";
+import { LogoWithGlow } from "@/components/LogoWithGlow";
 
 const Navbar = () => {
   const { t } = useTranslation();
@@ -22,11 +22,7 @@ const Navbar = () => {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 sm:gap-3">
-            <img 
-              src={jsnLogo} 
-              alt="JSN Logo" 
-              className="w-8 h-8 sm:w-10 sm:h-10 object-contain shrink-0 relative z-10" 
-            />
+            <LogoWithGlow size="md" />
             <span className="text-base sm:text-xl font-bold text-foreground hidden xs:inline">JSN Cubing</span>
           </Link>
 

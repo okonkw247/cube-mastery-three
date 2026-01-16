@@ -10,7 +10,7 @@ import { ArrowLeft, Camera, User, Save, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { supabase } from "@/integrations/supabase/client";
-import jsnLogo from "@/assets/jsn-logo.png";
+import { LogoWithGlow } from "@/components/LogoWithGlow";
 
 const Profile = () => {
   const { t } = useTranslation();
@@ -148,7 +148,7 @@ const Profile = () => {
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <div className="flex items-center gap-3">
-                <img src={jsnLogo} alt="JSN Logo" className="w-8 h-8 object-contain" />
+                <LogoWithGlow size="sm" />
                 <span className="text-lg font-bold text-foreground">{t('profile.profile')}</span>
               </div>
             </div>

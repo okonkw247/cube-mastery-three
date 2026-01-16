@@ -30,25 +30,25 @@ import {
   MessageSquare,
   ExternalLink,
 } from "lucide-react";
-import jsnLogo from "@/assets/jsn-logo.png";
+import { LogoWithGlow } from "@/components/LogoWithGlow";
 import EditProfileModal from "@/components/modals/EditProfileModal";
 import ChangePasswordModal from "@/components/modals/ChangePasswordModal";
 import DeleteAccountModal from "@/components/modals/DeleteAccountModal";
 
-const settingsTabs = [
-  { id: "profile", label: "Profile", icon: User },
-  { id: "theme", label: "Theme", icon: Palette },
-  { id: "language", label: "Time and language", icon: Globe },
-  { id: "notifications", label: "Notifications", icon: Bell },
-  { id: "privacy", label: "Privacy", icon: Shield },
-  { id: "payment", label: "Payment", icon: CreditCard },
-  { id: "plugins", label: "Plugins", icon: Puzzle },
-  { id: "support", label: "Support", icon: MessageSquare },
+const getSettingsTabs = (t: (key: string) => string) => [
+  { id: "profile", label: t('settings.profile'), icon: User },
+  { id: "theme", label: t('settings.appearance'), icon: Palette },
+  { id: "language", label: t('settings.timeAndLanguage'), icon: Globe },
+  { id: "notifications", label: t('settings.notifications'), icon: Bell },
+  { id: "privacy", label: t('settings.privacy'), icon: Shield },
+  { id: "payment", label: t('settings.payment'), icon: CreditCard },
+  { id: "plugins", label: t('settings.plugins'), icon: Puzzle },
+  { id: "support", label: t('settings.support'), icon: MessageSquare },
 ];
 
-const themes = [
-  { id: "dark", label: "Dark", icon: Moon },
-  { id: "light", label: "Light", icon: Sun },
+const getThemes = (t: (key: string) => string) => [
+  { id: "dark", label: t('settings.darkMode'), icon: Moon },
+  { id: "light", label: t('settings.lightMode'), icon: Sun },
 ];
 
 // Comprehensive language list
@@ -392,8 +392,8 @@ const Settings = () => {
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 sm:gap-3">
-            <img src={jsnLogo} alt="JSN Logo" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
-            <span className="text-lg sm:text-xl font-bold text-foreground hidden xs:inline">Cube Mastery</span>
+            <LogoWithGlow size="md" />
+            <span className="text-lg sm:text-xl font-bold text-foreground hidden xs:inline">{t('common.cubeMastery')}</span>
           </Link>
 
           <div className="flex items-center gap-2 sm:gap-4">
@@ -422,7 +422,7 @@ const Settings = () => {
           {/* Sidebar */}
           <div className="card-gradient rounded-2xl border border-border p-3 sm:p-4 h-fit">
             <nav className="space-y-1">
-              {settingsTabs.map((tab) => (
+              {getSettingsTabs(t).map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
@@ -580,11 +580,11 @@ const Settings = () => {
             {activeTab === "theme" && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Appearance</h3>
-                  <p className="text-muted-foreground mb-4 sm:mb-6 text-sm sm:text-base">Choose how Cube Mastery looks to you. This syncs across the entire platform.</p>
+                  <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">{t('settings.appearance')}</h3>
+                  <p className="text-muted-foreground mb-4 sm:mb-6 text-sm sm:text-base">{t('settings.chooseTheme')}</p>
                   
                   <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
-                    {themes.map((themeOption) => (
+                    {getThemes(t).map((themeOption) => (
                       <button
                         key={themeOption.id}
                         onClick={() => handleThemeChange(themeOption.id)}
