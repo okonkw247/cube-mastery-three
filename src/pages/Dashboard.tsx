@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -54,6 +55,7 @@ interface TodoItem {
 }
 
 const Dashboard = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, signOut, loading: authLoading } = useAuth();
   const { profile, isPro, loading: profileLoading } = useProfile();

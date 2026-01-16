@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Menu, X, LogOut, Settings } from "lucide-react";
 import { useState } from "react";
@@ -6,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import jsnLogo from "@/assets/jsn-logo.png";
 
 const Navbar = () => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const isLanding = location.pathname === "/";
