@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 interface InviteFriendModalProps {
   open: boolean;
-  onClose: () => void;
+  onOpenChange: (open: boolean) => void;
 }
 
 interface Invitation {
@@ -21,7 +21,7 @@ interface Invitation {
   invited_at: string;
 }
 
-export function InviteFriendModal({ open, onClose }: InviteFriendModalProps) {
+const InviteFriendModal = ({ open, onOpenChange }: InviteFriendModalProps) => {
   const { t } = useTranslation();
   const { user } = useAuth();
   const [emails, setEmails] = useState<string[]>([""]);
@@ -117,7 +117,7 @@ export function InviteFriendModal({ open, onClose }: InviteFriendModalProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md bg-card border-border">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -216,6 +216,6 @@ export function InviteFriendModal({ open, onClose }: InviteFriendModalProps) {
       </DialogContent>
     </Dialog>
   );
-}
+};
 
 export default InviteFriendModal;

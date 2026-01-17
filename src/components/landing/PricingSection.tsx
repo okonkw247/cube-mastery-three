@@ -118,9 +118,9 @@ const PricingSection = () => {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 max-w-5xl mx-auto items-start">
-          {/* Plan Image */}
-          <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden h-[300px] sm:h-[400px] lg:h-[500px] hidden md:block animate-on-scroll">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 max-w-5xl mx-auto items-start">
+          {/* Plan Image - Now responsive on all screens */}
+          <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden h-[200px] sm:h-[300px] md:h-[400px] lg:h-[500px] animate-on-scroll order-2 lg:order-1">
             <img 
               src={heroCube} 
               alt="Cube Mastery" 
@@ -130,7 +130,7 @@ const PricingSection = () => {
           </div>
 
           {/* Plan Selection */}
-          <div className="space-y-3 sm:space-y-4 animate-on-scroll">
+          <div className="space-y-3 sm:space-y-4 animate-on-scroll order-1 lg:order-2">
             {/* Plan Options */}
             <div className="space-y-2 sm:space-y-3">
               {plans.map((plan) => (

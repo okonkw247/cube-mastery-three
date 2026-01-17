@@ -913,8 +913,8 @@ const Auth = () => {
           {/* Questions Step - Forced Profile Completion */}
           {step === 'questions' && (
             <SignupQuestions
-              email={formData.email}
               onComplete={handleQuestionsComplete}
+              inline
             />
           )}
         </div>
