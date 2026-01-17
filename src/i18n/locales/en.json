@@ -375,5 +375,14 @@
     "securityAlertTitle": "New Sign-in to Your Account",
     "otpSubject": "Your Verification Code",
     "otpTitle": "Your Verification Code"
+  },
+  "invitations": {
+    "title": "Friend Invitations",
+    "sendNew": "Send Invite",
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "noInvitations": "No invitations sent yet",
+    "inviteNow": "Invite Friends Now",
+    "more": "more"
   }
 }
