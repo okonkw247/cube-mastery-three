@@ -37,6 +37,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { PracticeCoach } from "@/components/PracticeCoach";
 import { StreakTracker } from "@/components/dashboard/StreakTracker";
 import { BookmarkedLessons } from "@/components/dashboard/BookmarkedLessons";
+import { InvitationTracker } from "@/components/dashboard/InvitationTracker";
 import { NotificationBell } from "@/components/NotificationBell";
 import {
   LineChart,
@@ -275,7 +276,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Streak, Bookmarks, Chart, and To-Do - Responsive Layout */}
+        {/* Streak, Bookmarks, Invitations - Responsive Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-8">
           {/* Streak Tracker */}
           <div className="lg:col-span-1">
@@ -285,6 +286,11 @@ const Dashboard = () => {
           {/* Bookmarked Lessons */}
           <div className="lg:col-span-1">
             <BookmarkedLessons />
+          </div>
+
+          {/* Invitation Tracker */}
+          <div className="lg:col-span-1">
+            <InvitationTracker onInviteClick={() => setInviteModalOpen(true)} />
           </div>
 
           {/* To-Do List */}

@@ -233,5 +233,14 @@
     "unauthorized": "Non autorisé",
     "forbidden": "Accès refusé",
     "serverError": "Erreur serveur"
+  },
+  "invitations": {
+    "title": "Invitations d'Amis",
+    "sendNew": "Envoyer une Invitation",
+    "pending": "En attente",
+    "accepted": "Acceptée",
+    "noInvitations": "Aucune invitation envoyée",
+    "inviteNow": "Inviter des Amis",
+    "more": "de plus"
   }
 }
