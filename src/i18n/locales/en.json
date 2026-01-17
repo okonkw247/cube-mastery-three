@@ -49,7 +49,8 @@
     "saveChanges": "Save Changes",
     "changePhoto": "Change Photo",
     "uploadPhoto": "Upload Photo",
-    "clickToUpload": "Click to upload a new avatar"
+    "clickToUpload": "Click to upload a new avatar",
+    "inviteFriends": "Invite Friends"
   },
   "nav": {
     "home": "Home",

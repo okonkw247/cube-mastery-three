@@ -36,7 +36,8 @@
     "view": "Ansehen",
     "play": "Abspielen",
     "pause": "Pause",
-    "resume": "Fortsetzen"
+    "resume": "Fortsetzen",
+    "inviteFriends": "Freunde einladen"
   },
   "nav": {
     "home": "Startseite",

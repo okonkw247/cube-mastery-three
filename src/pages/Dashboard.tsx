@@ -20,6 +20,7 @@ import {
   Timer,
   TrendingUp,
   Shield,
+  UserPlus,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
@@ -29,6 +30,7 @@ import { usePracticeAttempts } from "@/hooks/usePracticeAttempts";
 import { useAdmin } from "@/hooks/useAdmin";
 import { LogoWithGlow } from "@/components/LogoWithGlow";
 import TodoModal from "@/components/modals/TodoModal";
+import InviteFriendModal from "@/components/modals/InviteFriendModal";
 import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
 import { EmailVerificationBanner } from "@/components/EmailVerificationBanner";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -65,6 +67,7 @@ const Dashboard = () => {
   const { isAdmin, isPreviewMode, setPreviewMode } = useAdmin();
   const [chartPeriod, setChartPeriod] = useState("Year");
   const [todoModalOpen, setTodoModalOpen] = useState(false);
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState<TodoItem | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [practiceLesson, setPracticeLesson] = useState<{ id: string; title: string } | null>(null);
@@ -189,6 +192,15 @@ const Dashboard = () => {
             <span className="text-lg sm:text-xl font-bold text-foreground hidden xs:inline">{t('common.cubeMastery')}</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="hidden sm:flex text-xs sm:text-sm gap-1.5"
+              onClick={() => setInviteModalOpen(true)}
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              {t('common.inviteFriends')}
+            </Button>
             {!isPro && !isPreviewMode && (
               <Button variant="default" size="sm" className="hidden md:flex text-xs sm:text-sm" onClick={scrollToPricing}>
                 {t('common.upgradeToPro')}
@@ -434,6 +446,11 @@ const Dashboard = () => {
         onOpenChange={setTodoModalOpen}
         onSave={handleSaveTodo}
         todo={editingTodo}
+      />
+
+      <InviteFriendModal
+        open={inviteModalOpen}
+        onOpenChange={setInviteModalOpen}
       />
 
       <OnboardingWizard
