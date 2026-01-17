@@ -209,6 +209,39 @@ export type Database = {
           },
         ]
       }
+      friend_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          id: string
+          invited_at: string
+          invitee_email: string
+          inviter_id: string
+          status: string
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          id?: string
+          invited_at?: string
+          invitee_email: string
+          inviter_id: string
+          status?: string
+          token?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          id?: string
+          invited_at?: string
+          invitee_email?: string
+          inviter_id?: string
+          status?: string
+          token?: string
+        }
+        Relationships: []
+      }
       lesson_progress: {
         Row: {
           completed: boolean

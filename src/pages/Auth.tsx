@@ -27,6 +27,7 @@ const Auth = () => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const mode = searchParams.get("mode");
+  const inviteToken = searchParams.get("invite");
   const [step, setStep] = useState<AuthStep>('email');
   const [isSignup, setIsSignup] = useState(mode === 'signup');
   const [showPassword, setShowPassword] = useState(false);
@@ -61,20 +62,18 @@ const Auth = () => {
     }
   }, [countdown]);
 
-  // Set initial step based on mode
+  // Set initial step based on mode and invite token
   useEffect(() => {
     if (mode === "forgot") {
       setStep('password_reset_email');
-    } else if (mode === "signup") {
+    } else if (mode === "signup" || inviteToken) {
       setIsSignup(true);
     }
-  }, [mode]);
+  }, [mode, inviteToken]);
 
   // Redirect based on user role - ONLY after proper authentication
-  // This only triggers when user has a valid session (after OTP verification)
   useEffect(() => {
     if (!loading && user) {
-      // Only redirect if we're not in an OTP or questions step
       if (step === 'email' || step === 'signup_password' || step === 'login_password') {
         const adminRole = isAdminEmail(user.email);
         if (adminRole) {
@@ -89,7 +88,7 @@ const Auth = () => {
   // Handle email submission - determine if signup or login
   const handleEmailSubmit = () => {
     if (!formData.email) {
-      toast.error("Please enter your email");
+      toast.error(t('auth.pleaseEnterEmail'));
       return;
     }
     
@@ -103,23 +102,22 @@ const Auth = () => {
   // Handle signup with password, then send OTP
   const handleSignupPassword = async () => {
     if (!formData.fullName.trim()) {
-      toast.error("Please enter your full name");
+      toast.error(t('auth.pleaseEnterName'));
       return;
     }
     
     if (formData.password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error(t('auth.passwordMinLength'));
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match");
+      toast.error(t('auth.passwordsDoNotMatch'));
       return;
     }
 
     setIsLoading(true);
     
-    // Create the account (but don't use the session yet)
     const { error } = await signUp(formData.email, formData.password, formData.fullName);
     
     if (error) {
@@ -128,7 +126,6 @@ const Auth = () => {
       return;
     }
 
-    // Send OTP for verification - user must verify email before access
     const { error: otpError } = await sendOTP(formData.email, 'login');
     setIsLoading(false);
 
@@ -137,7 +134,7 @@ const Auth = () => {
       return;
     }
 
-    toast.success("Account created! Please verify with the code sent to your email.");
+    toast.success(t('auth.accountCreated'));
     setCountdown(60);
     setStep('signup_otp');
   };
@@ -145,38 +142,35 @@ const Auth = () => {
   // Handle login with password verification (NO session creation)
   const handleLoginPassword = async () => {
     if (formData.password.length < 1) {
-      toast.error("Please enter your password");
+      toast.error(t('auth.pleaseEnterPassword'));
       return;
     }
 
     setIsLoading(true);
     
-    // Verify password without creating session
     const { valid, error } = await verifyPassword(formData.email, formData.password);
     
     if (error || !valid) {
       setIsLoading(false);
       
       if (error?.message.includes("Invalid login credentials") || !valid) {
-        toast.error("Invalid email or password");
+        toast.error(t('auth.invalidCredentials'));
         return;
       }
       
-      toast.error(error?.message || "Invalid credentials");
+      toast.error(error?.message || t('auth.invalidCredentials'));
       return;
     }
 
-    // Password correct - now send OTP for 2FA
-    // NO session is created yet - user MUST verify OTP first
     const { error: otpError } = await sendOTP(formData.email, 'login');
     setIsLoading(false);
 
     if (otpError) {
-      toast.error("Failed to send verification code. Please try again.");
+      toast.error(t('auth.failedToSendCode'));
       return;
     }
 
-    toast.success("Verification code sent to your email!");
+    toast.success(t('auth.codeSentSuccess'));
     setCountdown(60);
     setStep('login_otp');
   };
@@ -184,13 +178,12 @@ const Auth = () => {
   // Verify OTP for signup - then create session
   const handleVerifySignupOTP = async () => {
     if (formData.code.length !== 6) {
-      toast.error("Please enter the 6-digit code");
+      toast.error(t('auth.pleaseEnterCode'));
       return;
     }
 
     setIsLoading(true);
     
-    // Complete the login - this creates the session ONLY after OTP verification
     const { error, isNewUser } = await completeLogin(formData.email, formData.code, true);
     setIsLoading(false);
 
@@ -202,20 +195,19 @@ const Auth = () => {
     // Send welcome email for new users
     await sendWelcomeEmail(formData.email, formData.fullName);
 
-    // New user - show mandatory questions
+    // New user - show mandatory questions (forces profile completion)
     setStep('questions');
   };
 
   // Verify OTP for login - then create session
   const handleVerifyLoginOTP = async () => {
     if (formData.code.length !== 6) {
-      toast.error("Please enter the 6-digit code");
+      toast.error(t('auth.pleaseEnterCode'));
       return;
     }
 
     setIsLoading(true);
     
-    // Complete the login - this creates the session ONLY after OTP verification
     const { error } = await completeLogin(formData.email, formData.code, false);
     setIsLoading(false);
 
@@ -224,20 +216,18 @@ const Auth = () => {
       return;
     }
 
-    // Check if admin
     const adminRole = isAdminEmail(formData.email);
     if (adminRole) {
-      toast.success("Welcome back, Admin!");
+      toast.success(t('auth.welcomeBackAdmin'));
       navigate("/admin");
       return;
     }
 
-    // Check if user has already answered questions
     const questionsKey = `signup_questions_${formData.email}`;
     const hasAnswered = localStorage.getItem(questionsKey);
     
     if (hasAnswered) {
-      toast.success("Welcome back!");
+      toast.success(t('auth.welcomeBack'));
       navigate("/dashboard");
     } else {
       setStep('questions');
@@ -247,7 +237,7 @@ const Auth = () => {
   // Password reset flow handlers
   const handleSendResetCode = async () => {
     if (!formData.email) {
-      toast.error("Please enter your email");
+      toast.error(t('auth.pleaseEnterEmail'));
       return;
     }
 
@@ -260,14 +250,14 @@ const Auth = () => {
       return;
     }
 
-    toast.success("Reset code sent to your email!");
+    toast.success(t('auth.resetCodeSent'));
     setCountdown(60);
     setStep('password_reset_code');
   };
 
   const handleVerifyResetCode = async () => {
     if (formData.code.length !== 6) {
-      toast.error("Please enter the 6-digit code");
+      toast.error(t('auth.pleaseEnterCode'));
       return;
     }
 
@@ -280,18 +270,18 @@ const Auth = () => {
       return;
     }
 
-    toast.success("Code verified! Set your new password.");
+    toast.success(t('auth.codeVerified'));
     setStep('password_reset_new');
   };
 
   const handleResetPassword = async () => {
     if (formData.password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error(t('auth.passwordMinLength'));
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match");
+      toast.error(t('auth.passwordsDoNotMatch'));
       return;
     }
 
@@ -304,7 +294,7 @@ const Auth = () => {
       return;
     }
 
-    toast.success("Password updated! You can now sign in.");
+    toast.success(t('auth.passwordUpdated'));
     setStep('email');
     setFormData({ ...formData, code: "", password: "", confirmPassword: "" });
   };
@@ -322,7 +312,7 @@ const Auth = () => {
       return;
     }
 
-    toast.success("New code sent!");
+    toast.success(t('auth.codeResent'));
     setCountdown(60);
   };
 
@@ -334,7 +324,6 @@ const Auth = () => {
     } else if (step === 'login_otp') {
       setStep('login_password');
     } else if (step === 'questions') {
-      // Can't go back from questions
       return;
     } else if (step === 'password_reset_code' || step === 'password_reset_new') {
       setStep('password_reset_email');
@@ -348,29 +337,27 @@ const Auth = () => {
     const questionsKey = `signup_questions_${formData.email}`;
     localStorage.setItem(questionsKey, JSON.stringify(answers));
     
-    toast.success("Welcome to Cube Mastery! 🎉");
+    toast.success(t('auth.welcomeToCubeMastery'));
     navigate("/dashboard");
   };
 
-  // Show loading while checking for existing session
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#1a1a2e]">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-          <div className="text-gray-400">Checking session...</div>
+          <div className="text-gray-400">{t('common.checkingSession')}</div>
         </div>
       </div>
     );
   }
 
-  // If user exists and we're not in OTP/questions step, they'll be redirected by useEffect
   if (user && step !== 'signup_otp' && step !== 'login_otp' && step !== 'questions') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#1a1a2e]">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-          <div className="text-gray-400">Redirecting...</div>
+          <div className="text-gray-400">{t('common.redirecting')}</div>
         </div>
       </div>
     );
@@ -459,23 +446,23 @@ const Auth = () => {
                 className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-6"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Back
+                {t('common.back')}
               </button>
 
               <div className="text-center mb-6">
-                <h1 className="text-xl sm:text-2xl font-bold mb-2 text-white">Create your account</h1>
+                <h1 className="text-xl sm:text-2xl font-bold mb-2 text-white">{t('auth.createAccount')}</h1>
                 <p className="text-sm text-gray-400">{formData.email}</p>
               </div>
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="fullName" className="text-gray-300 text-sm">Full Name</Label>
+                  <Label htmlFor="fullName" className="text-gray-300 text-sm">{t('auth.fullName')}</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
                     <Input
                       id="fullName"
                       type="text"
-                      placeholder="John Doe"
+                      placeholder={t('auth.fullNamePlaceholder')}
                       value={formData.fullName}
                       onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                       className="pl-10 sm:pl-11 h-11 sm:h-12 bg-[#1a1a2e] border-white/10 text-white placeholder:text-gray-500 text-sm sm:text-base"
@@ -484,13 +471,13 @@ const Auth = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-gray-300 text-sm">Password</Label>
+                  <Label htmlFor="password" className="text-gray-300 text-sm">{t('auth.password')}</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
+                      placeholder={t('auth.passwordPlaceholder')}
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                       className="pl-10 sm:pl-11 pr-10 sm:pr-11 h-11 sm:h-12 bg-[#1a1a2e] border-white/10 text-white placeholder:text-gray-500 text-sm sm:text-base"
@@ -506,13 +493,13 @@ const Auth = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className="text-gray-300 text-sm">Confirm Password</Label>
+                  <Label htmlFor="confirmPassword" className="text-gray-300 text-sm">{t('auth.confirmPassword')}</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
                     <Input
                       id="confirmPassword"
                       type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
+                      placeholder={t('auth.passwordPlaceholder')}
                       value={formData.confirmPassword}
                       onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                       className="pl-10 sm:pl-11 h-11 sm:h-12 bg-[#1a1a2e] border-white/10 text-white placeholder:text-gray-500 text-sm sm:text-base"
@@ -527,10 +514,10 @@ const Auth = () => {
                   disabled={isLoading || !formData.password || !formData.fullName}
                 >
                   {isLoading ? (
-                    <span className="animate-pulse">Creating account...</span>
+                    <span className="animate-pulse">{t('common.loading')}</span>
                   ) : (
                     <>
-                      Create Account
+                      {t('auth.signUp')}
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -547,23 +534,23 @@ const Auth = () => {
                 className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-6"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Back
+                {t('common.back')}
               </button>
 
               <div className="text-center mb-6">
-                <h1 className="text-xl sm:text-2xl font-bold mb-2 text-white">Enter your password</h1>
+                <h1 className="text-xl sm:text-2xl font-bold mb-2 text-white">{t('auth.enterPassword')}</h1>
                 <p className="text-sm text-gray-400">{formData.email}</p>
               </div>
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="login-password" className="text-gray-300 text-sm">Password</Label>
+                  <Label htmlFor="login-password" className="text-gray-300 text-sm">{t('auth.password')}</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
                     <Input
                       id="login-password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
+                      placeholder={t('auth.passwordPlaceholder')}
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                       className="pl-10 sm:pl-11 pr-10 sm:pr-11 h-11 sm:h-12 bg-[#1a1a2e] border-white/10 text-white placeholder:text-gray-500 text-sm sm:text-base"
@@ -585,10 +572,10 @@ const Auth = () => {
                   disabled={isLoading || !formData.password}
                 >
                   {isLoading ? (
-                    <span className="animate-pulse">Verifying...</span>
+                    <span className="animate-pulse">{t('auth.verifyingCode')}</span>
                   ) : (
                     <>
-                      Continue
+                      {t('common.continue')}
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -600,7 +587,7 @@ const Auth = () => {
                     onClick={() => setStep('password_reset_email')}
                     className="text-sm text-primary hover:underline"
                   >
-                    Forgot password?
+                    {t('auth.forgotPassword')}
                   </button>
                 </div>
               </div>
@@ -615,19 +602,16 @@ const Auth = () => {
                 className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-6"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Back
+                {t('common.back')}
               </button>
 
               <div className="text-center mb-6">
                 <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <ShieldCheck className="w-8 h-8 text-primary" />
                 </div>
-                <h1 className="text-xl sm:text-2xl font-bold mb-2 text-white">Verify your email</h1>
+                <h1 className="text-xl sm:text-2xl font-bold mb-2 text-white">{t('auth.verifyEmail')}</h1>
                 <p className="text-sm text-gray-400">
-                  Enter the 6-digit code sent to <span className="text-white">{formData.email}</span>
-                </p>
-                <p className="text-xs text-gray-500 mt-2">
-                  You must verify your email to access your dashboard
+                  {t('auth.enterCodeSentTo', { email: formData.email })}
                 </p>
               </div>
 
@@ -652,10 +636,10 @@ const Auth = () => {
                   disabled={isLoading || formData.code.length !== 6}
                 >
                   {isLoading ? (
-                    <span className="animate-pulse">Verifying...</span>
+                    <span className="animate-pulse">{t('auth.verifyingCode')}</span>
                   ) : (
                     <>
-                      Verify & Continue
+                      {t('auth.verifyCode')}
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -668,7 +652,7 @@ const Auth = () => {
                     disabled={countdown > 0}
                     className={`text-sm ${countdown > 0 ? 'text-gray-500' : 'text-primary hover:underline'}`}
                   >
-                    {countdown > 0 ? `Resend code in ${countdown}s` : "Didn't receive a code? Resend"}
+                    {countdown > 0 ? t('auth.resendIn', { seconds: countdown }) : t('auth.resendCode')}
                   </button>
                 </div>
               </div>
@@ -683,19 +667,16 @@ const Auth = () => {
                 className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-6"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Back
+                {t('common.back')}
               </button>
 
               <div className="text-center mb-6">
                 <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <ShieldCheck className="w-8 h-8 text-primary" />
                 </div>
-                <h1 className="text-xl sm:text-2xl font-bold mb-2 text-white">Two-Factor Verification</h1>
+                <h1 className="text-xl sm:text-2xl font-bold mb-2 text-white">{t('auth.securityVerification')}</h1>
                 <p className="text-sm text-gray-400">
-                  Enter the 6-digit code sent to <span className="text-white">{formData.email}</span>
-                </p>
-                <p className="text-xs text-gray-500 mt-2">
-                  This is required to access your account
+                  {t('auth.enterCodeSentTo', { email: formData.email })}
                 </p>
               </div>
 
@@ -720,10 +701,10 @@ const Auth = () => {
                   disabled={isLoading || formData.code.length !== 6}
                 >
                   {isLoading ? (
-                    <span className="animate-pulse">Verifying...</span>
+                    <span className="animate-pulse">{t('auth.verifyingCode')}</span>
                   ) : (
                     <>
-                      Verify & Sign In
+                      {t('auth.signIn')}
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -736,7 +717,7 @@ const Auth = () => {
                     disabled={countdown > 0}
                     className={`text-sm ${countdown > 0 ? 'text-gray-500' : 'text-primary hover:underline'}`}
                   >
-                    {countdown > 0 ? `Resend code in ${countdown}s` : "Didn't receive a code? Resend"}
+                    {countdown > 0 ? t('auth.resendIn', { seconds: countdown }) : t('auth.resendCode')}
                   </button>
                 </div>
               </div>
@@ -751,23 +732,23 @@ const Auth = () => {
                 className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-6"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Back to sign in
+                {t('common.back')}
               </button>
 
               <div className="text-center mb-6">
-                <h1 className="text-xl sm:text-2xl font-bold mb-2 text-white">Reset your password</h1>
-                <p className="text-sm text-gray-400">Enter your email to receive a reset code</p>
+                <h1 className="text-xl sm:text-2xl font-bold mb-2 text-white">{t('auth.resetPassword')}</h1>
+                <p className="text-sm text-gray-400">{t('auth.enterEmailToStart')}</p>
               </div>
 
               <div className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="reset-email" className="text-gray-300 text-sm">Email</Label>
+                  <Label htmlFor="reset-email" className="text-gray-300 text-sm">{t('auth.email')}</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
                     <Input
                       id="reset-email"
                       type="email"
-                      placeholder="you@example.com"
+                      placeholder={t('auth.emailPlaceholder')}
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="pl-10 sm:pl-11 h-11 sm:h-12 bg-[#1a1a2e] border-white/10 text-white placeholder:text-gray-500 text-sm sm:text-base"
@@ -782,10 +763,10 @@ const Auth = () => {
                   disabled={isLoading || !formData.email}
                 >
                   {isLoading ? (
-                    <span className="animate-pulse">Sending code...</span>
+                    <span className="animate-pulse">{t('common.loading')}</span>
                   ) : (
                     <>
-                      Send Reset Code
+                      {t('common.continue')}
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -802,13 +783,13 @@ const Auth = () => {
                 className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-6"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Back
+                {t('common.back')}
               </button>
 
               <div className="text-center mb-6">
-                <h1 className="text-xl sm:text-2xl font-bold mb-2 text-white">Enter reset code</h1>
+                <h1 className="text-xl sm:text-2xl font-bold mb-2 text-white">{t('auth.enterResetCode')}</h1>
                 <p className="text-sm text-gray-400">
-                  We sent a code to <span className="text-white">{formData.email}</span>
+                  {t('auth.enterCodeSentTo', { email: formData.email })}
                 </p>
               </div>
 
@@ -833,10 +814,10 @@ const Auth = () => {
                   disabled={isLoading || formData.code.length !== 6}
                 >
                   {isLoading ? (
-                    <span className="animate-pulse">Verifying...</span>
+                    <span className="animate-pulse">{t('auth.verifyingCode')}</span>
                   ) : (
                     <>
-                      Verify Code
+                      {t('auth.verifyCode')}
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -849,7 +830,7 @@ const Auth = () => {
                     disabled={countdown > 0}
                     className={`text-sm ${countdown > 0 ? 'text-gray-500' : 'text-primary hover:underline'}`}
                   >
-                    {countdown > 0 ? `Resend code in ${countdown}s` : "Didn't receive a code? Resend"}
+                    {countdown > 0 ? t('auth.resendIn', { seconds: countdown }) : t('auth.resendCode')}
                   </button>
                 </div>
               </div>
@@ -864,23 +845,23 @@ const Auth = () => {
                 className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-6"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Back
+                {t('common.back')}
               </button>
 
               <div className="text-center mb-6">
-                <h1 className="text-xl sm:text-2xl font-bold mb-2 text-white">Set new password</h1>
-                <p className="text-sm text-gray-400">Enter your new password below</p>
+                <h1 className="text-xl sm:text-2xl font-bold mb-2 text-white">{t('auth.setNewPassword')}</h1>
+                <p className="text-sm text-gray-400">{formData.email}</p>
               </div>
 
               <div className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="new-password" className="text-gray-300 text-sm">New Password</Label>
+                  <Label htmlFor="new-password" className="text-gray-300 text-sm">{t('auth.password')}</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
                     <Input
                       id="new-password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
+                      placeholder={t('auth.passwordPlaceholder')}
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                       className="pl-10 sm:pl-11 pr-10 sm:pr-11 h-11 sm:h-12 bg-[#1a1a2e] border-white/10 text-white placeholder:text-gray-500 text-sm sm:text-base"
@@ -896,13 +877,13 @@ const Auth = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirm-new-password" className="text-gray-300 text-sm">Confirm Password</Label>
+                  <Label htmlFor="confirm-new-password" className="text-gray-300 text-sm">{t('auth.confirmPassword')}</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
                     <Input
                       id="confirm-new-password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
+                      placeholder={t('auth.passwordPlaceholder')}
                       value={formData.confirmPassword}
                       onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                       className="pl-10 sm:pl-11 h-11 sm:h-12 bg-[#1a1a2e] border-white/10 text-white placeholder:text-gray-500 text-sm sm:text-base"
@@ -914,13 +895,13 @@ const Auth = () => {
                 <Button
                   onClick={handleResetPassword}
                   className="w-full h-11 sm:h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold gap-2 text-sm sm:text-base"
-                  disabled={isLoading || !formData.password}
+                  disabled={isLoading || !formData.password || !formData.confirmPassword}
                 >
                   {isLoading ? (
-                    <span className="animate-pulse">Updating password...</span>
+                    <span className="animate-pulse">{t('auth.updatingPassword')}</span>
                   ) : (
                     <>
-                      Update Password
+                      {t('auth.updatePassword')}
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -929,15 +910,13 @@ const Auth = () => {
             </>
           )}
 
-          {/* Signup Questions Step */}
+          {/* Questions Step - Forced Profile Completion */}
           {step === 'questions' && (
-            <SignupQuestions onComplete={handleQuestionsComplete} inline />
+            <SignupQuestions
+              email={formData.email}
+              onComplete={handleQuestionsComplete}
+            />
           )}
-        </div>
-
-        {/* Footer */}
-        <div className="mt-6 text-center text-gray-500 text-xs sm:text-sm">
-          <p>By continuing, you agree to our Terms of Service and Privacy Policy</p>
         </div>
       </div>
     </div>
