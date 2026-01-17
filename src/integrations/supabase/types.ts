@@ -283,6 +283,111 @@ export type Database = {
           },
         ]
       }
+      lesson_question_replies: {
+        Row: {
+          admin_id: string
+          created_at: string
+          id: string
+          question_id: string
+          reply: string
+        }
+        Insert: {
+          admin_id: string
+          created_at?: string
+          id?: string
+          question_id: string
+          reply: string
+        }
+        Update: {
+          admin_id?: string
+          created_at?: string
+          id?: string
+          question_id?: string
+          reply?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_question_replies_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_questions: {
+        Row: {
+          created_at: string
+          id: string
+          lesson_id: string
+          question: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lesson_id: string
+          question: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          question?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_questions_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_subtitles: {
+        Row: {
+          created_at: string
+          id: string
+          is_default: boolean
+          label: string
+          language: string
+          lesson_id: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label: string
+          language: string
+          lesson_id: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string
+          language?: string
+          lesson_id?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_subtitles_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lessons: {
         Row: {
           created_at: string
