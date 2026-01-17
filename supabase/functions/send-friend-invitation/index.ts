@@ -35,7 +35,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const baseUrl = "https://cube-mastery.site";
+    const baseUrl = "https://cube-mastery-three.vercel.app";
     const results = [];
 
     for (const invitation of invitations) {

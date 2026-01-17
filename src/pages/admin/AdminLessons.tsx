@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Plus, Trash2, Eye, GripVertical, FileText, Download, Edit, Upload, Video } from 'lucide-react';
+import { Plus, Trash2, Eye, GripVertical, FileText, Download, Edit, Upload, Video, ImageIcon } from 'lucide-react';
+import { ThumbnailUploader } from '@/components/admin/ThumbnailUploader';
 import { InlineEdit } from '@/components/admin/InlineEdit';
 import { VideoPreviewModal } from '@/components/admin/VideoPreviewModal';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
@@ -44,7 +45,7 @@ function SortableLesson({ lesson, onPreview, onDelete, onUpdate, onEdit }: Sorta
       <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing touch-none">
         <GripVertical className="w-4 h-4 text-muted-foreground" />
       </button>
-      <div className="flex-1 min-w-0">
+    <div className="flex-1 min-w-0">
         <InlineEdit 
           value={lesson.title} 
           onSave={v => onUpdate(lesson.id, { title: v })} 
@@ -52,6 +53,11 @@ function SortableLesson({ lesson, onPreview, onDelete, onUpdate, onEdit }: Sorta
         />
         <p className="text-sm text-muted-foreground truncate">{lesson.description}</p>
         <div className="flex gap-2 mt-1">
+          {!lesson.thumbnail_url && (
+            <span className="text-xs px-2 py-0.5 rounded bg-destructive/10 text-destructive flex items-center gap-1">
+              <ImageIcon className="w-3 h-3" /> No Thumbnail
+            </span>
+          )}
           {lesson.lesson_notes && (
             <span className="text-xs px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 flex items-center gap-1">
               <FileText className="w-3 h-3" /> Notes
@@ -286,6 +292,16 @@ export default function AdminLessons() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div><Label>Title</Label><Input value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} required /></div>
                 <div><Label>Description</Label><Textarea value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} /></div>
+                
+                {/* Thumbnail Uploader with AI Generation */}
+                <ThumbnailUploader
+                  value={formData.thumbnail_url}
+                  onChange={(url) => setFormData({ ...formData, thumbnail_url: url })}
+                  lessonTitle={formData.title}
+                  lessonDescription={formData.description}
+                  required={true}
+                />
+                
                 <div>
                   <Label>Video</Label>
                   <div className="space-y-2">
@@ -333,7 +349,9 @@ export default function AdminLessons() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2"><Switch checked={formData.is_free} onCheckedChange={v => setFormData({ ...formData, is_free: v })} /><Label>Free Lesson</Label></div>
-                <Button type="submit" disabled={saving} className="w-full">{saving ? 'Saving...' : 'Create Lesson'}</Button>
+                <Button type="submit" disabled={saving || !formData.thumbnail_url} className="w-full">
+                  {saving ? 'Saving...' : !formData.thumbnail_url ? 'Thumbnail Required' : 'Create Lesson'}
+                </Button>
               </form>
             </DialogContent>
           </Dialog>
