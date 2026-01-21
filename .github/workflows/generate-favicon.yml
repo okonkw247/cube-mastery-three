@@ -1,0 +1,99 @@
+name: Generate and commit favicon
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-favicon:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install ImageMagick
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y imagemagick
+
+      - name: ImageMagick diagnostic
+        run: |
+          echo "Which magick?"
+          which magick || echo "magick not found"
+          echo "Which convert?"
+          which convert || echo "convert not found"
+          echo "magick --version (if present):"
+          if command -v magick >/dev/null 2>&1; then magick --version; fi
+          echo "convert --version (if present):"
+          if command -v convert >/dev/null 2>&1; then convert --version; fi
+
+      - name: Download source image
+        run: |
+          mkdir -p public tmp_favicon
+          curl -L -o public/favicon-source.jpg "https://i.ibb.co/pvwgJ2c8/adams-cube-image.jpg"
+
+      - name: Backup existing favicon if present (before overwrite)
+        run: |
+          if [ -f public/favicon.ico ]; then
+            ts=$(date +%Y%m%d-%H%M%S)
+            mkdir -p backups
+            cp public/favicon.ico backups/favicon.ico.bak.$ts
+            echo "Backed up public/favicon.ico to backups/favicon.ico.bak.$ts"
+            git add backups/favicon.ico.bak.$ts || true
+          else
+            echo "No existing favicon.ico found; nothing to back up."
+          fi
+
+      - name: Create square PNG (512x512), center-crop, transparent background (use magick or convert)
+        run: |
+          if command -v magick >/dev/null 2>&1; then
+            CMD=magick
+          elif command -v convert >/dev/null 2>&1; then
+            CMD=convert
+          else
+            echo "ERROR: neither 'magick' nor 'convert' found" >&2
+            exit 127
+          fi
+          echo "Using image command: $CMD"
+          if [ "$CMD" = "magick" ]; then
+            magick public/favicon-source.jpg -resize 512x512^ -gravity center -background none -extent 512x512 tmp_favicon/square.png
+          else
+            convert public/favicon-source.jpg -resize 512x512^ -gravity center -background none -extent 512x512 tmp_favicon/square.png
+          fi
+
+      - name: Generate resized PNGs
+        run: |
+          if command -v magick >/dev/null 2>&1; then
+            CMD=magick
+          else
+            CMD=convert
+          fi
+          for s in 16 32 48 64 128; do
+            if [ "$CMD" = "magick" ]; then
+              magick tmp_favicon/square.png -resize ${s}x${s} -sharpen 0x0.8 tmp_favicon/favicon-${s}.png
+            else
+              convert tmp_favicon/square.png -resize ${s}x${s} -sharpen 0x0.8 tmp_favicon/favicon-${s}.png
+            fi
+          done
+
+      - name: Build multi-size favicon.ico
+        run: |
+          if command -v magick >/dev/null 2>&1; then
+            magick tmp_favicon/favicon-16.png tmp_favicon/favicon-32.png tmp_favicon/favicon-48.png tmp_favicon/favicon-64.png tmp_favicon/favicon-128.png public/favicon.ico
+          else
+            convert tmp_favicon/favicon-16.png tmp_favicon/favicon-32.png tmp_favicon/favicon-48.png tmp_favicon/favicon-64.png tmp_favicon/favicon-128.png public/favicon.ico
+          fi
+
+      - name: Commit & push favicon to main
+        env:
+          GIT_AUTHOR_NAME: "github-actions[bot]"
+          GIT_AUTHOR_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
+        run: |
+          git config user.name "${GIT_AUTHOR_NAME}"
+          git config user.email "${GIT_AUTHOR_EMAIL}"
+          git add public/favicon.ico || true
+          git commit -m "Generate favicon from image (automated)" || echo "No changes to commit"
+          git push origin HEAD:main
