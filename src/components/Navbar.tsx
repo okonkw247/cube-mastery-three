@@ -5,6 +5,8 @@ import { Menu, X, LogOut, Settings } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { LogoWithGlow } from "@/components/LogoWithGlow";
+import { LanguageSelector } from "@/components/LanguageSelector";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Navbar = () => {
   const { t } = useTranslation();
@@ -46,7 +48,9 @@ const Navbar = () => {
             )}
           </div>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-3">
+            <LanguageSelector compact />
+            <ThemeToggle />
             {user ? (
               <>
                 <Link to="/dashboard">

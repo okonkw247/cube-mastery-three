@@ -14,6 +14,7 @@ import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import Lesson from "./pages/Lesson";
 import NotFound from "./pages/NotFound";
+import Notifications from "./pages/Notifications";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminLessons from "./pages/admin/AdminLessons";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -42,6 +43,7 @@ const App = () => (
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/lesson/:id" element={<Lesson />} />
+                <Route path="/notifications" element={<Notifications />} />
                 {/* Admin Routes */}
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/lessons" element={<AdminLessons />} />

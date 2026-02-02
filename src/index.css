@@ -220,3 +220,72 @@
     transform: translateY(0);
   }
 }
+
+/* RTL Support */
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="rtl"] .ltr-only {
+  display: none;
+}
+
+[dir="ltr"] .rtl-only {
+  display: none;
+}
+
+/* RTL specific overrides */
+.rtl {
+  direction: rtl;
+}
+
+.rtl .ml-auto {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.rtl .mr-auto {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+.rtl .text-left {
+  text-align: right;
+}
+
+.rtl .text-right {
+  text-align: left;
+}
+
+/* Flip icons in RTL */
+.rtl .rtl-flip {
+  transform: scaleX(-1);
+}
+
+/* RTL sidebar positioning */
+.rtl .sidebar-left {
+  left: auto;
+  right: 0;
+}
+
+/* RTL flex direction */
+.rtl .flex-row {
+  flex-direction: row-reverse;
+}
+
+.rtl .space-x-2 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+}
+
+.rtl .space-x-4 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+}
+
+.rtl .gap-2 {
+  direction: rtl;
+}
+
+.rtl .gap-4 {
+  direction: rtl;
+}
