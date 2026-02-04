@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.generate-thumbnail]
 verify_jwt = true
+
+[functions.whop-webhook]
+verify_jwt = false
