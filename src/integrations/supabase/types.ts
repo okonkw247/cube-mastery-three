@@ -209,6 +209,38 @@ export type Database = {
           },
         ]
       }
+      course_access: {
+        Row: {
+          course_section: number
+          granted_at: string | null
+          has_access: boolean
+          id: string
+          user_id: string
+        }
+        Insert: {
+          course_section: number
+          granted_at?: string | null
+          has_access?: boolean
+          id?: string
+          user_id: string
+        }
+        Update: {
+          course_section?: number
+          granted_at?: string | null
+          has_access?: boolean
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_access_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       friend_invitations: {
         Row: {
           accepted_at: string | null
@@ -611,10 +643,12 @@ export type Database = {
           id: string
           is_suspended: boolean | null
           onboarding_completed: boolean | null
+          subscription_status: string
           subscription_tier: string
           total_points: number | null
           updated_at: string
           user_id: string
+          whop_membership_id: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -623,10 +657,12 @@ export type Database = {
           id?: string
           is_suspended?: boolean | null
           onboarding_completed?: boolean | null
+          subscription_status?: string
           subscription_tier?: string
           total_points?: number | null
           updated_at?: string
           user_id: string
+          whop_membership_id?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -635,10 +671,12 @@ export type Database = {
           id?: string
           is_suspended?: boolean | null
           onboarding_completed?: boolean | null
+          subscription_status?: string
           subscription_tier?: string
           total_points?: number | null
           updated_at?: string
           user_id?: string
+          whop_membership_id?: string | null
         }
         Relationships: []
       }
@@ -797,6 +835,33 @@ export type Database = {
           two_step_enabled?: boolean
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      webhook_logs: {
+        Row: {
+          error_message: string | null
+          event_type: string
+          id: string
+          payload: Json
+          processed_at: string | null
+          status: string
+        }
+        Insert: {
+          error_message?: string | null
+          event_type: string
+          id?: string
+          payload: Json
+          processed_at?: string | null
+          status?: string
+        }
+        Update: {
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          status?: string
         }
         Relationships: []
       }
