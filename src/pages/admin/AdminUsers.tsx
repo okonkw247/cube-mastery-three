@@ -10,11 +10,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { Search, Ban, UserCheck, Shield, CreditCard, RefreshCw, Loader2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Search, Ban, UserCheck, CreditCard, RefreshCw, Loader2, Filter, ChevronDown, ChevronUp, Copy } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface WebhookLog {
   id: string;
@@ -35,6 +36,9 @@ export default function AdminUsers() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [editPlanOpen, setEditPlanOpen] = useState(false);
   const [newPlan, setNewPlan] = useState('free');
+  const [eventTypeFilter, setEventTypeFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [expandedLogs, setExpandedLogs] = useState<Set<string>>(new Set());
 
   const filteredUsers = users.filter(u => {
     const matchesSearch = !search || u.full_name?.toLowerCase().includes(search.toLowerCase());
@@ -54,7 +58,7 @@ export default function AdminUsers() {
         .from('webhook_logs')
         .select('*')
         .order('processed_at', { ascending: false })
-        .limit(50);
+        .limit(100);
 
       if (error) throw error;
       setWebhookLogs(data || []);
@@ -70,6 +74,53 @@ export default function AdminUsers() {
     fetchWebhookLogs();
   }, []);
 
+  // Real-time subscription for webhook logs
+  useEffect(() => {
+    const channel = supabase
+      .channel('webhook-logs-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'webhook_logs',
+        },
+        (payload) => {
+          const newLog = payload.new as WebhookLog;
+          setWebhookLogs(prev => [newLog, ...prev].slice(0, 100));
+          toast.info(`New webhook: ${newLog.event_type}`, { duration: 3000 });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  // Get unique event types for filter
+  const eventTypes = [...new Set(webhookLogs.map(log => log.event_type))];
+  const statuses = [...new Set(webhookLogs.map(log => log.status))];
+
+  // Filter webhook logs
+  const filteredLogs = webhookLogs.filter(log => {
+    const matchesEvent = eventTypeFilter === 'all' || log.event_type === eventTypeFilter;
+    const matchesStatus = statusFilter === 'all' || log.status === statusFilter;
+    return matchesEvent && matchesStatus;
+  });
+
+  const toggleLogExpand = (logId: string) => {
+    setExpandedLogs(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(logId)) {
+        newSet.delete(logId);
+      } else {
+        newSet.add(logId);
+      }
+      return newSet;
+    });
+  };
+
   const handleUpdatePlan = async () => {
     if (!selectedUser) return;
 
@@ -78,7 +129,6 @@ export default function AdminUsers() {
     });
 
     if (success) {
-      // Also update course access
       await grantCourseAccessManually(selectedUser.user_id, newPlan);
       toast.success(`Updated ${selectedUser.full_name || 'user'} to ${newPlan} plan`);
       setEditPlanOpen(false);
@@ -97,13 +147,11 @@ export default function AdminUsers() {
 
     const { start, end } = limits[planType] || limits['free'];
 
-    // Delete existing access
     await supabase
       .from('course_access')
       .delete()
       .eq('user_id', userId);
 
-    // Grant new access
     const accessRecords = [];
     for (let section = start; section <= end; section++) {
       accessRecords.push({
@@ -127,6 +175,8 @@ export default function AdminUsers() {
         return <Badge variant="destructive">Error</Badge>;
       case 'pending':
         return <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Pending</Badge>;
+      case 'received':
+        return <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Received</Badge>;
       case 'ignored':
         return <Badge variant="secondary">Ignored</Badge>;
       default:
@@ -147,6 +197,40 @@ export default function AdminUsers() {
     }
   };
 
+  const getSubscriptionStatusBadge = (status: string) => {
+    switch (status) {
+      case 'active':
+        return <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>;
+      case 'payment_pending':
+        return <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Processing</Badge>;
+      case 'payment_failed':
+        return <Badge variant="destructive">Payment Failed</Badge>;
+      case 'cancelled':
+        return <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30">Cancelled</Badge>;
+      default:
+        return <Badge variant="secondary">Inactive</Badge>;
+    }
+  };
+
+  const getEventTypeBadge = (eventType: string) => {
+    if (eventType.includes('activated') || eventType.includes('went_valid')) {
+      return <Badge className="bg-green-500/20 text-green-400 border-green-500/30">{eventType}</Badge>;
+    }
+    if (eventType.includes('failed')) {
+      return <Badge variant="destructive">{eventType}</Badge>;
+    }
+    if (eventType.includes('deactivated') || eventType.includes('invalid') || eventType.includes('canceled')) {
+      return <Badge className="bg-red-500/20 text-red-400 border-red-500/30">{eventType}</Badge>;
+    }
+    if (eventType.includes('pending')) {
+      return <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">{eventType}</Badge>;
+    }
+    if (eventType.includes('renewed') || eventType.includes('succeeded')) {
+      return <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">{eventType}</Badge>;
+    }
+    return <Badge variant="outline">{eventType}</Badge>;
+  };
+
   return (
     <AdminLayout requiredPermission="view_users">
       <div className="space-y-6">
@@ -158,7 +242,14 @@ export default function AdminUsers() {
         <Tabs defaultValue="users" className="space-y-4">
           <TabsList>
             <TabsTrigger value="users">Users</TabsTrigger>
-            <TabsTrigger value="webhooks">Webhook Logs</TabsTrigger>
+            <TabsTrigger value="webhooks">
+              Webhook Logs
+              {filteredLogs.length > 0 && (
+                <span className="ml-2 text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded-full">
+                  {filteredLogs.length}
+                </span>
+              )}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="users" className="space-y-4">
@@ -192,7 +283,7 @@ export default function AdminUsers() {
                   <TableRow>
                     <TableHead>User</TableHead>
                     <TableHead className="hidden md:table-cell">Plan</TableHead>
-                    <TableHead className="hidden lg:table-cell">Lessons</TableHead>
+                    <TableHead className="hidden lg:table-cell">Status</TableHead>
                     <TableHead className="hidden lg:table-cell">Points</TableHead>
                     <TableHead className="hidden md:table-cell">Joined</TableHead>
                     <TableHead>Actions</TableHead>
@@ -218,7 +309,9 @@ export default function AdminUsers() {
                       <TableCell className="hidden md:table-cell">
                         {getPlanBadge(user.subscription_tier)}
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell">{user.lessons_completed}</TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        {getSubscriptionStatusBadge(user.subscription_status || 'inactive')}
+                      </TableCell>
                       <TableCell className="hidden lg:table-cell">{user.total_points}</TableCell>
                       <TableCell className="hidden md:table-cell text-muted-foreground text-sm">
                         {format(new Date(user.created_at), 'MMM d, yyyy')}
@@ -259,24 +352,56 @@ export default function AdminUsers() {
           </TabsContent>
 
           <TabsContent value="webhooks" className="space-y-4">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <h2 className="text-lg font-semibold">Recent Webhook Events</h2>
-                <p className="text-sm text-muted-foreground">Monitor Whop payment webhooks</p>
+                <p className="text-sm text-muted-foreground">Monitor Whop payment webhooks in real-time</p>
               </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={fetchWebhookLogs}
-                disabled={logsLoading}
-              >
-                {logsLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : (
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                )}
-                Refresh
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={fetchWebhookLogs}
+                  disabled={logsLoading}
+                >
+                  {logsLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                  )}
+                  Refresh
+                </Button>
+              </div>
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-wrap gap-3">
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Filters:</span>
+              </div>
+              <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Event Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Event Types</SelectItem>
+                  {eventTypes.map(type => (
+                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-36">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  {statuses.map(status => (
+                    <SelectItem key={status} value={status}>{status}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <Card>
@@ -297,58 +422,74 @@ export default function AdminUsers() {
                       toast.success('Webhook URL copied!');
                     }}
                   >
-                    Copy
+                    <Copy className="w-4 h-4" />
                   </Button>
                 </div>
                 <div className="mt-4 text-sm text-muted-foreground">
                   <p><strong>Plan ID Mapping:</strong></p>
                   <ul className="mt-2 space-y-1 list-disc list-inside">
-                    <li><code>plan_7NRvNAxpWhOse</code> → Starter</li>
-                    <li><code>plan_aeLinh43MkIpm</code> → Pro</li>
+                    <li><code>plan_7NRvNAxpWhOse</code> → Starter (Sections 1-15)</li>
+                    <li><code>plan_aeLinh43MkIpm</code> → Pro (Sections 1-50)</li>
                   </ul>
                 </div>
               </CardContent>
             </Card>
 
             <div className="bg-card rounded-xl border border-border overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Event</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="hidden md:table-cell">Details</TableHead>
-                    <TableHead>Time</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {webhookLogs.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
-                        No webhook events yet
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    webhookLogs.map(log => (
-                      <TableRow key={log.id}>
-                        <TableCell>
-                          <code className="text-xs bg-muted px-2 py-1 rounded">
-                            {log.event_type}
-                          </code>
-                        </TableCell>
-                        <TableCell>{getStatusBadge(log.status)}</TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          <div className="max-w-xs truncate text-sm text-muted-foreground">
-                            {log.error_message || (log.payload?.data?.email || 'N/A')}
+              <div className="divide-y divide-border">
+                {filteredLogs.length === 0 ? (
+                  <div className="text-center text-muted-foreground py-12">
+                    {webhookLogs.length === 0 ? 'No webhook events yet' : 'No events match filters'}
+                  </div>
+                ) : (
+                  filteredLogs.map(log => (
+                    <Collapsible key={log.id} open={expandedLogs.has(log.id)}>
+                      <div className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            {getEventTypeBadge(log.event_type)}
+                            {getStatusBadge(log.status)}
+                            <span className="text-sm text-muted-foreground hidden md:inline">
+                              {log.error_message || log.payload?.data?.email || log.payload?.data?.user?.email || 'N/A'}
+                            </span>
                           </div>
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {format(new Date(log.processed_at), 'MMM d, HH:mm')}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm text-muted-foreground">
+                              {format(new Date(log.processed_at), 'MMM d, HH:mm:ss')}
+                            </span>
+                            <CollapsibleTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => toggleLogExpand(log.id)}
+                              >
+                                {expandedLogs.has(log.id) ? (
+                                  <ChevronUp className="w-4 h-4" />
+                                ) : (
+                                  <ChevronDown className="w-4 h-4" />
+                                )}
+                              </Button>
+                            </CollapsibleTrigger>
+                          </div>
+                        </div>
+                        <CollapsibleContent>
+                          <div className="mt-4 p-3 bg-muted rounded-lg">
+                            <p className="text-xs text-muted-foreground mb-2">Full Payload:</p>
+                            <pre className="text-xs overflow-x-auto whitespace-pre-wrap">
+                              {JSON.stringify(log.payload, null, 2)}
+                            </pre>
+                            {log.error_message && (
+                              <div className="mt-2 text-sm text-destructive">
+                                <strong>Error:</strong> {log.error_message}
+                              </div>
+                            )}
+                          </div>
+                        </CollapsibleContent>
+                      </div>
+                    </Collapsible>
+                  ))
+                )}
+              </div>
             </div>
           </TabsContent>
         </Tabs>

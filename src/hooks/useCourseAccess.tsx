@@ -52,6 +52,38 @@ export function useCourseAccess(sectionNumber: number): CourseAccessResult {
     checkAccess();
   }, [checkAccess]);
 
+  // Real-time subscription for course access changes
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel(`course-access-${sectionNumber}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'course_access',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log('Course access updated in real-time:', payload);
+          const data = payload.new as any;
+          if (data && data.course_section === sectionNumber) {
+            setHasAccess(data.has_access);
+          } else {
+            // Refetch if we can't determine from payload
+            checkAccess();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, sectionNumber, checkAccess]);
+
   return { hasAccess, loading, error };
 }
 
@@ -104,12 +136,12 @@ export function useAllCourseAccess() {
     fetchAccess();
   }, [fetchAccess]);
 
-  // Subscribe to realtime updates
+  // Real-time subscription for course access changes
   useEffect(() => {
     if (!user) return;
 
     const channel = supabase
-      .channel('course-access-changes')
+      .channel('course-access-all')
       .on(
         'postgres_changes',
         {
@@ -119,6 +151,7 @@ export function useAllCourseAccess() {
           filter: `user_id=eq.${user.id}`,
         },
         () => {
+          console.log('Course access changed, refetching...');
           fetchAccess();
         }
       )

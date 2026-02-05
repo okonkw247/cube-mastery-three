@@ -39,6 +39,7 @@ import { StreakTracker } from "@/components/dashboard/StreakTracker";
 import { BookmarkedLessons } from "@/components/dashboard/BookmarkedLessons";
 import { InvitationTracker } from "@/components/dashboard/InvitationTracker";
 import { NotificationBell } from "@/components/NotificationBell";
+import { SubscriptionStatusBadge, PlanBadge } from "@/components/dashboard/SubscriptionStatusBadge";
 import {
   LineChart,
   Line,
@@ -223,6 +224,10 @@ const Dashboard = () => {
       <main className="container mx-auto px-3 sm:px-6 py-4 sm:py-8">
         {/* Welcome Section - Responsive */}
         <div className="text-center mb-6 sm:mb-12">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <PlanBadge />
+            <SubscriptionStatusBadge />
+          </div>
           <h1 className="text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-2 sm:mb-4">
             {t('dashboard.welcomeBack', { name: displayName })}
           </h1>
