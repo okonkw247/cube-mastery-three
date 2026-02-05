@@ -32,6 +32,7 @@ export interface UserWithProgress {
   full_name: string | null;
   avatar_url: string | null;
   subscription_tier: string;
+  subscription_status: string;
   is_suspended: boolean;
   total_points: number;
   created_at: string;
@@ -218,6 +219,7 @@ export function useAdminData() {
         full_name: p.full_name,
         avatar_url: p.avatar_url,
         subscription_tier: p.subscription_tier,
+        subscription_status: p.subscription_status || 'inactive',
         is_suspended: p.is_suspended || false,
         total_points: p.total_points || 0,
         created_at: p.created_at,

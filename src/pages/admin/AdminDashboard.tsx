@@ -4,15 +4,19 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { StatCard } from '@/components/admin/StatCard';
 import { useAdminData } from '@/hooks/useAdminData';
 import { useActivityLog } from '@/hooks/useActivityLog';
+import { useAdminMilestones } from '@/hooks/useAdminMilestones';
 import { CelebrationPopup, useCelebration } from '@/components/admin/CelebrationPopup';
-import { Users, BookOpen, Timer, TrendingUp, AlertCircle, Activity } from 'lucide-react';
+import { Users, BookOpen, Timer, TrendingUp, AlertCircle, Activity, Trophy, Sparkles } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Badge } from '@/components/ui/badge';
+import { formatDistanceToNow } from 'date-fns';
 
 export default function AdminDashboard() {
   const { t } = useTranslation();
   const { stats, topPerformers, weeklyActivity, loading } = useAdminData();
   const { activities, getActivityIcon, getActivityColor, formatTimestamp } = useActivityLog();
+  const { milestones } = useAdminMilestones();
   const { celebration, celebrate, closeCelebration } = useCelebration();
   const [celebratedMilestones, setCelebratedMilestones] = useState<Set<string>>(new Set());
 
@@ -111,12 +115,51 @@ export default function AdminDashboard() {
           </div>
         </div>
 
+        {/* Student Milestones - Real-Time */}
+        <div className="bg-card rounded-xl p-6 border border-border">
+          <div className="flex items-center gap-2 mb-4">
+            <Trophy className="w-5 h-5 text-primary" />
+            <h2 className="font-semibold">Student Milestones</h2>
+            <span className="flex items-center gap-1 text-xs text-primary">
+              <Sparkles className="w-3 h-3" />
+              Live
+            </span>
+          </div>
+          
+          <div className="space-y-3 max-h-60 overflow-y-auto">
+            {milestones.length === 0 ? (
+              <p className="text-muted-foreground text-sm text-center py-8">No completions yet</p>
+            ) : (
+              milestones.slice(0, 10).map((milestone) => (
+                <div
+                  key={milestone.id}
+                  className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/10"
+                >
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                    <Trophy className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{milestone.user_name}</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      Completed "{milestone.lesson_title}"
+                    </p>
+                  </div>
+                  <Badge variant="secondary" className="text-xs shrink-0">
+                    {formatDistanceToNow(new Date(milestone.completed_at), { addSuffix: true })}
+                  </Badge>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
         {/* Real-Time Activity Log */}
         <div className="bg-card rounded-xl p-6 border border-border">
           <div className="flex items-center gap-2 mb-4">
+            <Activity className="w-5 h-5 text-muted-foreground" />
             <h2 className="font-semibold">{t('admin.recentActivity')}</h2>
-            <span className="flex items-center gap-1 text-xs text-green-500">
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            <span className="flex items-center gap-1 text-xs text-emerald-500">
+              <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
               Real-time
             </span>
           </div>
@@ -133,14 +176,17 @@ export default function AdminDashboard() {
                   <span className="text-lg">{getActivityIcon(activity.action_type)}</span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                        activity.action_type === 'auth' ? 'bg-blue-500/20 text-blue-500' :
-                        activity.action_type === 'content' ? 'bg-green-500/20 text-green-500' :
-                        activity.action_type === 'payment' ? 'bg-yellow-500/20 text-yellow-500' :
-                        'bg-gray-500/20 text-gray-500'
-                      }`}>
+                      <Badge 
+                        variant="secondary"
+                        className={`text-xs ${
+                          activity.action_type === 'auth' ? 'bg-blue-500/10 text-blue-500' :
+                          activity.action_type === 'content' ? 'bg-emerald-500/10 text-emerald-500' :
+                          activity.action_type === 'payment' ? 'bg-amber-500/10 text-amber-500' :
+                          ''
+                        }`}
+                      >
                         {activity.action_type}
-                      </span>
+                      </Badge>
                       <span className="text-xs text-muted-foreground">
                         {formatTimestamp(activity.created_at)}
                       </span>

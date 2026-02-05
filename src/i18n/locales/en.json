@@ -384,5 +384,17 @@
     "noInvitations": "No invitations sent yet",
     "inviteNow": "Invite Friends Now",
     "more": "more"
+  },
+  "subscription": {
+    "processing": "Processing",
+    "paymentFailed": "Payment Failed",
+    "cancelled": "Cancelled",
+    "active": "Active",
+    "inactive": "Inactive",
+    "free": "Free",
+    "starter": "Starter",
+    "pro": "Pro",
+    "enterprise": "Enterprise",
+    "updatePayment": "Please update your payment method"
   }
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
@@ -7,6 +7,7 @@ export interface Lesson {
   title: string;
   description: string | null;
   video_url: string | null;
+  thumbnail_url: string | null;
   duration: string | null;
   skill_level: string;
   order_index: number;
@@ -15,6 +16,7 @@ export interface Lesson {
   lesson_notes: string | null;
   hologram_sheet_url: string | null;
   plan_access: string | null;
+  status: string | null;
 }
 
 export interface LessonProgress {
@@ -30,29 +32,20 @@ export function useLessons() {
   const [progress, setProgress] = useState<Record<string, LessonProgress>>({});
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchLessons();
-  }, []);
-
-  useEffect(() => {
-    if (user) {
-      fetchProgress();
-    }
-  }, [user]);
-
-  const fetchLessons = async () => {
+  const fetchLessons = useCallback(async () => {
     const { data, error } = await supabase
       .from('lessons')
       .select('*')
+      .eq('status', 'published')
       .order('order_index', { ascending: true });
 
     if (!error && data) {
       setLessons(data);
     }
     setLoading(false);
-  };
+  }, []);
 
-  const fetchProgress = async () => {
+  const fetchProgress = useCallback(async () => {
     if (!user) return;
 
     const { data, error } = await supabase
@@ -72,7 +65,92 @@ export function useLessons() {
       });
       setProgress(progressMap);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    fetchLessons();
+  }, [fetchLessons]);
+
+  useEffect(() => {
+    if (user) {
+      fetchProgress();
+    }
+  }, [user, fetchProgress]);
+
+  // Real-time subscription for lesson updates (thumbnails, new lessons)
+  useEffect(() => {
+    const channel = supabase
+      .channel('lessons-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'lessons',
+        },
+        (payload) => {
+          console.log('Lesson updated in real-time:', payload);
+          if (payload.eventType === 'INSERT') {
+            const newLesson = payload.new as Lesson;
+            if (newLesson.status === 'published') {
+              setLessons((prev) => [...prev, newLesson].sort((a, b) => a.order_index - b.order_index));
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            const updatedLesson = payload.new as Lesson;
+            setLessons((prev) => 
+              prev.map((l) => l.id === updatedLesson.id ? updatedLesson : l)
+                .filter((l) => l.status === 'published')
+                .sort((a, b) => a.order_index - b.order_index)
+            );
+          } else if (payload.eventType === 'DELETE') {
+            const deletedId = (payload.old as any).id;
+            setLessons((prev) => prev.filter((l) => l.id !== deletedId));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  // Real-time subscription for progress updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('progress-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'lesson_progress',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log('Progress updated in real-time:', payload);
+          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+            const progressData = payload.new as any;
+            setProgress((prev) => ({
+              ...prev,
+              [progressData.lesson_id]: {
+                lesson_id: progressData.lesson_id,
+                completed: progressData.completed,
+                watched_seconds: progressData.watched_seconds,
+                completed_at: progressData.completed_at,
+              },
+            }));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   const markComplete = async (lessonId: string) => {
     if (!user) return;
