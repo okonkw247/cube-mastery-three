@@ -7,7 +7,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Mail, Lock, ArrowRight, Eye, EyeOff, ArrowLeft, User, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { isAdminEmail } from "@/hooks/useAdmin";
+import { useUserRole, getUserRoleByEmail } from "@/hooks/useUserRole";
 import { LogoWithGlow } from "@/components/LogoWithGlow";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import SignupQuestions, { SignupAnswers } from "@/components/onboarding/SignupQuestions";
@@ -73,16 +73,22 @@ const Auth = () => {
 
   // Redirect based on user role - ONLY after proper authentication
   useEffect(() => {
-    if (!loading && user) {
-      if (step === 'email' || step === 'signup_password' || step === 'login_password') {
-        const adminRole = isAdminEmail(user.email);
-        if (adminRole) {
-          navigate("/admin", { replace: true });
-        } else {
-          navigate("/dashboard", { replace: true });
+    const checkRoleAndRedirect = async () => {
+      if (!loading && user) {
+        if (step === 'email' || step === 'signup_password' || step === 'login_password') {
+          // Check role from database
+          const userRole = await getUserRoleByEmail(user.email || '');
+          if (userRole === 'super_admin') {
+            navigate("/admin", { replace: true });
+          } else if (userRole === 'content_admin') {
+            navigate("/admin/lessons", { replace: true });
+          } else {
+            navigate("/dashboard", { replace: true });
+          }
         }
       }
-    }
+    };
+    checkRoleAndRedirect();
   }, [user, loading, navigate, step]);
 
   // Handle email submission - determine if signup or login
@@ -216,10 +222,16 @@ const Auth = () => {
       return;
     }
 
-    const adminRole = isAdminEmail(formData.email);
-    if (adminRole) {
+    // Check role from database and redirect accordingly
+    const userRole = await getUserRoleByEmail(formData.email);
+    
+    if (userRole === 'super_admin') {
       toast.success(t('auth.welcomeBackAdmin'));
       navigate("/admin");
+      return;
+    } else if (userRole === 'content_admin') {
+      toast.success(t('auth.welcomeBackAdmin'));
+      navigate("/admin/lessons");
       return;
     }
 
