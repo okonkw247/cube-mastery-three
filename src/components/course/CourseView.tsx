@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Clock, Download, Menu, X, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import VideoPlayer from "@/components/VideoPlayer";
+import AdvancedVideoPlayer from "@/components/video/AdvancedVideoPlayer";
 import { CourseSidebar } from "./CourseSidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { toast } from "sonner";
@@ -160,9 +160,18 @@ export function CourseView({
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
-            {/* Video Player - Proper 16:9 */}
+            {/* Advanced Video Player - YouTube-style */}
             <div className="mb-6">
-              <VideoPlayer videoUrl={currentLesson.video_url} title={currentLesson.title} />
+              <AdvancedVideoPlayer 
+                videoUrl={currentLesson.video_url} 
+                title={currentLesson.title}
+                lessonId={currentLesson.id}
+                onComplete={() => {
+                  if (!isCompleted) {
+                    handleComplete();
+                  }
+                }}
+              />
             </div>
 
             {/* Lesson Info */}
