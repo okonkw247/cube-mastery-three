@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Plus, Trash2, Eye, GripVertical, FileText, Download, Edit, Upload, Video, ImageIcon } from 'lucide-react';
+import { Plus, Trash2, Eye, GripVertical, FileText, Download, Edit, Upload, Video, ImageIcon, Clock } from 'lucide-react';
+import { useVideoDuration } from '@/hooks/useVideoDuration';
 import { ThumbnailUploader } from '@/components/admin/ThumbnailUploader';
 import { InlineEdit } from '@/components/admin/InlineEdit';
 import { VideoPreviewModal } from '@/components/admin/VideoPreviewModal';
@@ -93,12 +94,14 @@ function SortableLesson({ lesson, onPreview, onDelete, onUpdate, onEdit }: Sorta
 export default function AdminLessons() {
   const { lessons, refetch } = useLessons();
   const { createLesson, updateLesson, deleteLesson, reorderLessons, saving } = useAdminLessons();
+  const { detectDuration } = useVideoDuration();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingLesson, setEditingLesson] = useState<any>(null);
   const [previewLesson, setPreviewLesson] = useState<any>(null);
   const [uploadingHologram, setUploadingHologram] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [detectingDuration, setDetectingDuration] = useState(false);
   const [formData, setFormData] = useState({
     title: '', description: '', video_url: '', duration: '', skill_level: 'beginner',
     is_free: false, order_index: lessons.length, status: 'published' as const,
@@ -120,13 +123,24 @@ export default function AdminLessons() {
       return;
     }
 
-    // Max 500MB
     if (file.size > 500 * 1024 * 1024) {
       toast.error('Video must be under 500MB');
       return;
     }
 
     setUploadingVideo(true);
+
+    // Auto-detect duration from the file
+    let detectedDuration = '';
+    try {
+      setDetectingDuration(true);
+      detectedDuration = await detectDuration(file);
+    } catch (err) {
+      console.warn('Could not detect duration:', err);
+    } finally {
+      setDetectingDuration(false);
+    }
+
     const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
 
     const { error } = await supabase.storage
@@ -147,12 +161,16 @@ export default function AdminLessons() {
     
     if (isEdit) {
       setEditFormData({ ...editFormData, video_url: urlData.publicUrl });
+      // If editing and we detected duration, update the lesson directly
+      if (detectedDuration && editingLesson) {
+        await updateLesson(editingLesson.id, { duration: detectedDuration });
+      }
     } else {
-      setFormData({ ...formData, video_url: urlData.publicUrl });
+      setFormData({ ...formData, video_url: urlData.publicUrl, duration: detectedDuration || formData.duration });
     }
     
     setUploadingVideo(false);
-    toast.success('Video uploaded successfully!');
+    toast.success(`Video uploaded!${detectedDuration ? ` Duration: ${detectedDuration}` : ''}`);
   };
 
   const sensors = useSensors(
@@ -336,7 +354,20 @@ export default function AdminLessons() {
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div><Label>Duration</Label><Input value={formData.duration} onChange={e => setFormData({ ...formData, duration: e.target.value })} placeholder="e.g., 10:30" /></div>
+                  <div>
+                    <Label className="flex items-center gap-1.5">
+                      Duration
+                      {detectingDuration && <Clock className="w-3 h-3 animate-spin text-primary" />}
+                    </Label>
+                    <Input 
+                      value={formData.duration} 
+                      onChange={e => setFormData({ ...formData, duration: e.target.value })} 
+                      placeholder={detectingDuration ? "Detecting..." : "Auto-detected on upload"} 
+                      readOnly={detectingDuration}
+                      className={formData.duration ? "border-primary/30" : ""}
+                    />
+                    {formData.duration && <p className="text-[10px] text-primary mt-0.5">Auto-detected from video</p>}
+                  </div>
                   <div><Label>Skill Level</Label>
                     <Select value={formData.skill_level} onValueChange={v => setFormData({ ...formData, skill_level: v })}>
                       <SelectTrigger><SelectValue /></SelectTrigger>

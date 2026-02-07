@@ -4,6 +4,7 @@ import { ArrowLeft, CheckCircle2, Clock, Download, Menu, X, BookOpen } from "luc
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import AdvancedVideoPlayer from "@/components/video/AdvancedVideoPlayer";
+import { DownloadButton } from "@/components/video/DownloadButton";
 import { CourseSidebar } from "./CourseSidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { toast } from "sonner";
@@ -176,7 +177,7 @@ export function CourseView({
 
             {/* Lesson Info */}
             <div className="mb-6">
-              <div className="flex flex-wrap items-center gap-3 mb-3">
+                <div className="flex flex-wrap items-center gap-3 mb-3">
                 <span className="text-xs sm:text-sm text-primary font-medium capitalize bg-primary/10 px-2 py-1 rounded">
                   {currentLesson.skill_level}
                 </span>
@@ -193,6 +194,12 @@ export function CourseView({
                 <span className="text-xs text-muted-foreground">
                   Lesson {currentIndex + 1} of {lessons.length}
                 </span>
+                <DownloadButton 
+                  lessonId={currentLesson.id}
+                  videoUrl={currentLesson.video_url}
+                  title={currentLesson.title}
+                  compact
+                />
               </div>
 
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3">

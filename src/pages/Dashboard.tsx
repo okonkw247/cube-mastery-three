@@ -40,6 +40,7 @@ import { BookmarkedLessons } from "@/components/dashboard/BookmarkedLessons";
 import { InvitationTracker } from "@/components/dashboard/InvitationTracker";
 import { NotificationBell } from "@/components/NotificationBell";
 import { SubscriptionStatusBadge, PlanBadge } from "@/components/dashboard/SubscriptionStatusBadge";
+import { DownloadManager } from "@/components/dashboard/DownloadManager";
 import {
   LineChart,
   Line,
@@ -340,7 +341,12 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-        </div>
+          </div>
+
+          {/* Download Manager */}
+          <div className="mb-4 sm:mb-8">
+            <DownloadManager />
+          </div>
 
         {/* Progress Chart - Full Width */}
         <div className="card-gradient rounded-2xl p-4 sm:p-6 border border-border mb-4 sm:mb-8">
