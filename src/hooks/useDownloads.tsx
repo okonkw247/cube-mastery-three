@@ -24,11 +24,14 @@ export interface DownloadedVideo {
 }
 
 const PLAN_DOWNLOAD_LIMITS: Record<string, number> = {
-  free: 3,
-  starter: 10,
-  pro: 50,
+  free: 0,
+  starter: 5,
+  pro: 20,
   enterprise: Infinity,
 };
+
+const VERIFICATION_KEY = "download_last_verified";
+const VERIFICATION_INTERVAL_DAYS = 30;
 
 export function useDownloads() {
   const { user } = useAuth();
@@ -37,9 +40,41 @@ export function useDownloads() {
   const [downloading, setDownloading] = useState<Record<string, number>>({});
   const [totalStorageUsed, setTotalStorageUsed] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [verificationExpired, setVerificationExpired] = useState(false);
 
   const tier = profile?.subscription_tier || "free";
-  const maxDownloads = PLAN_DOWNLOAD_LIMITS[tier] || 3;
+  const subscriptionActive = profile?.subscription_status === "active";
+  const maxDownloads = PLAN_DOWNLOAD_LIMITS[tier] || 0;
+
+  // Online/offline detection
+  useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  // 30-day verification check
+  useEffect(() => {
+    if (!user) return;
+    const lastVerified = localStorage.getItem(`${VERIFICATION_KEY}_${user.id}`);
+    if (lastVerified) {
+      const daysSince = (Date.now() - parseInt(lastVerified)) / (1000 * 60 * 60 * 24);
+      if (daysSince > VERIFICATION_INTERVAL_DAYS) {
+        setVerificationExpired(true);
+      }
+    }
+    // Mark as verified when online
+    if (navigator.onLine && user) {
+      localStorage.setItem(`${VERIFICATION_KEY}_${user.id}`, Date.now().toString());
+      setVerificationExpired(false);
+    }
+  }, [user, isOffline]);
 
   // Load downloaded videos metadata
   const loadDownloads = useCallback(async () => {
@@ -48,11 +83,8 @@ export function useDownloads() {
       const meta = await metaStore.getItem<DownloadedVideo[]>(`downloads_${user.id}`);
       const list = meta || [];
       setDownloads(list);
-
       let total = 0;
-      for (const d of list) {
-        total += d.sizeBytes;
-      }
+      for (const d of list) total += d.sizeBytes;
       setTotalStorageUsed(total);
     } catch (err) {
       console.error("Failed to load downloads:", err);
@@ -65,15 +97,24 @@ export function useDownloads() {
     loadDownloads();
   }, [loadDownloads]);
 
+  // Auto-clear downloads if subscription expired
+  useEffect(() => {
+    if (user && profile && !subscriptionActive && tier !== "free" && downloads.length > 0) {
+      // Subscription expired - block playback (don't auto-delete, just block)
+      console.log("Subscription inactive - downloads blocked");
+    }
+  }, [user, profile, subscriptionActive, tier, downloads]);
+
   const isDownloaded = useCallback(
     (lessonId: string) => downloads.some((d) => d.lessonId === lessonId),
     [downloads]
   );
 
-  const canDownload = downloads.length < maxDownloads;
+  const canDownload = maxDownloads > 0 && downloads.length < maxDownloads;
+  const canPlayOffline = subscriptionActive && !verificationExpired;
 
   const downloadVideo = useCallback(
-    async (lessonId: string, videoUrl: string, title: string, thumbnailUrl?: string) => {
+    async (lessonId: string, videoUrl: string, title: string, thumbnailUrl?: string, quality = "auto") => {
       if (!user) return;
       if (isDownloaded(lessonId)) return;
       if (!canDownload) return;
@@ -96,7 +137,6 @@ export function useDownloads() {
           if (done) break;
           chunks.push(value.buffer as ArrayBuffer);
           receivedLength += value.length;
-
           const percent = contentLength > 0 ? Math.round((receivedLength / contentLength) * 100) : -1;
           setDownloading((prev) => ({ ...prev, [lessonId]: percent }));
         }
@@ -110,7 +150,7 @@ export function useDownloads() {
         const entry: DownloadedVideo = {
           lessonId,
           title,
-          quality: "auto",
+          quality,
           sizeBytes: blob.size,
           downloadedAt: new Date().toISOString(),
           thumbnailUrl,
@@ -122,6 +162,9 @@ export function useDownloads() {
 
         setDownloads(updatedList);
         setTotalStorageUsed((prev) => prev + blob.size);
+
+        // Update last verified timestamp
+        localStorage.setItem(`${VERIFICATION_KEY}_${user.id}`, Date.now().toString());
       } catch (err) {
         console.error("Download failed:", err);
         throw err;
@@ -141,12 +184,10 @@ export function useDownloads() {
       if (!user) return;
       try {
         await downloadStore.removeItem(`video_${user.id}_${lessonId}`);
-
         const currentList = (await metaStore.getItem<DownloadedVideo[]>(`downloads_${user.id}`)) || [];
         const removed = currentList.find((d) => d.lessonId === lessonId);
         const updatedList = currentList.filter((d) => d.lessonId !== lessonId);
         await metaStore.setItem(`downloads_${user.id}`, updatedList);
-
         setDownloads(updatedList);
         if (removed) {
           setTotalStorageUsed((prev) => Math.max(0, prev - removed.sizeBytes));
@@ -161,17 +202,17 @@ export function useDownloads() {
   const getVideoBlob = useCallback(
     async (lessonId: string): Promise<string | null> => {
       if (!user) return null;
+      // Block playback if subscription expired or verification expired
+      if (!canPlayOffline) return null;
       try {
         const blob = await downloadStore.getItem<Blob>(`video_${user.id}_${lessonId}`);
-        if (blob) {
-          return URL.createObjectURL(blob);
-        }
+        if (blob) return URL.createObjectURL(blob);
         return null;
       } catch {
         return null;
       }
     },
-    [user]
+    [user, canPlayOffline]
   );
 
   const clearAllDownloads = useCallback(async () => {
@@ -199,12 +240,15 @@ export function useDownloads() {
     loading,
     maxDownloads,
     canDownload,
+    canPlayOffline,
     isDownloaded,
+    isOffline,
+    verificationExpired,
     downloadVideo,
     removeDownload,
     getVideoBlob,
     clearAllDownloads,
     formatBytes,
-    remainingDownloads: maxDownloads - downloads.length,
+    remainingDownloads: Math.max(0, maxDownloads - downloads.length),
   };
 }

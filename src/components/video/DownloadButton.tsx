@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Download, Check, Loader2, Trash2, WifiOff } from "lucide-react";
+import { Download, Check, Loader2, Trash2, WifiOff, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -24,25 +24,30 @@ interface DownloadButtonProps {
 }
 
 export function DownloadButton({ lessonId, videoUrl, title, thumbnailUrl, compact = false }: DownloadButtonProps) {
-  const { isDownloaded, downloading, downloadVideo, removeDownload, canDownload, remainingDownloads } = useDownloads();
+  const { isDownloaded, downloading, downloadVideo, removeDownload, canDownload, remainingDownloads, maxDownloads } = useDownloads();
 
   const isCurrentlyDownloading = lessonId in downloading;
   const downloadProgress = downloading[lessonId] ?? 0;
   const downloaded = isDownloaded(lessonId);
 
-  const handleDownload = async () => {
+  const handleDownload = async (quality = "auto") => {
     if (!videoUrl) {
       toast.error("No video available for download");
       return;
     }
 
+    if (maxDownloads === 0) {
+      toast.error("Downloads are not available on the Free plan. Please upgrade.");
+      return;
+    }
+
     if (!canDownload) {
-      toast.error(`Download limit reached. Upgrade your plan for more downloads. (${remainingDownloads} remaining)`);
+      toast.error(`Download limit reached (${maxDownloads} max). Remove a download or upgrade your plan.`);
       return;
     }
 
     try {
-      await downloadVideo(lessonId, videoUrl, title, thumbnailUrl);
+      await downloadVideo(lessonId, videoUrl, title, thumbnailUrl, quality);
       toast.success("Video downloaded for offline viewing!");
     } catch {
       toast.error("Download failed. Please try again.");
@@ -59,6 +64,21 @@ export function DownloadButton({ lessonId, videoUrl, title, thumbnailUrl, compac
   // Don't show download for embed URLs
   if (videoUrl.includes("youtube.com") || videoUrl.includes("vimeo.com") || videoUrl.includes("youtu.be")) {
     return null;
+  }
+
+  // Free plan - show disabled state
+  if (maxDownloads === 0) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size={compact ? "icon" : "sm"} disabled className="gap-1.5 opacity-50">
+            <Download className="w-4 h-4" />
+            {!compact && <span className="text-xs">Upgrade</span>}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Upgrade to download videos for offline viewing</TooltipContent>
+      </Tooltip>
+    );
   }
 
   if (downloaded) {
@@ -97,7 +117,7 @@ export function DownloadButton({ lessonId, videoUrl, title, thumbnailUrl, compac
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant="ghost" size={compact ? "icon" : "sm"} onClick={handleDownload} className="gap-1.5">
+        <Button variant="ghost" size={compact ? "icon" : "sm"} onClick={() => handleDownload()} className="gap-1.5">
           <Download className="w-4 h-4" />
           {!compact && <span className="text-xs">Download</span>}
         </Button>

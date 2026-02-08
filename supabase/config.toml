@@ -8,3 +8,27 @@ verify_jwt = true
 
 [functions.whop-webhook]
 verify_jwt = false
+
+[functions.complete-login]
+verify_jwt = false
+
+[functions.reset-password]
+verify_jwt = false
+
+[functions.send-enterprise-inquiry]
+verify_jwt = false
+
+[functions.send-login-notification]
+verify_jwt = false
+
+[functions.send-otp]
+verify_jwt = false
+
+[functions.send-welcome-email]
+verify_jwt = false
+
+[functions.verify-otp]
+verify_jwt = false
+
+[functions.verify-password]
+verify_jwt = false
