@@ -71,8 +71,15 @@ function SortableLesson({ lesson, onPreview, onDelete, onUpdate, onEdit }: Sorta
           )}
         </div>
       </div>
-      <span className={`text-xs px-2 py-1 rounded-full ${lesson.is_free ? 'bg-green-500/10 text-green-500' : 'bg-primary/10 text-primary'}`}>
-        {lesson.is_free ? 'Free' : 'Pro'}
+      <span className={`text-xs px-2 py-1 rounded-full ${
+        lesson.is_free || lesson.plan_access === 'free' ? 'bg-green-500/10 text-green-500' :
+        lesson.plan_access === 'starter' ? 'bg-blue-500/10 text-blue-500' :
+        lesson.plan_access === 'pro' ? 'bg-amber-500/10 text-amber-500' :
+        'bg-purple-500/10 text-purple-500'
+      }`}>
+        {lesson.is_free || lesson.plan_access === 'free' ? 'Free' :
+         lesson.plan_access === 'starter' ? 'Starter' :
+         lesson.plan_access === 'pro' ? 'Pro' : 'Enterprise'}
       </span>
       <div className="flex gap-1">
         <Button variant="ghost" size="icon" onClick={() => onEdit(lesson)} title="Edit lesson">
@@ -102,11 +109,13 @@ export default function AdminLessons() {
   const [uploadingHologram, setUploadingHologram] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [detectingDuration, setDetectingDuration] = useState(false);
+  const [planFilter, setPlanFilter] = useState<string>('all');
   const [formData, setFormData] = useState({
     title: '', description: '', video_url: '', duration: '', skill_level: 'beginner',
     is_free: false, order_index: lessons.length, status: 'published' as const,
     tags: [] as string[], prerequisites: [] as string[], preview_duration: 30,
     video_quality: 'high' as const, thumbnail_url: '', lesson_notes: '', hologram_sheet_url: '',
+    plan_access: 'free' as string,
   });
   const [editFormData, setEditFormData] = useState({
     lesson_notes: '',
@@ -292,6 +301,17 @@ export default function AdminLessons() {
   };
 
   const sortedLessons = [...lessons].sort((a, b) => a.order_index - b.order_index);
+  const filteredLessons = planFilter === 'all' ? sortedLessons : sortedLessons.filter(l => {
+    if (planFilter === 'free') return l.is_free || l.plan_access === 'free';
+    return l.plan_access === planFilter;
+  });
+  const planCounts = {
+    all: sortedLessons.length,
+    free: sortedLessons.filter(l => l.is_free || l.plan_access === 'free').length,
+    starter: sortedLessons.filter(l => l.plan_access === 'starter').length,
+    pro: sortedLessons.filter(l => l.plan_access === 'pro').length,
+    enterprise: sortedLessons.filter(l => l.plan_access === 'enterprise').length,
+  };
 
   return (
     <AdminLayout requiredPermission="manage_lessons">
@@ -379,7 +399,27 @@ export default function AdminLessons() {
                     </Select>
                   </div>
                 </div>
-                <div className="flex items-center gap-2"><Switch checked={formData.is_free} onCheckedChange={v => setFormData({ ...formData, is_free: v })} /><Label>Free Lesson</Label></div>
+                <div>
+                  <Label>Plan Access</Label>
+                  <Select value={formData.is_free ? 'free' : (formData as any).plan_access || 'free'} onValueChange={v => {
+                    if (v === 'free') {
+                      setFormData({ ...formData, is_free: true, plan_access: 'free' } as any);
+                    } else {
+                      setFormData({ ...formData, is_free: false, plan_access: v } as any);
+                    }
+                  }}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="free">Free (everyone)</SelectItem>
+                      <SelectItem value="starter">Starter+</SelectItem>
+                      <SelectItem value="pro">Pro+</SelectItem>
+                      <SelectItem value="enterprise">Enterprise only</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[10px] text-muted-foreground mt-1">
+                    {formData.is_free ? 'Visible to all users' : `Visible to ${(formData as any).plan_access || 'free'} and above`}
+                  </p>
+                </div>
                 <Button type="submit" disabled={saving || !formData.thumbnail_url} className="w-full">
                   {saving ? 'Saving...' : !formData.thumbnail_url ? 'Thumbnail Required' : 'Create Lesson'}
                 </Button>
@@ -388,10 +428,31 @@ export default function AdminLessons() {
           </Dialog>
         </div>
 
+        {/* Plan Filter Tabs */}
+        <div className="flex gap-1 bg-secondary rounded-lg p-1 mb-4 overflow-x-auto">
+          {[
+            { key: 'all', label: 'All' },
+            { key: 'free', label: 'Free' },
+            { key: 'starter', label: 'Starter' },
+            { key: 'pro', label: 'Pro' },
+            { key: 'enterprise', label: 'Enterprise' },
+          ].map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => setPlanFilter(tab.key)}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
+                planFilter === tab.key ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {tab.label} ({planCounts[tab.key as keyof typeof planCounts]})
+            </button>
+          ))}
+        </div>
+
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={sortedLessons.map(l => l.id)} strategy={verticalListSortingStrategy}>
+          <SortableContext items={filteredLessons.map(l => l.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-2">
-              {sortedLessons.map(lesson => (
+              {filteredLessons.map(lesson => (
                 <SortableLesson
                   key={lesson.id}
                   lesson={lesson}
@@ -405,9 +466,9 @@ export default function AdminLessons() {
           </SortableContext>
         </DndContext>
 
-        {sortedLessons.length === 0 && (
+        {filteredLessons.length === 0 && (
           <div className="text-center py-12 text-muted-foreground">
-            No lessons yet. Click "Add Lesson" to create your first lesson.
+            {planFilter === 'all' ? 'No lessons yet. Click "Add Lesson" to create your first lesson.' : `No ${planFilter} lessons yet.`}
           </div>
         )}
       </div>
