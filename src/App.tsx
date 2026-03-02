@@ -7,6 +7,9 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { AdminProvider } from "@/hooks/useAdmin";
 import { SettingsProvider } from "@/contexts/SettingsContext";
+import { PWAInstallPrompt } from "@/components/pwa/PWAInstallPrompt";
+import { PWAUpdatePrompt } from "@/components/pwa/PWAUpdatePrompt";
+import { OfflineBanner } from "@/components/pwa/OfflineBanner";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -35,6 +38,9 @@ const App = () => (
             <TooltipProvider>
             <Toaster />
             <Sonner />
+            <PWAInstallPrompt />
+            <PWAUpdatePrompt />
+            <OfflineBanner />
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />
