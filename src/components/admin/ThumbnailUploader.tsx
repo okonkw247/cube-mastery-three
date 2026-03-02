@@ -143,6 +143,15 @@ export function ThumbnailUploader({
           <ImageIcon className="w-4 h-4" />
           Thumbnail {required && <span className="text-destructive">*</span>}
         </Label>
+        {required && !value && !generatedPreview && (
+          <button
+            type="button"
+            onClick={() => onChange("")}
+            className="text-xs text-muted-foreground hover:text-foreground underline"
+          >
+            Skip for now
+          </button>
+        )}
       </div>
 
       {/* Live Preview */}
@@ -253,12 +262,6 @@ export function ThumbnailUploader({
           className="text-sm"
         />
       </div>
-
-      {required && !value && !generatedPreview && (
-        <p className="text-xs text-destructive">
-          A thumbnail is required before publishing this lesson
-        </p>
-      )}
     </div>
   );
 }
