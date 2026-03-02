@@ -63,6 +63,17 @@ export function useNotifications() {
           const newNotification = payload.new as Notification;
           setNotifications(prev => [newNotification, ...prev]);
           setUnreadCount(prev => prev + 1);
+          
+          // Send browser push notification if permitted
+          if (typeof window.Notification !== "undefined" && window.Notification.permission === "granted") {
+            try {
+              new window.Notification(newNotification.title, {
+                body: newNotification.message,
+                icon: "/pwa-icon-512.png",
+                badge: "/pwa-icon-512.png",
+              });
+            } catch {}
+          }
         }
       )
       .subscribe();
