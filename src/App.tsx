@@ -27,6 +27,7 @@ import AdminChallenges from "./pages/admin/AdminChallenges";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminInviteAccept from "./pages/admin/AdminInviteAccept";
+import MyDownloads from "./pages/MyDownloads";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => (
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/lesson/:id" element={<Lesson />} />
                 <Route path="/notifications" element={<Notifications />} />
+                <Route path="/downloads" element={<MyDownloads />} />
                 {/* Admin Routes */}
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/lessons" element={<AdminLessons />} />

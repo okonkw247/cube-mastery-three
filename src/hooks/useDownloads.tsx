@@ -1,9 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import localforage from "localforage";
+import CryptoJS from "crypto-js";
 import { useAuth } from "./useAuth";
 import { useProfile } from "./useProfile";
+import { useDeviceFingerprint } from "./useDeviceFingerprint";
+import { supabase } from "@/integrations/supabase/client";
 
-// Configure localforage
 const downloadStore = localforage.createInstance({
   name: "cube-mastery-downloads",
   storeName: "videos",
@@ -23,25 +25,35 @@ export interface DownloadedVideo {
   thumbnailUrl?: string;
 }
 
+// One-time payment: download ALL courses you have access to
 const PLAN_DOWNLOAD_LIMITS: Record<string, number> = {
   free: 0,
-  starter: 5,
-  pro: 20,
+  starter: 15,
+  pro: 50,
   enterprise: Infinity,
 };
 
+const MAX_DEVICES = 2;
 const VERIFICATION_KEY = "download_last_verified";
 const VERIFICATION_INTERVAL_DAYS = 30;
+
+function getEncryptionKey(userId: string): string {
+  return CryptoJS.SHA256(`cube-mastery-${userId}-download-key`).toString();
+}
 
 export function useDownloads() {
   const { user } = useAuth();
   const { profile } = useProfile();
+  const { fingerprint, deviceName } = useDeviceFingerprint();
   const [downloads, setDownloads] = useState<DownloadedVideo[]>([]);
   const [downloading, setDownloading] = useState<Record<string, number>>({});
   const [totalStorageUsed, setTotalStorageUsed] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [verificationExpired, setVerificationExpired] = useState(false);
+  const [devices, setDevices] = useState<any[]>([]);
+  const [deviceLimitReached, setDeviceLimitReached] = useState(false);
+  const abortControllers = useRef<Record<string, AbortController>>({});
 
   const tier = profile?.subscription_tier || "free";
   const subscriptionActive = profile?.subscription_status === "active";
@@ -69,12 +81,33 @@ export function useDownloads() {
         setVerificationExpired(true);
       }
     }
-    // Mark as verified when online
     if (navigator.onLine && user) {
       localStorage.setItem(`${VERIFICATION_KEY}_${user.id}`, Date.now().toString());
       setVerificationExpired(false);
     }
   }, [user, isOffline]);
+
+  // Load devices & register current device
+  useEffect(() => {
+    if (!user || !fingerprint) return;
+    const registerDevice = async () => {
+      try {
+        // Upsert current device
+        await supabase.from("user_devices" as any).upsert(
+          { user_id: user.id, device_fingerprint: fingerprint, device_name: deviceName, last_used_at: new Date().toISOString() },
+          { onConflict: "user_id,device_fingerprint" }
+        );
+        // Fetch all devices
+        const { data } = await supabase.from("user_devices" as any).select("*").eq("user_id", user.id).order("last_used_at", { ascending: false });
+        const deviceList = (data as any[]) || [];
+        setDevices(deviceList);
+        setDeviceLimitReached(deviceList.length > MAX_DEVICES);
+      } catch (err) {
+        console.error("Device registration failed:", err);
+      }
+    };
+    registerDevice();
+  }, [user, fingerprint, deviceName]);
 
   // Load downloaded videos metadata
   const loadDownloads = useCallback(async () => {
@@ -93,24 +126,14 @@ export function useDownloads() {
     }
   }, [user]);
 
-  useEffect(() => {
-    loadDownloads();
-  }, [loadDownloads]);
-
-  // Auto-clear downloads if subscription expired
-  useEffect(() => {
-    if (user && profile && !subscriptionActive && tier !== "free" && downloads.length > 0) {
-      // Subscription expired - block playback (don't auto-delete, just block)
-      console.log("Subscription inactive - downloads blocked");
-    }
-  }, [user, profile, subscriptionActive, tier, downloads]);
+  useEffect(() => { loadDownloads(); }, [loadDownloads]);
 
   const isDownloaded = useCallback(
     (lessonId: string) => downloads.some((d) => d.lessonId === lessonId),
     [downloads]
   );
 
-  const canDownload = maxDownloads > 0 && downloads.length < maxDownloads;
+  const canDownload = maxDownloads > 0 && downloads.length < maxDownloads && !deviceLimitReached;
   const canPlayOffline = subscriptionActive && !verificationExpired;
 
   const downloadVideo = useCallback(
@@ -119,39 +142,52 @@ export function useDownloads() {
       if (isDownloaded(lessonId)) return;
       if (!canDownload) return;
 
+      const controller = new AbortController();
+      abortControllers.current[lessonId] = controller;
+
       try {
         setDownloading((prev) => ({ ...prev, [lessonId]: 0 }));
 
-        const response = await fetch(videoUrl);
+        const response = await fetch(videoUrl, { signal: controller.signal });
         if (!response.ok) throw new Error("Failed to fetch video");
 
         const contentLength = Number(response.headers.get("content-length")) || 0;
         const reader = response.body?.getReader();
         if (!reader) throw new Error("No readable stream");
 
-        const chunks: ArrayBuffer[] = [];
+        const chunks: Uint8Array[] = [];
         let receivedLength = 0;
 
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          chunks.push(value.buffer as ArrayBuffer);
+          chunks.push(value);
           receivedLength += value.length;
           const percent = contentLength > 0 ? Math.round((receivedLength / contentLength) * 100) : -1;
           setDownloading((prev) => ({ ...prev, [lessonId]: percent }));
         }
 
-        const blob = new Blob(chunks, { type: "video/mp4" });
+        // Combine chunks
+        const fullArray = new Uint8Array(receivedLength);
+        let offset = 0;
+        for (const chunk of chunks) {
+          fullArray.set(chunk, offset);
+          offset += chunk.length;
+        }
 
-        // Store video blob
-        await downloadStore.setItem(`video_${user.id}_${lessonId}`, blob);
+        // Encrypt the video data
+        const key = getEncryptionKey(user.id);
+        const wordArray = CryptoJS.lib.WordArray.create(fullArray as any);
+        const encrypted = CryptoJS.AES.encrypt(wordArray, key).toString();
 
-        // Update metadata
+        // Store encrypted blob
+        await downloadStore.setItem(`video_${user.id}_${lessonId}`, encrypted);
+
         const entry: DownloadedVideo = {
           lessonId,
           title,
           quality,
-          sizeBytes: blob.size,
+          sizeBytes: encrypted.length,
           downloadedAt: new Date().toISOString(),
           thumbnailUrl,
         };
@@ -161,14 +197,18 @@ export function useDownloads() {
         await metaStore.setItem(`downloads_${user.id}`, updatedList);
 
         setDownloads(updatedList);
-        setTotalStorageUsed((prev) => prev + blob.size);
+        setTotalStorageUsed((prev) => prev + encrypted.length);
 
-        // Update last verified timestamp
         localStorage.setItem(`${VERIFICATION_KEY}_${user.id}`, Date.now().toString());
-      } catch (err) {
+      } catch (err: any) {
+        if (err.name === "AbortError") {
+          console.log("Download cancelled:", lessonId);
+          return;
+        }
         console.error("Download failed:", err);
         throw err;
       } finally {
+        delete abortControllers.current[lessonId];
         setDownloading((prev) => {
           const next = { ...prev };
           delete next[lessonId];
@@ -178,6 +218,19 @@ export function useDownloads() {
     },
     [user, isDownloaded, canDownload]
   );
+
+  const cancelDownload = useCallback((lessonId: string) => {
+    const controller = abortControllers.current[lessonId];
+    if (controller) {
+      controller.abort();
+      delete abortControllers.current[lessonId];
+      setDownloading((prev) => {
+        const next = { ...prev };
+        delete next[lessonId];
+        return next;
+      });
+    }
+  }, []);
 
   const removeDownload = useCallback(
     async (lessonId: string) => {
@@ -202,12 +255,16 @@ export function useDownloads() {
   const getVideoBlob = useCallback(
     async (lessonId: string): Promise<string | null> => {
       if (!user) return null;
-      // Block playback if subscription expired or verification expired
       if (!canPlayOffline) return null;
       try {
-        const blob = await downloadStore.getItem<Blob>(`video_${user.id}_${lessonId}`);
-        if (blob) return URL.createObjectURL(blob);
-        return null;
+        const encrypted = await downloadStore.getItem<string>(`video_${user.id}_${lessonId}`);
+        if (!encrypted) return null;
+
+        const key = getEncryptionKey(user.id);
+        const decrypted = CryptoJS.AES.decrypt(encrypted, key);
+        const typedArray = convertWordArrayToUint8Array(decrypted);
+        const blob = new Blob([typedArray.buffer as ArrayBuffer], { type: "video/mp4" });
+        return URL.createObjectURL(blob);
       } catch {
         return null;
       }
@@ -224,6 +281,12 @@ export function useDownloads() {
     setDownloads([]);
     setTotalStorageUsed(0);
   }, [user, downloads]);
+
+  const removeDevice = useCallback(async (deviceId: string) => {
+    if (!user) return;
+    await supabase.from("user_devices" as any).delete().eq("id", deviceId).eq("user_id", user.id);
+    setDevices((prev) => prev.filter((d: any) => d.id !== deviceId));
+  }, [user]);
 
   const formatBytes = (bytes: number) => {
     if (bytes === 0) return "0 B";
@@ -245,10 +308,25 @@ export function useDownloads() {
     isOffline,
     verificationExpired,
     downloadVideo,
+    cancelDownload,
     removeDownload,
     getVideoBlob,
     clearAllDownloads,
     formatBytes,
     remainingDownloads: Math.max(0, maxDownloads - downloads.length),
+    devices,
+    deviceLimitReached,
+    removeDevice,
+    maxDevices: MAX_DEVICES,
   };
+}
+
+function convertWordArrayToUint8Array(wordArray: CryptoJS.lib.WordArray): Uint8Array {
+  const words = wordArray.words;
+  const sigBytes = wordArray.sigBytes;
+  const u8 = new Uint8Array(sigBytes);
+  for (let i = 0; i < sigBytes; i++) {
+    u8[i] = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+  }
+  return u8;
 }

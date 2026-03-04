@@ -29,7 +29,11 @@ import {
   Loader2,
   MessageSquare,
   ExternalLink,
+  Smartphone,
+  Monitor,
+  Trash2,
 } from "lucide-react";
+import { useDownloads } from "@/hooks/useDownloads";
 import { LogoWithGlow } from "@/components/LogoWithGlow";
 import EditProfileModal from "@/components/modals/EditProfileModal";
 import ChangePasswordModal from "@/components/modals/ChangePasswordModal";
@@ -41,6 +45,7 @@ const getSettingsTabs = (t: (key: string) => string) => [
   { id: "language", label: t('settings.timeAndLanguage'), icon: Globe },
   { id: "notifications", label: t('settings.notifications'), icon: Bell },
   { id: "privacy", label: t('settings.privacy'), icon: Shield },
+  { id: "devices", label: "Devices", icon: Smartphone },
   { id: "payment", label: t('settings.payment'), icon: CreditCard },
   { id: "plugins", label: t('settings.plugins'), icon: Puzzle },
   { id: "support", label: t('settings.support'), icon: MessageSquare },
@@ -189,6 +194,73 @@ const pluginConfigs = [
     color: "bg-green-500/10"
   },
 ];
+
+function DevicesTab() {
+  const { devices, removeDevice, maxDevices, formatBytes, totalStorageUsed, downloads } = useDownloads();
+  const handleRemoveDevice = async (deviceId: string, name: string) => {
+    if (confirm(`Remove "${name}" from your devices? Downloads on that device will become inaccessible.`)) {
+      await removeDevice(deviceId);
+      toast.success(`Device "${name}" removed`);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-base sm:text-lg font-semibold mb-1">Active Devices</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          You can download courses on up to {maxDevices} devices. Remove a device to add a new one.
+        </p>
+        {devices.length === 0 ? (
+          <p className="text-sm text-muted-foreground py-4 text-center">No devices registered yet.</p>
+        ) : (
+          <div className="space-y-2">
+            {devices.map((device: any) => (
+              <div key={device.id} className="flex items-center justify-between p-3 sm:p-4 rounded-xl border border-border bg-secondary/30">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    {device.device_name?.includes("Phone") || device.device_name?.includes("iPhone") || device.device_name?.includes("Android") ? (
+                      <Smartphone className="w-5 h-5 text-primary" />
+                    ) : (
+                      <Monitor className="w-5 h-5 text-primary" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">{device.device_name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Last used: {new Date(device.last_used_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+                <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleRemoveDevice(device.id, device.device_name)}>
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  Remove
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+        <p className="text-xs text-muted-foreground mt-3">
+          {devices.length}/{maxDevices} devices active
+        </p>
+      </div>
+
+      <div className="border-t border-border pt-6">
+        <h3 className="text-base sm:text-lg font-semibold mb-1">Download Storage</h3>
+        <div className="p-4 rounded-xl border border-border bg-secondary/30">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm">Total storage used</span>
+            <span className="text-sm font-medium">{formatBytes(totalStorageUsed)}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm">Downloaded videos</span>
+            <span className="text-sm font-medium">{downloads.length}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const Settings = () => {
   const { t } = useTranslation();
@@ -799,6 +871,9 @@ const Settings = () => {
                 </div>
               </div>
             )}
+
+            {/* Devices Tab */}
+            {activeTab === "devices" && <DevicesTab />}
 
             {/* Payment Tab */}
             {activeTab === "payment" && (
