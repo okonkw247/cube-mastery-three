@@ -79,12 +79,12 @@ export default function AdminDailyChallenges() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Daily Challenges</h1>
+            <h1 className="text-xl sm:text-2xl font-bold">Daily Challenges</h1>
             <p className="text-muted-foreground text-sm">Create and manage daily challenges for students</p>
           </div>
-          <Button className="gap-2" onClick={openNew}><Plus className="w-4 h-4" />New Challenge</Button>
+          <Button className="gap-2 w-fit" size="sm" onClick={openNew}><Plus className="w-4 h-4" />New Challenge</Button>
         </div>
 
         {loading ? (
@@ -97,9 +97,9 @@ export default function AdminDailyChallenges() {
         ) : (
           <div className="space-y-3">
             {challenges.map((c) => (
-              <div key={c.id} className="flex items-center gap-4 p-4 rounded-xl bg-card border border-border">
+              <div key={c.id} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-4 rounded-xl bg-card border border-border">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-semibold text-sm">{c.title}</h3>
                     {!c.is_active && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">Inactive</span>}
                     {c.repeat_weekly && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">Weekly</span>}
@@ -110,9 +110,11 @@ export default function AdminDailyChallenges() {
                     {c.scheduled_date && <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{c.scheduled_date}</span>}
                   </div>
                 </div>
-                <Switch checked={c.is_active} onCheckedChange={() => handleToggleActive(c)} />
-                <Button variant="ghost" size="icon" onClick={() => openEdit(c)}><Edit3 className="w-4 h-4" /></Button>
-                <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(c.id)}><Trash2 className="w-4 h-4" /></Button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Switch checked={c.is_active} onCheckedChange={() => handleToggleActive(c)} />
+                  <Button variant="ghost" size="icon" onClick={() => openEdit(c)}><Edit3 className="w-4 h-4" /></Button>
+                  <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(c.id)}><Trash2 className="w-4 h-4" /></Button>
+                </div>
               </div>
             ))}
           </div>

@@ -54,12 +54,12 @@ export default function AdminDashboard() {
     <AdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t('admin.adminDashboard')}</h1>
-          <p className="text-muted-foreground">{t('auth.welcomeBack')}! Here's what's happening.</p>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">{t('admin.adminDashboard')}</h1>
+          <p className="text-muted-foreground text-sm">{t('auth.welcomeBack')}! Here's what's happening.</p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
           <StatCard title={t('admin.totalStudents')} value={stats.totalStudents} icon={<Users className="w-5 h-5 text-primary" />} />
           <StatCard title={t('admin.activeToday')} value={stats.activeToday} icon={<TrendingUp className="w-5 h-5 text-primary" />} />
           <StatCard title={t('admin.lessons')} value={stats.lessonsUploaded} icon={<BookOpen className="w-5 h-5 text-primary" />} />
