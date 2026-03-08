@@ -63,6 +63,10 @@ const App = () => (
                 <Route path="/downloads" element={<MyDownloads />} />
                 <Route path="/community" element={<Community />} />
                 <Route path="/leaderboard" element={<Leaderboard />} />
+                <Route path="/u/:username" element={<PublicProfile />} />
+                <Route path="/certificates" element={<Certificates />} />
+                <Route path="/verify/:certificateId" element={<VerifyCertificate />} />
+                <Route path="/ref/:code" element={<ReferralLanding />} />
                 {/* Admin Routes */}
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/lessons" element={<AdminLessons />} />

@@ -15,6 +15,9 @@ export interface Profile {
   is_suspended: boolean;
   created_at: string;
   updated_at: string;
+  referral_code: string | null;
+  referred_by: string | null;
+  username: string | null;
 }
 
 export function useProfile() {
