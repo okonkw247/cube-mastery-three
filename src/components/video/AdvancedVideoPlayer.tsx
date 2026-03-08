@@ -254,6 +254,8 @@ const AdvancedVideoPlayer = ({
     if (videoRef.current) {
       setDuration(videoRef.current.duration);
     }
+    // Start extracting timeline thumbnails after video loads
+    extractFrames();
   };
 
   const handleTimeUpdate = () => {
