@@ -107,7 +107,7 @@ export function CubeCoachChat() {
       {/* Floating bubble */}
       <button
         onClick={() => setOpen(!open)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:scale-110 transition-transform flex items-center justify-center"
+        className="fixed bottom-20 right-4 z-50 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:scale-110 transition-transform flex items-center justify-center"
         aria-label="Ask the Cube Coach"
       >
         {open ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
