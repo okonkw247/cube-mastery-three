@@ -89,22 +89,22 @@ export function UpgradeModal({ open, onOpenChange, highlightPlan }: UpgradeModal
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg md:max-w-2xl p-0 overflow-hidden bg-card border-border">
-        <div className="p-6 pb-2">
+      <DialogContent className="max-w-[95vw] sm:max-w-lg md:max-w-2xl p-0 overflow-hidden bg-card border-border max-h-[90vh] overflow-y-auto">
+        <div className="p-4 sm:p-6 pb-2">
           <DialogHeader>
             <div className="flex items-center gap-2 mb-1">
               <Sparkles className="w-5 h-5 text-primary" />
-              <DialogTitle className="text-xl font-bold">
+              <DialogTitle className="text-lg sm:text-xl font-bold">
                 Upgrade Your Plan
               </DialogTitle>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               Unlock more courses and features to accelerate your cubing journey.
             </p>
           </DialogHeader>
         </div>
 
-        <div className={`grid gap-4 p-6 pt-2 ${availablePlans.length > 1 ? "md:grid-cols-2" : "grid-cols-1 max-w-md mx-auto"}`}>
+        <div className={`grid gap-3 sm:gap-4 p-4 sm:p-6 pt-2 ${availablePlans.length > 1 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1 max-w-md mx-auto"}`}>
           {availablePlans.map((plan) => {
             const Icon = plan.icon;
             const isHighlighted = highlightPlan === plan.id || (availablePlans.length === 1);
@@ -112,35 +112,35 @@ export function UpgradeModal({ open, onOpenChange, highlightPlan }: UpgradeModal
             return (
               <div
                 key={plan.id}
-                className={`relative rounded-xl border-2 p-5 transition-all ${
+                className={`relative rounded-xl border-2 p-4 sm:p-5 transition-all ${
                   isHighlighted || plan.popular
                     ? `${plan.borderColor} ${plan.bgColor}`
                     : "border-border bg-secondary/30"
                 }`}
               >
                 {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] sm:text-xs font-semibold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full whitespace-nowrap">
                     Most Popular
                   </div>
                 )}
 
-                <div className="flex items-center gap-3 mb-4">
-                  <div className={`w-10 h-10 rounded-lg ${plan.bgColor} flex items-center justify-center`}>
-                    <Icon className={`w-5 h-5 ${plan.color}`} />
+                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${plan.bgColor} flex items-center justify-center shrink-0`}>
+                    <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${plan.color}`} />
                   </div>
-                  <div>
-                    <h3 className="font-bold text-base">{plan.name}</h3>
-                    <p className="text-sm">
-                      <span className="text-2xl font-bold">{plan.price}</span>
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-sm sm:text-base">{plan.name}</h3>
+                    <p className="text-xs sm:text-sm">
+                      <span className="text-xl sm:text-2xl font-bold">{plan.price}</span>
                       <span className="text-muted-foreground ml-1">{plan.period}</span>
                     </p>
                   </div>
                 </div>
 
-                <ul className="space-y-2 mb-5">
+                <ul className="space-y-1.5 sm:space-y-2 mb-4 sm:mb-5">
                   {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm">
-                      <Check className={`w-4 h-4 shrink-0 mt-0.5 ${plan.color}`} />
+                    <li key={i} className="flex items-start gap-1.5 sm:gap-2 text-xs sm:text-sm">
+                      <Check className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 mt-0.5 ${plan.color}`} />
                       <span>{feature}</span>
                     </li>
                   ))}
@@ -148,11 +148,11 @@ export function UpgradeModal({ open, onOpenChange, highlightPlan }: UpgradeModal
 
                 <Button
                   variant={plan.popular || isHighlighted ? "default" : "outline"}
-                  className="w-full gap-2"
+                  className="w-full gap-2 text-xs sm:text-sm h-9 sm:h-10"
                   onClick={() => handleSelectPlan(plan.id)}
                 >
                   Get {plan.name}
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </Button>
               </div>
             );
