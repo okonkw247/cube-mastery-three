@@ -28,6 +28,9 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminInviteAccept from "./pages/admin/AdminInviteAccept";
 import MyDownloads from "./pages/MyDownloads";
+import Community from "./pages/Community";
+import Leaderboard from "./pages/Leaderboard";
+import { CubeCoachChat } from "@/components/chat/CubeCoachChat";
 
 const queryClient = new QueryClient();
 
