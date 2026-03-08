@@ -76,6 +76,21 @@ const Auth = () => {
     const checkRoleAndRedirect = async () => {
       if (!loading && user) {
         if (step === 'email' || step === 'signup_password' || step === 'login_password') {
+          // Check if user came from a plan selection
+          const planParam = searchParams.get("plan");
+          const WHOP_PLAN_IDS: Record<string, string> = {
+            starter: "plan_7NRvNAxpWhOse",
+            pro: "plan_aeLinh43MkIpm",
+          };
+
+          if (planParam && planParam !== 'free' && WHOP_PLAN_IDS[planParam]) {
+            // Redirect to Whop checkout for the selected plan
+            const checkoutUrl = `https://whop.com/checkout/${WHOP_PLAN_IDS[planParam]}/?email=${encodeURIComponent(user.email || '')}`;
+            window.open(checkoutUrl, "_blank");
+            navigate("/dashboard", { replace: true });
+            return;
+          }
+
           // Check role from database
           const userRole = await getUserRoleByEmail(user.email || '');
           if (userRole === 'super_admin') {
@@ -89,7 +104,7 @@ const Auth = () => {
       }
     };
     checkRoleAndRedirect();
-  }, [user, loading, navigate, step]);
+  }, [user, loading, navigate, step, searchParams]);
 
   // Handle email submission - determine if signup or login
   const handleEmailSubmit = () => {
