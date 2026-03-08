@@ -198,4 +198,5 @@ export const PushNotificationPrompt = React.forwardRef<HTMLDivElement>(function 
       </div>
     </div>
   );
-}
+});
+PushNotificationPrompt.displayName = "PushNotificationPrompt";
