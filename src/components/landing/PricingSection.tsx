@@ -5,13 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import ContactModal from "@/components/modals/ContactModal";
 import GiftModal from "@/components/modals/GiftModal";
+import { WhopCheckoutModal } from "@/components/modals/WhopCheckoutModal";
 import heroCube from "@/assets/hero-cube.jpg";
-
-// Real Whop plan IDs
-const WHOP_PLAN_IDS = {
-  starter: "plan_7NRvNAxpWhOse",
-  pro: "plan_aeLinh43MkIpm",
-};
 
 const plans = [
   {
@@ -74,6 +69,8 @@ const PricingSection = () => {
   const [selectedPlan, setSelectedPlan] = useState("free");
   const [contactOpen, setContactOpen] = useState(false);
   const [giftOpen, setGiftOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [checkoutPlan, setCheckoutPlan] = useState<"starter" | "pro">("starter");
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -93,16 +90,14 @@ const PricingSection = () => {
       setContactOpen(true);
       return;
     }
-    
-    const whopPlanId = WHOP_PLAN_IDS[selectedPlan as keyof typeof WHOP_PLAN_IDS];
-    
-    if (whopPlanId) {
+
+    if (selectedPlan === "starter" || selectedPlan === "pro") {
       if (user) {
-        // Logged in — go straight to Whop checkout
-        const whopCheckoutUrl = `https://whop.com/checkout/${whopPlanId}/`;
-        window.open(`${whopCheckoutUrl}?email=${encodeURIComponent(user.email || '')}`, "_blank");
+        // Logged in — open embedded checkout
+        setCheckoutPlan(selectedPlan);
+        setCheckoutOpen(true);
       } else {
-        // NOT logged in — send to auth with plan context so they come back
+        // NOT logged in — send to auth first
         navigate(`/auth?mode=signup&plan=${selectedPlan}`);
       }
     }
@@ -122,7 +117,7 @@ const PricingSection = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 max-w-5xl mx-auto items-start">
-          {/* Plan Image - Now responsive on all screens */}
+          {/* Plan Image */}
           <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden h-[200px] sm:h-[300px] md:h-[400px] lg:h-[500px] animate-on-scroll order-2 lg:order-1">
             <img 
               src={heroCube} 
@@ -134,7 +129,6 @@ const PricingSection = () => {
 
           {/* Plan Selection */}
           <div className="space-y-3 sm:space-y-4 animate-on-scroll order-1 lg:order-2">
-            {/* Plan Options */}
             <div className="space-y-2 sm:space-y-3">
               {plans.map((plan) => (
                 <button
@@ -247,6 +241,12 @@ const PricingSection = () => {
 
       <ContactModal open={contactOpen} onOpenChange={setContactOpen} />
       <GiftModal open={giftOpen} onOpenChange={setGiftOpen} defaultPlan={selectedPlan === "free" ? "starter" : selectedPlan} />
+      <WhopCheckoutModal
+        open={checkoutOpen}
+        onOpenChange={setCheckoutOpen}
+        plans={[checkoutPlan]}
+        defaultPlan={checkoutPlan}
+      />
     </section>
   );
 };
