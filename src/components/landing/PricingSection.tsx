@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, ArrowRight } from "lucide-react";
+import { Check, ArrowRight, Gift } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import ContactModal from "@/components/modals/ContactModal";
+import GiftModal from "@/components/modals/GiftModal";
 import heroCube from "@/assets/hero-cube.jpg";
 
 // Real Whop plan IDs
