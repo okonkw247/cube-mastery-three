@@ -84,10 +84,8 @@ const Auth = () => {
           };
 
           if (planParam && planParam !== 'free' && WHOP_PLAN_IDS[planParam]) {
-            // Redirect to Whop checkout for the selected plan
-            const checkoutUrl = `https://whop.com/checkout/${WHOP_PLAN_IDS[planParam]}/?email=${encodeURIComponent(user.email || '')}`;
-            window.open(checkoutUrl, "_blank");
-            navigate("/dashboard", { replace: true });
+            // Navigate to dashboard with plan param — dashboard will open embedded checkout
+            navigate(`/dashboard?checkout=${planParam}`, { replace: true });
             return;
           }
 
