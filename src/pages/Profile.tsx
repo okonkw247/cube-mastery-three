@@ -163,7 +163,7 @@ const Profile = () => {
             {/* Avatar Section */}
             <div className="flex flex-col items-center mb-8">
               <div className="relative group">
-                <Avatar className="w-32 h-32 border-4 border-border">
+                <Avatar className="w-24 h-24 sm:w-32 sm:h-32 border-4 border-border">
                   <AvatarImage src={avatarUrl || undefined} alt={displayName} />
                   <AvatarFallback className="text-3xl bg-primary text-primary-foreground">
                     {getInitials()}
