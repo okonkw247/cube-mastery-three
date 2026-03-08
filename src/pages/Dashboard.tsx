@@ -132,7 +132,13 @@ const Dashboard = () => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('showUpgrade') === 'true') {
       setUpgradeModalOpen(true);
-      // Clean up URL
+      window.history.replaceState({}, '', '/dashboard');
+    }
+    // Check if redirected from auth with a checkout plan
+    const checkoutParam = params.get('checkout');
+    if (checkoutParam === 'starter' || checkoutParam === 'pro') {
+      setCheckoutPlan(checkoutParam);
+      setCheckoutOpen(true);
       window.history.replaceState({}, '', '/dashboard');
     }
   }, [user, authLoading, navigate]);
