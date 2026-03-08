@@ -245,8 +245,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const sendWelcomeEmail = async (email: string, name?: string) => {
     try {
-      await supabase.functions.invoke('send-welcome-email', {
-        body: { email, name },
+      // Use new engagement email function for branded welcome
+      await supabase.functions.invoke('send-engagement-email', {
+        body: { type: 'welcome', email, name, data: { plan: 'free' } },
       });
     } catch (err) {
       console.error('Failed to send welcome email:', err);

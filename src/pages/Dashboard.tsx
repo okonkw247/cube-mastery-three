@@ -43,6 +43,7 @@ import { SubscriptionStatusBadge, PlanBadge } from "@/components/dashboard/Subsc
 import { DownloadManager } from "@/components/dashboard/DownloadManager";
 import { UpgradeBanner } from "@/components/dashboard/UpgradeBanner";
 import { UpgradeModal } from "@/components/modals/UpgradeModal";
+import { CommunityCard } from "@/components/dashboard/CommunityCard";
 import {
   LineChart,
   Line,
@@ -295,7 +296,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Streak, Bookmarks, Invitations - Responsive Layout */}
+        {/* Streak, Bookmarks, Invitations, Community - Responsive Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-8">
           {/* Streak Tracker */}
           <div className="lg:col-span-1">
@@ -354,12 +355,17 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-          </div>
 
-          {/* Download Manager */}
-          <div className="mb-4 sm:mb-8">
-            <DownloadManager />
+          {/* Community Card */}
+          <div className="lg:col-span-2 xl:col-span-1">
+            <CommunityCard />
           </div>
+        </div>
+
+        {/* Download Manager */}
+        <div className="mb-4 sm:mb-8">
+          <DownloadManager />
+        </div>
 
         {/* Progress Chart - Full Width */}
         <div className="card-gradient rounded-2xl p-4 sm:p-6 border border-border mb-4 sm:mb-8">
