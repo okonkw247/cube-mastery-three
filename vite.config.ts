@@ -49,19 +49,11 @@ export default defineConfig(({ mode }) => ({
           },
           // 2. Navigation requests (HTML pages) — Network First, offline.html fallback
           {
-            urlPattern: ({ request }) => request.mode === "navigate",
+            urlPattern: ({ request }: { request: Request }) => request.mode === "navigate",
             handler: "NetworkFirst",
             options: {
               cacheName: "pages-cache",
               networkTimeoutSeconds: 5,
-              plugins: [
-                {
-                  // If network fails for a navigation, serve offline.html from precache
-                  handlerDidError: async () => {
-                    return caches.match("/offline.html");
-                  },
-                },
-              ],
             },
           },
           // 3. API / Edge Function requests — Network First with short cache
