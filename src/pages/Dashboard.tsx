@@ -5,7 +5,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
   Play,
-  Lock,
   CheckCircle2,
   Clock,
   Download,
