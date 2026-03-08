@@ -111,7 +111,7 @@ export function useTimelineThumbnails(videoUrl: string | null, options?: {
           });
         }
 
-        setSpriteUrl(spriteCanvas.toDataURL('image/jpeg', 0.7));
+        setSpriteUrl(spriteCanvas.toDataURL('image/webp', 0.6));
       }
     } catch (err) {
       console.warn('Frame extraction failed:', err);
