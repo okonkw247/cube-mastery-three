@@ -103,8 +103,13 @@ export default function Community() {
   const [posting, setPosting] = useState(false);
   const [showForm, setShowForm] = useState(false);
 
+  useEffect(() => {
+    if (!user) {
+      navigate("/auth");
+    }
+  }, [user, navigate]);
+
   if (!user) {
-    navigate("/auth");
     return null;
   }
 
