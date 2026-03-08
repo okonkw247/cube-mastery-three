@@ -142,7 +142,7 @@ export function usePushNotifications() {
   return { permission, isSupported, requestPermission, sendNotification };
 }
 
-export function PushNotificationPrompt() {
+export const PushNotificationPrompt = React.forwardRef<HTMLDivElement>(function PushNotificationPrompt(_props, ref) {
   const { user } = useAuth();
   const { permission, isSupported, requestPermission } = usePushNotifications();
   const [show, setShow] = useState(false);
