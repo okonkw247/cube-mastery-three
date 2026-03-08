@@ -70,6 +70,7 @@ interface TodoItem {
 const Dashboard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, signOut, loading: authLoading } = useAuth();
   const { profile, isPro, loading: profileLoading } = useProfile();
   const { lessons, progress, progressPercent, completedCount, loading: lessonsLoading } = useLessons();
