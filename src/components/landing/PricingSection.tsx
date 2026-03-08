@@ -246,6 +246,7 @@ const PricingSection = () => {
       </div>
 
       <ContactModal open={contactOpen} onOpenChange={setContactOpen} />
+      <GiftModal open={giftOpen} onOpenChange={setGiftOpen} defaultPlan={selectedPlan === "free" ? "starter" : selectedPlan} />
     </section>
   );
 };
