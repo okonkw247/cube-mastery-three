@@ -537,6 +537,14 @@ const Dashboard = () => {
       {/* Upgrade Modal */}
       <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
 
+      {/* Embedded Whop Checkout Modal */}
+      <WhopCheckoutModal
+        open={checkoutOpen}
+        onOpenChange={setCheckoutOpen}
+        plans={[checkoutPlan]}
+        defaultPlan={checkoutPlan}
+      />
+
       {/* Modals */}
       <TodoModal
         open={todoModalOpen}
