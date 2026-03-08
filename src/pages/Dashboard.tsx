@@ -355,18 +355,17 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-          </div>
 
           {/* Community Card */}
           <div className="lg:col-span-2 xl:col-span-1">
             <CommunityCard />
           </div>
-          </div>
+        </div>
 
-          {/* Download Manager */}
-          <div className="mb-4 sm:mb-8">
-            <DownloadManager />
-          </div>
+        {/* Download Manager */}
+        <div className="mb-4 sm:mb-8">
+          <DownloadManager />
+        </div>
 
         {/* Progress Chart - Full Width */}
         <div className="card-gradient rounded-2xl p-4 sm:p-6 border border-border mb-4 sm:mb-8">
