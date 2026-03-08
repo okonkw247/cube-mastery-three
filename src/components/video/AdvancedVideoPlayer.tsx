@@ -4,6 +4,7 @@ import {
   Settings, SkipBack, SkipForward, Loader2, PictureInPicture2,
   Check, ChevronRight
 } from "lucide-react";
+import { useTimelineThumbnails } from "@/hooks/useTimelineThumbnails";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import {
