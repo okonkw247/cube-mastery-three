@@ -15,22 +15,22 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "prompt",
-      includeAssets: ["favicon.ico", "apple-touch-icon.png", "pwa-icon-512.png"],
+      includeAssets: ["favicon.ico", "icons/icon-192.png", "icons/icon-512.png"],
       manifest: {
-        name: "Cube Master Academy",
-        short_name: "Cube Academy",
-        description: "Learn to solve Rubik's cube like a pro",
-        theme_color: "#0a0e14",
-        background_color: "#0a0e14",
+        name: "Rubiks Academy",
+        short_name: "Rubiks",
+        description: "Master the Rubik's Cube with interactive training and smart solving tools.",
+        theme_color: "#FFCC00",
+        background_color: "#F7F7F7",
         display: "standalone",
-        start_url: "/",
+        start_url: "/dashboard",
         orientation: "portrait-primary",
         categories: ["education", "entertainment"],
         icons: [
-          { src: "/pwa-icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
-          { src: "/pwa-icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
-          { src: "/android-launchericon-192-192.png", sizes: "192x192", type: "image/png" },
-          { src: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+          { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any maskable" },
+          { src: "/icons/icon-256.png", sizes: "256x256", type: "image/png", purpose: "any maskable" },
+          { src: "/icons/icon-384.png", sizes: "384x384", type: "image/png", purpose: "any maskable" },
+          { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any maskable" },
         ],
       },
       workbox: {
@@ -56,11 +56,27 @@ export default defineConfig(({ mode }) => ({
             },
           },
           {
-            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif)$/,
             handler: "CacheFirst",
             options: {
               cacheName: "images-cache",
-              expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
+          },
+          {
+            urlPattern: /\/icons\/.*/,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "pwa-icons-cache",
+              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            },
+          },
+          {
+            urlPattern: /\/splash\/.*/,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "splash-cache",
+              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
             },
           },
         ],
