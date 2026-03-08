@@ -310,6 +310,17 @@ export default function AdminLessons() {
         p_type: 'new_video',
         p_reference_id: editingLesson.id,
       });
+      // Trigger video processing for the new video
+      triggerVideoProcessing({
+        lessonId: editingLesson.id,
+        videoUrl: editFormData.video_url,
+        title: editingLesson.title,
+        description: editingLesson.description || '',
+      }).then(() => {
+        toast.success('Video processing started — AI thumbnails generating...');
+      }).catch((err) => {
+        console.error('Video processing trigger failed:', err);
+      });
     } else if (hasNewNotes || hasNewHologram) {
       await supabase.rpc('notify_all_users', {
         p_title: 'Lesson Updated!',
