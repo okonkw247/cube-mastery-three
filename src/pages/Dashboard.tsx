@@ -41,6 +41,8 @@ import { InvitationTracker } from "@/components/dashboard/InvitationTracker";
 import { NotificationBell } from "@/components/NotificationBell";
 import { SubscriptionStatusBadge, PlanBadge } from "@/components/dashboard/SubscriptionStatusBadge";
 import { DownloadManager } from "@/components/dashboard/DownloadManager";
+import { UpgradeBanner } from "@/components/dashboard/UpgradeBanner";
+import { UpgradeModal } from "@/components/modals/UpgradeModal";
 import {
   LineChart,
   Line,
