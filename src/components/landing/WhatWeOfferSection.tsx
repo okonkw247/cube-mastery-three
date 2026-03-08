@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 const WhatWeOfferSection = () => {
   return (
-    <section id="offers" className="py-24 relative overflow-hidden">
+    <section id="offers" className="py-16 sm:py-20 md:py-24 relative overflow-hidden">
       {/* Decorative elements */}
       <div className="absolute top-0 left-0 w-32 h-32 opacity-50">
         <div className="w-full h-full rounded-full bg-gradient-to-br from-primary/30 to-transparent blur-2xl" />
@@ -12,25 +12,25 @@ const WhatWeOfferSection = () => {
         <div className="w-full h-full rounded-full bg-gradient-to-tl from-destructive/40 to-transparent blur-3xl" />
       </div>
 
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="text-center mb-16 animate-on-scroll">
-          <span className="text-primary font-semibold text-sm uppercase tracking-wider">What We Offer</span>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mt-4 mb-6">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
+        <div className="text-center mb-10 sm:mb-12 md:mb-16 animate-on-scroll">
+          <span className="text-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">What We Offer</span>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mt-3 sm:mt-4 mb-4 sm:mb-6">
             We Will Handle Your Learning 📖
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
             Our experienced team will manage your speedcubing journey from start to finish, here are some changes you will notice in your skills
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 items-center">
           {/* Stats Card */}
-          <div className="card-gradient rounded-3xl p-8 border border-border relative overflow-hidden animate-on-scroll">
+          <div className="card-gradient rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 border border-border relative overflow-hidden animate-on-scroll">
             <div className="relative z-10">
               {/* Circular Progress */}
-              <div className="flex justify-center mb-6">
-                <div className="relative w-48 h-48">
-                  <svg className="w-full h-full transform -rotate-90">
+              <div className="flex justify-center mb-4 sm:mb-6">
+                <div className="relative w-36 h-36 sm:w-44 sm:h-44 md:w-48 md:h-48">
+                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 192 192">
                     <circle
                       cx="96"
                       cy="96"
@@ -58,12 +58,12 @@ const WhatWeOfferSection = () => {
                     </defs>
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-4xl font-bold">30.2K</span>
-                    <span className="text-sm text-muted-foreground">Students trained</span>
+                    <span className="text-2xl sm:text-3xl md:text-4xl font-bold">30.2K</span>
+                    <span className="text-xs sm:text-sm text-muted-foreground">Students trained</span>
                   </div>
                 </div>
               </div>
-              <p className="text-center text-muted-foreground mb-4">
+              <p className="text-center text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4">
                 You gained +510 seconds improvement this week
               </p>
               <div className="flex justify-center">
@@ -75,26 +75,26 @@ const WhatWeOfferSection = () => {
           </div>
 
           {/* Features */}
-          <div className="space-y-8 animate-on-scroll">
-            <div className="flex gap-4">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <Users className="w-6 h-6 text-primary" />
+          <div className="space-y-5 sm:space-y-6 md:space-y-8 animate-on-scroll">
+            <div className="flex gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Users className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
               <div>
-                <h3 className="text-xl font-bold mb-2">Increased Skill Level</h3>
-                <p className="text-muted-foreground">
+                <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2">Increased Skill Level</h3>
+                <p className="text-sm sm:text-base text-muted-foreground">
                   Boost your solving speed and watch your times drop with our effective strategies. Reach sub-30 seconds and build confidence around your solves.
                 </p>
               </div>
             </div>
 
-            <div className="flex gap-4">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <TrendingUp className="w-6 h-6 text-primary" />
+            <div className="flex gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
               <div>
-                <h3 className="text-xl font-bold mb-2">Practice Converts To Speed</h3>
-                <p className="text-muted-foreground">
+                <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2">Practice Converts To Speed</h3>
+                <p className="text-sm sm:text-base text-muted-foreground">
                   Turn your practice sessions into real improvements with our expert techniques. We optimize every solve attempt to build muscle memory and drive faster times.
                 </p>
               </div>
