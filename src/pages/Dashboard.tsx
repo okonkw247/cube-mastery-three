@@ -450,6 +450,12 @@ const Dashboard = () => {
         </div>
       </main>
 
+      {/* Sticky Upgrade Banner */}
+      <UpgradeBanner />
+
+      {/* Upgrade Modal */}
+      <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
+
       {/* Modals */}
       <TodoModal
         open={todoModalOpen}
