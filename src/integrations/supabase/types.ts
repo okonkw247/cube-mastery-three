@@ -241,6 +241,33 @@ export type Database = {
           },
         ]
       }
+      email_logs: {
+        Row: {
+          details: Json | null
+          email: string
+          email_type: string
+          id: string
+          sent_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          details?: Json | null
+          email: string
+          email_type: string
+          id?: string
+          sent_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          details?: Json | null
+          email?: string
+          email_type?: string
+          id?: string
+          sent_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       forum_posts: {
         Row: {
           content: string
@@ -718,6 +745,36 @@ export type Database = {
           updated_at?: string
           user_id?: string
           whop_membership_id?: string | null
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string | null
+          endpoint: string
+          id: string
+          p256dh: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          p256dh: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
