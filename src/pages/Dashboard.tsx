@@ -296,7 +296,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Streak, Bookmarks, Invitations - Responsive Layout */}
+        {/* Streak, Bookmarks, Invitations, Community - Responsive Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-8">
           {/* Streak Tracker */}
           <div className="lg:col-span-1">

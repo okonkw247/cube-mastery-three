@@ -35,3 +35,9 @@ verify_jwt = false
 
 [functions.cube-coach-chat]
 verify_jwt = false
+
+[functions.send-engagement-email]
+verify_jwt = false
+
+[functions.check-engagement-emails]
+verify_jwt = false
