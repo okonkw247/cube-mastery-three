@@ -27,6 +27,7 @@ import { useLessons } from "@/hooks/useLessons";
 import { useBookmarks } from "@/hooks/useBookmarks";
 import { usePracticeAttempts } from "@/hooks/usePracticeAttempts";
 import { useAdmin } from "@/hooks/useAdmin";
+import { useXP } from "@/hooks/useXP";
 import { LogoWithGlow } from "@/components/LogoWithGlow";
 import TodoModal from "@/components/modals/TodoModal";
 import InviteFriendModal from "@/components/modals/InviteFriendModal";
@@ -69,6 +70,7 @@ const Dashboard = () => {
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const { totalAttempts, attempts } = usePracticeAttempts();
   const { isAdmin, isPreviewMode, setPreviewMode } = useAdmin();
+  const { awardXP } = useXP();
   const [chartPeriod, setChartPeriod] = useState("Year");
   const [todoModalOpen, setTodoModalOpen] = useState(false);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
@@ -107,6 +109,8 @@ const Dashboard = () => {
       if (!hasCompletedOnboarding && !profile?.full_name) {
         setShowOnboarding(true);
       }
+      // Award daily login XP
+      awardXP("daily_login");
     }
   }, [user, profile, profileLoading]);
 

@@ -241,6 +241,47 @@ export type Database = {
           },
         ]
       }
+      forum_posts: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_pinned: boolean
+          parent_id: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_pinned?: boolean
+          parent_id?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_pinned?: boolean
+          parent_id?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_posts_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "forum_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       friend_invitations: {
         Row: {
           accepted_at: string | null
@@ -892,9 +933,45 @@ export type Database = {
         }
         Relationships: []
       }
+      xp_events: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          reference_id: string | null
+          user_id: string
+          xp_amount: number
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          reference_id?: string | null
+          user_id: string
+          xp_amount?: number
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          reference_id?: string | null
+          user_id?: string
+          xp_amount?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      weekly_leaderboard: {
+        Row: {
+          avatar_url: string | null
+          full_name: string | null
+          total_points: number | null
+          user_id: string | null
+          weekly_xp: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_user_role: {

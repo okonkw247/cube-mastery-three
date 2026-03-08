@@ -28,6 +28,9 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminInviteAccept from "./pages/admin/AdminInviteAccept";
 import MyDownloads from "./pages/MyDownloads";
+import Community from "./pages/Community";
+import Leaderboard from "./pages/Leaderboard";
+import { CubeCoachChat } from "@/components/chat/CubeCoachChat";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +57,8 @@ const App = () => (
                 <Route path="/lesson/:id" element={<Lesson />} />
                 <Route path="/notifications" element={<Notifications />} />
                 <Route path="/downloads" element={<MyDownloads />} />
+                <Route path="/community" element={<Community />} />
+                <Route path="/leaderboard" element={<Leaderboard />} />
                 {/* Admin Routes */}
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/lessons" element={<AdminLessons />} />
@@ -67,6 +72,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
               </BrowserRouter>
+              <CubeCoachChat />
             </TooltipProvider>
           </SettingsProvider>
         </AdminProvider>
