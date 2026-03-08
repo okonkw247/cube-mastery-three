@@ -200,15 +200,28 @@ const PricingSection = () => {
                   ))}
                 </ul>
 
-                <Button
-                  variant="hero"
-                  size="lg"
-                  className="w-full gap-2"
-                  onClick={handlePlanSelect}
-                >
-                  {selectedPlan === "free" ? "Get Started Free" : `Continue With ${currentPlan.name}`}
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="hero"
+                    size="lg"
+                    className="flex-1 gap-2"
+                    onClick={handlePlanSelect}
+                  >
+                    {selectedPlan === "free" ? "Get Started Free" : `Continue With ${currentPlan.name}`}
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                  {selectedPlan !== "free" && (
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="gap-2"
+                      onClick={() => setGiftOpen(true)}
+                    >
+                      <Gift className="w-4 h-4" />
+                      🎁 Gift
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
 
