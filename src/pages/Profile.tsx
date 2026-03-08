@@ -141,7 +141,7 @@ const Profile = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-6 py-4">
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link to="/dashboard" className="text-muted-foreground hover:text-foreground transition-colors">
@@ -157,13 +157,13 @@ const Profile = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-12">
+      <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-12">
         <div className="max-w-xl mx-auto">
-          <div className="card-gradient rounded-2xl p-8 border border-border">
+          <div className="card-gradient rounded-2xl p-4 sm:p-6 lg:p-8 border border-border">
             {/* Avatar Section */}
             <div className="flex flex-col items-center mb-8">
               <div className="relative group">
-                <Avatar className="w-32 h-32 border-4 border-border">
+                <Avatar className="w-24 h-24 sm:w-32 sm:h-32 border-4 border-border">
                   <AvatarImage src={avatarUrl || undefined} alt={displayName} />
                   <AvatarFallback className="text-3xl bg-primary text-primary-foreground">
                     {getInitials()}
