@@ -38,6 +38,7 @@ const navItems: NavItem[] = [
   { label: 'Users', icon: Users, path: '/admin/users', permission: 'view_users' },
   { label: 'Resources', icon: FolderOpen, path: '/admin/resources', permission: 'manage_resources' },
   { label: 'Challenges', icon: Timer, path: '/admin/challenges', permission: 'manage_challenges' },
+  { label: 'Daily Challenges', icon: Target, path: '/admin/daily-challenges', permission: 'manage_challenges' },
   { label: 'Analytics', icon: BarChart3, path: '/admin/analytics', permission: 'view_analytics' },
   { label: 'Settings', icon: Settings, path: '/admin/settings', permission: 'manage_settings' },
 ];
