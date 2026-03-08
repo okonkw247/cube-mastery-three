@@ -97,7 +97,7 @@ export function PWAInstallPrompt() {
           <div className="text-6xl">🎉</div>
           <h2 className="text-2xl font-bold text-foreground">Welcome!</h2>
           <p className="text-muted-foreground">
-            Cube Academy is now on your device. Access your courses offline anytime!
+            Rubiks Academy is now on your device. Access your courses offline anytime!
           </p>
           <Button onClick={() => setShowCelebration(false)} className="w-full bg-primary text-primary-foreground">
             Start Learning
