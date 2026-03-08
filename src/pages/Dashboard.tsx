@@ -419,22 +419,25 @@ const Dashboard = () => {
                         <Play className="w-8 h-8 text-muted-foreground/50" />
                       </div>
                     )}
-                    {/* Hover Video Preview */}
+                    {/* Hover Video Preview - lazy loaded */}
                     {lesson.video_url && !lesson.video_url.includes('youtube') && !lesson.video_url.includes('vimeo') && (
                       <video
                         src={lesson.video_url}
                         muted
                         playsInline
                         preload="none"
+                        loading="lazy"
                         className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                         onMouseEnter={(e) => {
                           const vid = e.currentTarget;
-                          vid.currentTime = 0;
+                          // Start from ~25% of video for interesting content
+                          if (vid.duration) {
+                            vid.currentTime = vid.duration * 0.25;
+                          }
                           vid.play().catch(() => {});
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.pause();
-                          e.currentTarget.currentTime = 0;
                         }}
                       />
                     )}
