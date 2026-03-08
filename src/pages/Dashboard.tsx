@@ -364,6 +364,16 @@ const Dashboard = () => {
           <div className="lg:col-span-2 xl:col-span-1">
             <CommunityCard />
           </div>
+
+          {/* Daily Challenge */}
+          <div className="lg:col-span-1">
+            <DailyChallengeCard />
+          </div>
+
+          {/* Referral Card */}
+          <div className="lg:col-span-1">
+            <ReferralCard />
+          </div>
         </div>
 
         {/* Download Manager */}
