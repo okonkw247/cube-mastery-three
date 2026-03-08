@@ -73,6 +73,7 @@ const Dashboard = () => {
   const { totalAttempts, attempts } = usePracticeAttempts();
   const { isAdmin, isPreviewMode, setPreviewMode } = useAdmin();
   const { awardXP } = useXP();
+  useSmartNotifications();
   const [chartPeriod, setChartPeriod] = useState("Year");
   const [todoModalOpen, setTodoModalOpen] = useState(false);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
