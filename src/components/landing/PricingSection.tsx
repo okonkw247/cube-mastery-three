@@ -79,7 +79,6 @@ const PricingSection = () => {
 
   const handlePlanSelect = () => {
     if (selectedPlan === "free") {
-      // Free plan - just sign up
       if (user) {
         navigate("/dashboard");
       } else {
@@ -87,20 +86,22 @@ const PricingSection = () => {
       }
       return;
     }
+
+    if (selectedPlan === "enterprise") {
+      setContactOpen(true);
+      return;
+    }
     
-    // Get the real Whop plan ID
     const whopPlanId = WHOP_PLAN_IDS[selectedPlan as keyof typeof WHOP_PLAN_IDS];
     
     if (whopPlanId) {
-      // Redirect to real Whop checkout with actual plan ID
-      const whopCheckoutUrl = `https://whop.com/checkout/${whopPlanId}/`;
-      
-      if (user?.email) {
-        // Pre-fill email if user is logged in
-        window.open(`${whopCheckoutUrl}?email=${encodeURIComponent(user.email)}`, "_blank");
+      if (user) {
+        // Logged in — go straight to Whop checkout
+        const whopCheckoutUrl = `https://whop.com/checkout/${whopPlanId}/`;
+        window.open(`${whopCheckoutUrl}?email=${encodeURIComponent(user.email || '')}`, "_blank");
       } else {
-        // User not logged in - still send to Whop, they'll enter email there
-        window.open(whopCheckoutUrl, "_blank");
+        // NOT logged in — send to auth with plan context so they come back
+        navigate(`/auth?mode=signup&plan=${selectedPlan}`);
       }
     }
   };
