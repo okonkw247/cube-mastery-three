@@ -161,7 +161,7 @@ const Dashboard = () => {
   };
 
   const scrollToPricing = () => {
-    navigate("/#pricing");
+    setUpgradeModalOpen(true);
   };
 
   if (authLoading || profileLoading || lessonsLoading) {
