@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -11,7 +11,7 @@ interface VideoAdOverlayProps {
 const AD_OPT_OUT_KEY = "cube-ad-opt-out";
 const AD_SHOWN_KEY = "cube-ad-first-shown";
 
-const VideoAdOverlay = ({ isPreviewModalOpen }: VideoAdOverlayProps) => {
+const VideoAdOverlay = React.forwardRef<HTMLDivElement, VideoAdOverlayProps>(({ isPreviewModalOpen }, _ref) => {
   const [visible, setVisible] = useState(false);
   const [isFirstLoad, setIsFirstLoad] = useState(false);
   const [fadeState, setFadeState] = useState<"in" | "out" | "visible">("in");
@@ -218,6 +218,8 @@ const VideoAdOverlay = ({ isPreviewModalOpen }: VideoAdOverlayProps) => {
       </div>
     </div>
   );
-};
+});
+
+VideoAdOverlay.displayName = "VideoAdOverlay";
 
 export default VideoAdOverlay;

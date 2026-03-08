@@ -395,61 +395,106 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Lessons - Responsive */}
+        {/* Lessons - Responsive Grid with Thumbnails */}
         <div className="mb-4 sm:mb-8">
           <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">{t('dashboard.lessons')}</h2>
-          <div className="space-y-2 sm:space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
             {lessons.map((lesson) => {
               const isCompleted = progress[lesson.id]?.completed || false;
               const bookmarked = isBookmarked(lesson.id);
               
               return (
-                <div key={lesson.id} className="card-gradient rounded-xl p-3 sm:p-5 border border-border hover:border-primary/50 transition-all duration-300">
-                  <div className="flex items-center gap-2 sm:gap-4">
-                    <Link to={`/lesson/${lesson.id}`} className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
-                      <div className={`w-9 h-9 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 ${isCompleted ? "bg-primary/20" : "bg-secondary"}`}>
-                        {isCompleted ? <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-primary" /> : <Play className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" />}
+                <div key={lesson.id} className="group card-gradient rounded-xl border border-border hover:border-primary/50 transition-all duration-300 overflow-hidden">
+                  {/* Thumbnail with Hover Video Preview */}
+                  <Link to={`/lesson/${lesson.id}`} className="block relative aspect-video bg-secondary overflow-hidden">
+                    {lesson.thumbnail_url ? (
+                      <img 
+                        src={lesson.thumbnail_url} 
+                        alt={lesson.title} 
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-secondary">
+                        <Play className="w-8 h-8 text-muted-foreground/50" />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
-                          <h3 className="text-sm sm:text-base font-semibold truncate">{lesson.title}</h3>
-                          {lesson.is_free && <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full bg-primary/20 text-primary">Free</span>}
-                          {lesson.plan_access && lesson.plan_access !== 'free' && (
-                            <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full ${
-                              lesson.plan_access === 'starter' ? 'bg-blue-500/20 text-blue-500' :
-                              lesson.plan_access === 'pro' ? 'bg-green-500/20 text-green-500' :
-                              'bg-purple-500/20 text-purple-500'
-                            }`}>
-                              {lesson.plan_access.charAt(0).toUpperCase() + lesson.plan_access.slice(1)}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs sm:text-sm text-muted-foreground truncate">{lesson.description}</p>
+                    )}
+                    {/* Hover Video Preview */}
+                    {lesson.video_url && !lesson.video_url.includes('youtube') && !lesson.video_url.includes('vimeo') && (
+                      <video
+                        src={lesson.video_url}
+                        muted
+                        playsInline
+                        preload="none"
+                        className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        onMouseEnter={(e) => {
+                          const vid = e.currentTarget;
+                          vid.currentTime = 0;
+                          vid.play().catch(() => {});
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.pause();
+                          e.currentTarget.currentTime = 0;
+                        }}
+                      />
+                    )}
+                    {/* Duration badge */}
+                    {lesson.duration && (
+                      <span className="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] sm:text-xs px-1.5 py-0.5 rounded font-mono">
+                        {lesson.duration}
+                      </span>
+                    )}
+                    {/* Completed overlay */}
+                    {isCompleted && (
+                      <div className="absolute top-2 left-2 bg-primary/90 text-primary-foreground rounded-full p-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
                       </div>
-                    </Link>
-                    <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-                      <span className="text-xs sm:text-sm text-muted-foreground hidden md:block">{lesson.duration}</span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => toggleBookmark(lesson.id)}
-                        className={`h-7 w-7 sm:h-9 sm:w-9 ${bookmarked ? "text-primary" : "text-muted-foreground"}`}
-                      >
-                        <Bookmark className={`w-3 h-3 sm:w-4 sm:h-4 ${bookmarked ? "fill-current" : ""}`} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setPracticeLesson({ id: lesson.id, title: lesson.title })}
-                        className="h-7 w-7 sm:h-9 sm:w-9 text-muted-foreground hover:text-primary"
-                      >
-                        <Timer className="w-3 h-3 sm:w-4 sm:h-4" />
-                      </Button>
-                      <Link to={`/lesson/${lesson.id}`}>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-9 sm:w-9">
-                          <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                        </Button>
+                    )}
+                    {/* Play overlay on hover */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
+                      <div className="w-10 h-10 rounded-full bg-primary/90 flex items-center justify-center">
+                        <Play className="w-5 h-5 text-primary-foreground ml-0.5" />
+                      </div>
+                    </div>
+                  </Link>
+                  {/* Card Body */}
+                  <div className="p-3 sm:p-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <Link to={`/lesson/${lesson.id}`} className="flex-1 min-w-0">
+                        <h3 className="text-sm sm:text-base font-semibold truncate group-hover:text-primary transition-colors">{lesson.title}</h3>
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">{lesson.description}</p>
                       </Link>
+                      <div className="flex items-center gap-0.5 shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => toggleBookmark(lesson.id)}
+                          className={`h-7 w-7 ${bookmarked ? "text-primary" : "text-muted-foreground"}`}
+                        >
+                          <Bookmark className={`w-3.5 h-3.5 ${bookmarked ? "fill-current" : ""}`} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setPracticeLesson({ id: lesson.id, title: lesson.title })}
+                          className="h-7 w-7 text-muted-foreground hover:text-primary"
+                        >
+                          <Timer className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                      {lesson.is_free && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary">Free</span>}
+                      {lesson.plan_access && lesson.plan_access !== 'free' && (
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                          lesson.plan_access === 'starter' ? 'bg-blue-500/20 text-blue-500' :
+                          lesson.plan_access === 'pro' ? 'bg-green-500/20 text-green-500' :
+                          'bg-purple-500/20 text-purple-500'
+                        }`}>
+                          {lesson.plan_access.charAt(0).toUpperCase() + lesson.plan_access.slice(1)}
+                        </span>
+                      )}
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-secondary text-muted-foreground capitalize">{lesson.skill_level}</span>
                     </div>
                   </div>
                 </div>

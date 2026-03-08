@@ -61,7 +61,7 @@ const handler = async (req: Request): Promise<Response> => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash-image",
+        model: "google/gemini-3-pro-image-preview",
         messages: [
           {
             role: "user",
@@ -96,11 +96,12 @@ const handler = async (req: Request): Promise<Response> => {
     const data = await response.json();
     console.log("AI response received successfully");
 
-    // Extract the base64 image from the response
-    const imageData = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    // Extract the base64 image from the response - handle multiple response formats
+    const imageData = data.choices?.[0]?.message?.images?.[0]?.image_url?.url 
+      || data.choices?.[0]?.message?.content?.match(/data:image\/[^;]+;base64,[^\s"]+/)?.[0];
 
     if (!imageData) {
-      console.error("No image in response:", JSON.stringify(data));
+      console.error("No image in response:", JSON.stringify(data).substring(0, 500));
       throw new Error("No image was generated. Please try again.");
     }
 
