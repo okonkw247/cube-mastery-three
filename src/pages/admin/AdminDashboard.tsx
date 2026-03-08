@@ -59,7 +59,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
           <StatCard title={t('admin.totalStudents')} value={stats.totalStudents} icon={<Users className="w-5 h-5 text-primary" />} />
           <StatCard title={t('admin.activeToday')} value={stats.activeToday} icon={<TrendingUp className="w-5 h-5 text-primary" />} />
           <StatCard title={t('admin.lessons')} value={stats.lessonsUploaded} icon={<BookOpen className="w-5 h-5 text-primary" />} />

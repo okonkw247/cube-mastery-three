@@ -42,9 +42,9 @@ function SortableLesson({ lesson, onPreview, onDelete, onUpdate, onEdit }: Sorta
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-3 p-4 bg-card rounded-lg border border-border hover:border-primary/30 transition-colors ${isDragging ? 'z-50 shadow-lg' : ''}`}
+      className={`flex flex-col sm:flex-row sm:items-center gap-3 p-3 sm:p-4 bg-card rounded-lg border border-border hover:border-primary/30 transition-colors ${isDragging ? 'z-50 shadow-lg' : ''}`}
     >
-      <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing touch-none">
+      <div className="flex items-center gap-3 flex-1 min-w-0">
         <GripVertical className="w-4 h-4 text-muted-foreground" />
       </button>
     <div className="flex-1 min-w-0">

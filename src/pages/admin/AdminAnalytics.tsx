@@ -36,12 +36,12 @@ export default function AdminAnalytics() {
   return (
     <AdminLayout requiredPermission="view_analytics">
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Analytics</h1>
-            <p className="text-muted-foreground">Track platform performance</p>
+            <h1 className="text-xl sm:text-2xl font-bold">Analytics</h1>
+            <p className="text-muted-foreground text-sm">Track platform performance</p>
           </div>
-          <Button onClick={exportCSV}><Download className="w-4 h-4 mr-2" />Export CSV</Button>
+          <Button onClick={exportCSV} size="sm" className="w-fit"><Download className="w-4 h-4 mr-2" />Export CSV</Button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

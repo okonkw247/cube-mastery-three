@@ -277,8 +277,8 @@ export default function AdminUsers() {
               </Select>
             </div>
 
-            <div className="bg-card rounded-xl border border-border overflow-hidden">
-              <Table>
+            <div className="bg-card rounded-xl border border-border overflow-x-auto">
+              <Table className="min-w-[500px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>User</TableHead>
