@@ -21,7 +21,7 @@ const bonuses = [
   },
 ];
 
-const BonusSection = () => {
+const BonusSection = React.forwardRef<HTMLElement>((_, ref) => {
   return (
     <section className="py-16 sm:py-20 md:py-24 relative overflow-hidden">
       {/* Background */}
