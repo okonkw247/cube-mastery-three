@@ -45,55 +45,59 @@ function SortableLesson({ lesson, onPreview, onDelete, onUpdate, onEdit }: Sorta
       className={`flex flex-col sm:flex-row sm:items-center gap-3 p-3 sm:p-4 bg-card rounded-lg border border-border hover:border-primary/30 transition-colors ${isDragging ? 'z-50 shadow-lg' : ''}`}
     >
       <div className="flex items-center gap-3 flex-1 min-w-0">
-        <GripVertical className="w-4 h-4 text-muted-foreground" />
-      </button>
-    <div className="flex-1 min-w-0">
-        <InlineEdit 
-          value={lesson.title} 
-          onSave={v => onUpdate(lesson.id, { title: v })} 
-          className="font-medium" 
-        />
-        <p className="text-sm text-muted-foreground truncate">{lesson.description}</p>
-        <div className="flex gap-2 mt-1">
-          {!lesson.thumbnail_url && (
-            <span className="text-xs px-2 py-0.5 rounded bg-destructive/10 text-destructive flex items-center gap-1">
-              <ImageIcon className="w-3 h-3" /> No Thumbnail
-            </span>
-          )}
-          {lesson.lesson_notes && (
-            <span className="text-xs px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 flex items-center gap-1">
-              <FileText className="w-3 h-3" /> Notes
-            </span>
-          )}
-          {lesson.hologram_sheet_url && (
-            <span className="text-xs px-2 py-0.5 rounded bg-purple-500/10 text-purple-500 flex items-center gap-1">
-              <Download className="w-3 h-3" /> Hologram
-            </span>
-          )}
+        <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing touch-none shrink-0">
+          <GripVertical className="w-4 h-4 text-muted-foreground" />
+        </button>
+        <div className="flex-1 min-w-0">
+          <InlineEdit 
+            value={lesson.title} 
+            onSave={v => onUpdate(lesson.id, { title: v })} 
+            className="font-medium" 
+          />
+          <p className="text-sm text-muted-foreground truncate">{lesson.description}</p>
+          <div className="flex gap-2 mt-1 flex-wrap">
+            {!lesson.thumbnail_url && (
+              <span className="text-xs px-2 py-0.5 rounded bg-destructive/10 text-destructive flex items-center gap-1">
+                <ImageIcon className="w-3 h-3" /> No Thumbnail
+              </span>
+            )}
+            {lesson.lesson_notes && (
+              <span className="text-xs px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 flex items-center gap-1">
+                <FileText className="w-3 h-3" /> Notes
+              </span>
+            )}
+            {lesson.hologram_sheet_url && (
+              <span className="text-xs px-2 py-0.5 rounded bg-purple-500/10 text-purple-500 flex items-center gap-1">
+                <Download className="w-3 h-3" /> Hologram
+              </span>
+            )}
+          </div>
         </div>
       </div>
-      <span className={`text-xs px-2 py-1 rounded-full ${
-        lesson.is_free || lesson.plan_access === 'free' ? 'bg-green-500/10 text-green-500' :
-        lesson.plan_access === 'starter' ? 'bg-blue-500/10 text-blue-500' :
-        lesson.plan_access === 'pro' ? 'bg-amber-500/10 text-amber-500' :
-        'bg-purple-500/10 text-purple-500'
-      }`}>
-        {lesson.is_free || lesson.plan_access === 'free' ? 'Free' :
-         lesson.plan_access === 'starter' ? 'Starter' :
-         lesson.plan_access === 'pro' ? 'Pro' : 'Enterprise'}
-      </span>
-      <div className="flex gap-1">
-        <Button variant="ghost" size="icon" onClick={() => onEdit(lesson)} title="Edit lesson">
-          <Edit className="w-4 h-4" />
-        </Button>
-        {lesson.video_url && (
-          <Button variant="ghost" size="icon" onClick={() => onPreview(lesson)}>
-            <Eye className="w-4 h-4" />
+      <div className="flex items-center gap-2 sm:gap-1 shrink-0 pl-7 sm:pl-0">
+        <span className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${
+          lesson.is_free || lesson.plan_access === 'free' ? 'bg-green-500/10 text-green-500' :
+          lesson.plan_access === 'starter' ? 'bg-blue-500/10 text-blue-500' :
+          lesson.plan_access === 'pro' ? 'bg-amber-500/10 text-amber-500' :
+          'bg-purple-500/10 text-purple-500'
+        }`}>
+          {lesson.is_free || lesson.plan_access === 'free' ? 'Free' :
+           lesson.plan_access === 'starter' ? 'Starter' :
+           lesson.plan_access === 'pro' ? 'Pro' : 'Enterprise'}
+        </span>
+        <div className="flex gap-1">
+          <Button variant="ghost" size="icon" onClick={() => onEdit(lesson)} title="Edit lesson">
+            <Edit className="w-4 h-4" />
           </Button>
-        )}
-        <Button variant="ghost" size="icon" onClick={() => onDelete(lesson.id)}>
-          <Trash2 className="w-4 h-4 text-destructive" />
-        </Button>
+          {lesson.video_url && (
+            <Button variant="ghost" size="icon" onClick={() => onPreview(lesson)}>
+              <Eye className="w-4 h-4" />
+            </Button>
+          )}
+          <Button variant="ghost" size="icon" onClick={() => onDelete(lesson.id)}>
+            <Trash2 className="w-4 h-4 text-destructive" />
+          </Button>
+        </div>
       </div>
     </div>
   );
