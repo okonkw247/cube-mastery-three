@@ -56,6 +56,12 @@ const Navbar = () => {
                 <Link to="/dashboard">
                   <Button variant="ghost">{t('nav.dashboard')}</Button>
                 </Link>
+                <Link to="/community">
+                  <Button variant="ghost">Community</Button>
+                </Link>
+                <Link to="/leaderboard">
+                  <Button variant="ghost">Leaderboard</Button>
+                </Link>
                 <Link to="/profile">
                   <Button variant="ghost">{t('common.profile')}</Button>
                 </Link>
