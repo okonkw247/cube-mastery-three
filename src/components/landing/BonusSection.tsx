@@ -23,7 +23,7 @@ const bonuses = [
 
 const BonusSection = React.forwardRef<HTMLElement>((_, ref) => {
   return (
-    <section className="py-16 sm:py-20 md:py-24 relative overflow-hidden">
+    <section ref={ref} className="py-16 sm:py-20 md:py-24 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent" />
       
