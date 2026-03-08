@@ -43,6 +43,7 @@ import { SubscriptionStatusBadge, PlanBadge } from "@/components/dashboard/Subsc
 import { DownloadManager } from "@/components/dashboard/DownloadManager";
 import { UpgradeBanner } from "@/components/dashboard/UpgradeBanner";
 import { UpgradeModal } from "@/components/modals/UpgradeModal";
+import { CommunityCard } from "@/components/dashboard/CommunityCard";
 import {
   LineChart,
   Line,
