@@ -41,9 +41,64 @@ function emailWrapper(content: string) {
 </body></html>`;
 }
 
-// This function is meant to be called on a cron schedule (e.g. daily)
-// It checks for users who haven't logged in for 3+ days and sends "we miss you" emails
-// It also checks for 50%+ completion and sends halfway emails
+async function sendPushToUser(supabase: any, userId: string, title: string, body: string, url?: string) {
+  try {
+    // Get all push subscriptions for this user
+    const { data: subs } = await supabase
+      .from("push_subscriptions")
+      .select("endpoint")
+      .eq("user_id", userId);
+    
+    if (!subs || subs.length === 0) return;
+
+    // Call the send-push-notification function
+    const response = await fetch(`${supabaseUrl}/functions/v1/send-push-notification`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${supabaseServiceKey}`,
+      },
+      body: JSON.stringify({ user_id: userId, title, body, url }),
+    });
+
+    if (!response.ok) {
+      console.error(`Push to ${userId} failed:`, await response.text());
+    }
+  } catch (err) {
+    console.error(`Push notification error for ${userId}:`, err);
+  }
+}
+
+async function logEmail(supabase: any, userId: string | null, email: string, emailType: string, details: Record<string, any> = {}) {
+  await supabase.from("email_logs").insert({
+    user_id: userId,
+    email: email.toLowerCase(),
+    email_type: emailType,
+    details,
+  });
+}
+
+async function hasRecentEmailLog(supabase: any, userId: string, emailType: string, withinDays: number): Promise<boolean> {
+  const since = new Date(Date.now() - withinDays * 24 * 60 * 60 * 1000).toISOString();
+  const { data } = await supabase
+    .from("email_logs")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("email_type", emailType)
+    .gte("sent_at", since)
+    .limit(1);
+  return (data && data.length > 0);
+}
+
+async function hasEverSentEmail(supabase: any, userId: string, emailType: string): Promise<boolean> {
+  const { data } = await supabase
+    .from("email_logs")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("email_type", emailType)
+    .limit(1);
+  return (data && data.length > 0);
+}
 
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
@@ -51,160 +106,161 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  const results = { miss_you: 0, halfway: 0, course_complete: 0, errors: 0 };
 
   try {
     const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
+    const { count: totalLessons } = await supabase.from("lessons").select("id", { count: "exact", head: true });
 
-    // ═══ WE MISS YOU EMAILS ═══
-    // Find users who last signed in 3+ days ago and haven't received this email recently
+    // ═══ GET ALL USERS ═══
     const { data: authUsers } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-    
-    if (authUsers?.users) {
-      for (const authUser of authUsers.users) {
-        const lastSignIn = authUser.last_sign_in_at;
-        if (!lastSignIn || new Date(lastSignIn) > new Date(threeDaysAgo)) continue;
+    if (!authUsers?.users || !totalLessons) {
+      return new Response(JSON.stringify({ success: true, results, note: "No users or lessons" }), {
+        status: 200, headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
 
-        // Check if we already sent a miss-you email in last 7 days
-        const { data: recentLog } = await supabase
-          .from('activity_log')
-          .select('id')
-          .eq('user_email', authUser.email?.toLowerCase())
-          .eq('action', 'miss_you_email_sent')
-          .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
-          .limit(1);
+    for (const authUser of authUsers.users) {
+      if (!authUser.email) continue;
 
-        if (recentLog && recentLog.length > 0) continue;
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name, subscription_tier, user_id")
+        .eq("user_id", authUser.id)
+        .single();
 
-        // Get profile data
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('full_name, total_points, user_id')
-          .eq('user_id', authUser.id)
-          .single();
+      if (!profile) continue;
 
-        if (!profile) continue;
+      const name = profile.full_name || authUser.email.split("@")[0] || "Cuber";
 
-        // Get progress
-        const { data: progressData } = await supabase
-          .from('lesson_progress')
-          .select('completed')
-          .eq('user_id', authUser.id);
+      // Get progress data
+      const { data: progressData } = await supabase
+        .from("lesson_progress")
+        .select("completed")
+        .eq("user_id", authUser.id);
 
-        const { count: totalLessons } = await supabase
-          .from('lessons')
-          .select('id', { count: 'exact', head: true });
+      const completedCount = progressData?.filter((p: any) => p.completed).length || 0;
+      const pct = Math.round((completedCount / totalLessons) * 100);
 
-        const completedCount = progressData?.filter(p => p.completed).length || 0;
-        const progressPct = totalLessons ? Math.round((completedCount / totalLessons) * 100) : 0;
+      // ═══ 1. WE MISS YOU — 3 days inactive ═══
+      const lastSignIn = authUser.last_sign_in_at;
+      if (lastSignIn && new Date(lastSignIn) < new Date(threeDaysAgo)) {
+        if (!(await hasRecentEmailLog(supabase, authUser.id, "miss_you", 7))) {
+          try {
+            const html = emailWrapper(`
+              <div class="header">
+                <h1>We miss you, ${name}! 🧩</h1>
+                <p>Come back and keep solving</p>
+              </div>
+              <p>It's been a few days since we last saw you. Don't let your progress slip away!</p>
+              <div style="display:flex;gap:12px">
+                <div class="stat" style="flex:1">
+                  <div class="value">${completedCount}</div>
+                  <div class="label">Lessons Done</div>
+                </div>
+                <div class="stat" style="flex:1">
+                  <div class="value">${pct}%</div>
+                  <div class="label">Overall Progress</div>
+                </div>
+              </div>
+              <p>Jump back in and pick up right where you left off.</p>
+              <div class="cta"><a href="${SITE_URL}/dashboard" class="btn">Continue Learning →</a></div>
+            `);
 
-        const name = profile.full_name || authUser.email?.split('@')[0] || 'Cuber';
+            await resend.emails.send({
+              from: FROM_EMAIL,
+              to: [authUser.email],
+              subject: "We miss you! Come back and keep solving 🧩",
+              html,
+            });
 
-        // Send miss you email
-        const html = emailWrapper(`
-          <div class="header">
-            <h1>We miss you, ${name}! 🧩</h1>
-            <p>Come back and keep solving</p>
-          </div>
-          <p>It's been a few days since we last saw you. Don't let your progress slip away!</p>
-          <div style="display:flex;gap:12px">
-            <div class="stat" style="flex:1">
-              <div class="value">${completedCount}</div>
-              <div class="label">Lessons Done</div>
+            await logEmail(supabase, authUser.id, authUser.email, "miss_you", { pct });
+            await sendPushToUser(supabase, authUser.id, `We miss you, ${name}! 🧩`, "It's been a few days. Jump back in and keep learning!", "/dashboard");
+            results.miss_you++;
+            console.log(`Sent miss-you to ${authUser.email}`);
+          } catch (err) {
+            console.error(`miss_you error for ${authUser.email}:`, err);
+            results.errors++;
+          }
+        }
+      }
+
+      // ═══ 2. HALFWAY THERE — 50%+ completion ═══
+      if (pct >= 50 && !(await hasEverSentEmail(supabase, authUser.id, "halfway"))) {
+        try {
+          const html = emailWrapper(`
+            <div class="header">
+              <h1>You're halfway there, ${name}! ⚡</h1>
+              <p>Don't stop now — the best is ahead</p>
             </div>
-            <div class="stat" style="flex:1">
-              <div class="value">${progressPct}%</div>
-              <div class="label">Overall Progress</div>
+            <div class="stat">
+              <div class="value">${pct}%</div>
+              <div class="label">Course Progress</div>
             </div>
-          </div>
-          <p>Jump back in and pick up right where you left off.</p>
-          <div class="cta"><a href="${SITE_URL}/dashboard" class="btn">Continue Learning →</a></div>
-        `);
+            <p>You've already mastered so much. Keep pushing and you'll be solving like a pro in no time.</p>
+            <div class="cta"><a href="${SITE_URL}/dashboard" class="btn">Keep Going →</a></div>
+          `);
 
-        await resend.emails.send({
-          from: FROM_EMAIL,
-          to: [authUser.email!],
-          subject: "We miss you! Come back and keep solving 🧩",
-          html,
-        });
+          await resend.emails.send({
+            from: FROM_EMAIL,
+            to: [authUser.email],
+            subject: "You're halfway there — don't stop now! ⚡",
+            html,
+          });
 
-        // Log that we sent it
-        await supabase.from('activity_log').insert({
-          user_email: authUser.email?.toLowerCase(),
-          user_id: authUser.id,
-          action: 'miss_you_email_sent',
-          action_type: 'email',
-          details: { progressPct },
-        });
+          await logEmail(supabase, authUser.id, authUser.email, "halfway", { pct });
+          await sendPushToUser(supabase, authUser.id, `Halfway there, ${name}! ⚡`, `You're at ${pct}% — keep going!`, "/dashboard");
+          results.halfway++;
+          console.log(`Sent halfway to ${authUser.email}`);
+        } catch (err) {
+          console.error(`halfway error for ${authUser.email}:`, err);
+          results.errors++;
+        }
+      }
 
-        console.log(`Sent miss-you email to ${authUser.email}`);
+      // ═══ 3. COURSE COMPLETE — 100% completion ═══
+      if (pct === 100 && !(await hasEverSentEmail(supabase, authUser.id, "course_complete"))) {
+        try {
+          const isMaxPlan = profile.subscription_tier === "pro" || profile.subscription_tier === "enterprise";
+          const upgradeSection = isMaxPlan ? "" : `
+            <p>Ready for the next level? Upgrade your plan to unlock advanced techniques and exclusive content.</p>
+            <div class="cta"><a href="https://whop.com/cube-mastery/" class="btn">Upgrade Now →</a></div>
+          `;
+
+          const html = emailWrapper(`
+            <div class="header">
+              <h1>You did it, ${name}! 🏆</h1>
+              <p>Course complete — congratulations!</p>
+            </div>
+            <p>You've completed all available lessons on your current plan. That's an incredible achievement!</p>
+            <div class="stat">
+              <div class="value">100%</div>
+              <div class="label">Course Completed</div>
+            </div>
+            ${upgradeSection}
+            <div class="cta"><a href="${SITE_URL}/dashboard" class="btn">View Your Dashboard →</a></div>
+          `);
+
+          await resend.emails.send({
+            from: FROM_EMAIL,
+            to: [authUser.email],
+            subject: "You did it! Course complete 🏆",
+            html,
+          });
+
+          await logEmail(supabase, authUser.id, authUser.email, "course_complete", { tier: profile.subscription_tier });
+          await sendPushToUser(supabase, authUser.id, `Congratulations, ${name}! 🏆`, "You completed all lessons! Check your dashboard.", "/dashboard");
+          results.course_complete++;
+          console.log(`Sent course-complete to ${authUser.email}`);
+        } catch (err) {
+          console.error(`course_complete error for ${authUser.email}:`, err);
+          results.errors++;
+        }
       }
     }
 
-    // ═══ HALFWAY EMAILS ═══
-    const { data: allProfiles } = await supabase.from('profiles').select('user_id, full_name');
-    const { count: totalLessons } = await supabase.from('lessons').select('id', { count: 'exact', head: true });
-
-    if (allProfiles && totalLessons) {
-      for (const prof of allProfiles) {
-        const { data: progressData } = await supabase
-          .from('lesson_progress')
-          .select('completed')
-          .eq('user_id', prof.user_id);
-
-        const completedCount = progressData?.filter(p => p.completed).length || 0;
-        const pct = Math.round((completedCount / totalLessons) * 100);
-
-        // Only send at exactly 50%+ and haven't sent before
-        if (pct < 50) continue;
-
-        const { data: alreadySent } = await supabase
-          .from('activity_log')
-          .select('id')
-          .eq('user_id', prof.user_id)
-          .eq('action', 'halfway_email_sent')
-          .limit(1);
-
-        if (alreadySent && alreadySent.length > 0) continue;
-
-        // Get email
-        const { data: authData } = await supabase.auth.admin.getUserById(prof.user_id);
-        if (!authData?.user?.email) continue;
-
-        const name = prof.full_name || authData.user.email.split('@')[0];
-
-        const html = emailWrapper(`
-          <div class="header">
-            <h1>You're halfway there, ${name}! ⚡</h1>
-            <p>Don't stop now — the best is ahead</p>
-          </div>
-          <div class="stat">
-            <div class="value">${pct}%</div>
-            <div class="label">Course Progress</div>
-          </div>
-          <p>You've already mastered so much. Keep pushing and you'll be solving like a pro in no time.</p>
-          <div class="cta"><a href="${SITE_URL}/dashboard" class="btn">Keep Going →</a></div>
-        `);
-
-        await resend.emails.send({
-          from: FROM_EMAIL,
-          to: [authData.user.email],
-          subject: "You're halfway there — don't stop now! ⚡",
-          html,
-        });
-
-        await supabase.from('activity_log').insert({
-          user_email: authData.user.email.toLowerCase(),
-          user_id: prof.user_id,
-          action: 'halfway_email_sent',
-          action_type: 'email',
-          details: { progressPct: pct },
-        });
-
-        console.log(`Sent halfway email to ${authData.user.email}`);
-      }
-    }
-
-    return new Response(JSON.stringify({ success: true }), {
+    console.log("Engagement check complete:", results);
+    return new Response(JSON.stringify({ success: true, results }), {
       status: 200, headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: any) {
