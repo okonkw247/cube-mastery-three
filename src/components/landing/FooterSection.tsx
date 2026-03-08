@@ -13,7 +13,7 @@ const FooterSection = React.forwardRef<HTMLElement>((_, ref) => {
   };
 
   return (
-    <footer className="py-10 sm:py-12 md:py-16 border-t border-border">
+    <footer ref={ref} className="py-10 sm:py-12 md:py-16 border-t border-border">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 md:gap-12 mb-8 sm:mb-12">
           {/* Brand */}
