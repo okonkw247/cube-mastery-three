@@ -157,9 +157,9 @@ const Profile = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-12">
+      <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-12">
         <div className="max-w-xl mx-auto">
-          <div className="card-gradient rounded-2xl p-8 border border-border">
+          <div className="card-gradient rounded-2xl p-4 sm:p-6 lg:p-8 border border-border">
             {/* Avatar Section */}
             <div className="flex flex-col items-center mb-8">
               <div className="relative group">
