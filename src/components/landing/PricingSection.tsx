@@ -73,6 +73,7 @@ const plans = [
 const PricingSection = () => {
   const [selectedPlan, setSelectedPlan] = useState("free");
   const [contactOpen, setContactOpen] = useState(false);
+  const [giftOpen, setGiftOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
 
