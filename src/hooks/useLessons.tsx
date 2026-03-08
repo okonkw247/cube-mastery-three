@@ -95,18 +95,18 @@ export function useLessons() {
           if (payload.eventType === 'INSERT') {
             const newLesson = payload.new as Lesson;
             if (newLesson.status === 'published') {
-              setLessons((prev) => [...prev, newLesson].sort((a, b) => a.order_index - b.order_index));
+              setAllLessons((prev) => [...prev, newLesson].sort((a, b) => a.order_index - b.order_index));
             }
           } else if (payload.eventType === 'UPDATE') {
             const updatedLesson = payload.new as Lesson;
-            setLessons((prev) => 
+            setAllLessons((prev) => 
               prev.map((l) => l.id === updatedLesson.id ? updatedLesson : l)
                 .filter((l) => l.status === 'published')
                 .sort((a, b) => a.order_index - b.order_index)
             );
           } else if (payload.eventType === 'DELETE') {
             const deletedId = (payload.old as any).id;
-            setLessons((prev) => prev.filter((l) => l.id !== deletedId));
+            setAllLessons((prev) => prev.filter((l) => l.id !== deletedId));
           }
         }
       )
