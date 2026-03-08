@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -6,18 +6,15 @@ import { useProfile } from "@/hooks/useProfile";
 import { useLessons } from "@/hooks/useLessons";
 import { CourseView } from "@/components/course/CourseView";
 import { PracticeCoach } from "@/components/PracticeCoach";
-import { useState } from "react";
-import { Lock } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 const Lesson = () => {
   const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const { profile, isPro, loading: profileLoading } = useProfile();
-  const { lessons, progress, markComplete, loading: lessonsLoading, canAccessLesson } = useLessons();
+  const { profile, loading: profileLoading } = useProfile();
+  const { lessons, allLessonsUnfiltered, progress, markComplete, loading: lessonsLoading, canAccessLesson } = useLessons();
   const [showPractice, setShowPractice] = useState(false);
 
   // Redirect if not logged in
@@ -26,6 +23,17 @@ const Lesson = () => {
       navigate("/auth");
     }
   }, [user, authLoading, navigate]);
+
+  // Check access: if lesson exists but user can't access it, redirect to dashboard with upgrade modal
+  useEffect(() => {
+    if (authLoading || profileLoading || lessonsLoading || !id || !user) return;
+
+    const lesson = allLessonsUnfiltered.find((l) => l.id === id);
+    if (lesson && !canAccessLesson(lesson, profile?.subscription_tier || null)) {
+      toast.error("Upgrade your plan to access this course");
+      navigate("/dashboard?showUpgrade=true", { replace: true });
+    }
+  }, [id, allLessonsUnfiltered, profile, authLoading, profileLoading, lessonsLoading, user, canAccessLesson, navigate]);
 
   if (authLoading || profileLoading || lessonsLoading) {
     return (
@@ -44,52 +52,14 @@ const Lesson = () => {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">{t('lessons.lessonNotFound')}</h1>
-          <Link to="/dashboard" className="text-primary hover:underline">
+          <button onClick={() => navigate("/dashboard")} className="text-primary hover:underline">
             {t('lessons.backToDashboard')}
-          </Link>
+          </button>
         </div>
       </div>
     );
   }
 
-  const isLocked = !canAccessLesson(lesson, profile?.subscription_tier || null);
-
-  // Show locked view for non-accessible lessons
-  if (isLocked) {
-    return (
-      <div className="min-h-screen bg-background">
-        <header className="border-b border-border bg-card sticky top-0 z-50">
-          <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-            <Link
-              to="/dashboard"
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <span>← {t('lessons.backToDashboard')}</span>
-            </Link>
-          </div>
-        </header>
-
-        <main className="container mx-auto px-6 py-16 max-w-2xl text-center">
-          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
-            <Lock className="w-10 h-10 text-muted-foreground" />
-          </div>
-          <h1 className="text-3xl font-bold mb-4">{t('lessons.upgradeToAccess')}</h1>
-          <p className="text-muted-foreground mb-8">
-            {t('lessons.upgradeToAccessDesc')}
-          </p>
-          <Button 
-            variant="default" 
-            size="lg" 
-            onClick={() => window.open("https://whop.com/checkout?plan=pro", "_blank")}
-          >
-            {t('common.upgradeToPro')}
-          </Button>
-        </main>
-      </div>
-    );
-  }
-
-  // Render the Udemy-style course view
   return (
     <>
       <CourseView
