@@ -65,7 +65,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user, signOut, loading: authLoading } = useAuth();
   const { profile, isPro, loading: profileLoading } = useProfile();
-  const { lessons, progress, progressPercent, completedCount, loading: lessonsLoading, canAccessLesson } = useLessons();
+  const { lessons, progress, progressPercent, completedCount, loading: lessonsLoading } = useLessons();
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const { totalAttempts, attempts } = usePracticeAttempts();
   const { isAdmin, isPreviewMode, setPreviewMode } = useAdmin();
