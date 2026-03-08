@@ -65,23 +65,7 @@ export function NotificationBell() {
     }
   }, []);
 
-  // Show browser notification for new notifications
-  useEffect(() => {
-    if (unreadCount > 0 && 'Notification' in window && Notification.permission === 'granted') {
-      const latestUnread = notifications.find(n => !n.is_read);
-      if (latestUnread) {
-        // Only show for very recent notifications (within last 30 seconds)
-        const age = Date.now() - new Date(latestUnread.created_at).getTime();
-        if (age < 30000) {
-          new window.Notification(latestUnread.title, {
-            body: latestUnread.message,
-            icon: '/jsn-logo.png',
-            tag: latestUnread.id, // Prevents duplicate notifications
-          });
-        }
-      }
-    }
-  }, [notifications, unreadCount]);
+  // Browser push notifications are handled by useSmartNotifications
 
   const handleNotificationClick = async (notification: AppNotification) => {
     if (!notification.is_read) {
