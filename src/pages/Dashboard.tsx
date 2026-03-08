@@ -70,6 +70,7 @@ const Dashboard = () => {
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const { totalAttempts, attempts } = usePracticeAttempts();
   const { isAdmin, isPreviewMode, setPreviewMode } = useAdmin();
+  const { awardXP } = useXP();
   const [chartPeriod, setChartPeriod] = useState("Year");
   const [todoModalOpen, setTodoModalOpen] = useState(false);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
