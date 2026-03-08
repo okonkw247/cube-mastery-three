@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useProfile } from './useProfile';
 
 export interface Lesson {
   id: string;
@@ -28,7 +29,8 @@ export interface LessonProgress {
 
 export function useLessons() {
   const { user } = useAuth();
-  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const { profile } = useProfile();
+  const [allLessons, setAllLessons] = useState<Lesson[]>([]);
   const [progress, setProgress] = useState<Record<string, LessonProgress>>({});
   const [loading, setLoading] = useState(true);
 
@@ -40,7 +42,7 @@ export function useLessons() {
       .order('order_index', { ascending: true });
 
     if (!error && data) {
-      setLessons(data);
+      setAllLessons(data);
     }
     setLoading(false);
   }, []);
@@ -93,18 +95,18 @@ export function useLessons() {
           if (payload.eventType === 'INSERT') {
             const newLesson = payload.new as Lesson;
             if (newLesson.status === 'published') {
-              setLessons((prev) => [...prev, newLesson].sort((a, b) => a.order_index - b.order_index));
+              setAllLessons((prev) => [...prev, newLesson].sort((a, b) => a.order_index - b.order_index));
             }
           } else if (payload.eventType === 'UPDATE') {
             const updatedLesson = payload.new as Lesson;
-            setLessons((prev) => 
+            setAllLessons((prev) => 
               prev.map((l) => l.id === updatedLesson.id ? updatedLesson : l)
                 .filter((l) => l.status === 'published')
                 .sort((a, b) => a.order_index - b.order_index)
             );
           } else if (payload.eventType === 'DELETE') {
             const deletedId = (payload.old as any).id;
-            setLessons((prev) => prev.filter((l) => l.id !== deletedId));
+            setAllLessons((prev) => prev.filter((l) => l.id !== deletedId));
           }
         }
       )
@@ -179,10 +181,7 @@ export function useLessons() {
     }
   };
 
-  const completedCount = Object.values(progress).filter((p) => p.completed).length;
-  const progressPercent = lessons.length > 0 ? Math.round((completedCount / lessons.length) * 100) : 0;
-
-  const canAccessLesson = (lesson: Lesson, userTier: string | null): boolean => {
+  const canAccessLesson = useCallback((lesson: Lesson, userTier: string | null): boolean => {
     if (lesson.is_free) return true;
     if (!userTier) return false;
     
@@ -191,10 +190,23 @@ export function useLessons() {
     const lessonTierIndex = tierHierarchy.indexOf(lesson.plan_access || 'free');
     
     return userTierIndex >= lessonTierIndex;
-  };
+  }, []);
+
+  // Filter lessons: completely hide courses above user's plan tier
+  const lessons = useMemo(() => {
+    const userTier = profile?.subscription_tier || 'free';
+    return allLessons.filter((lesson) => canAccessLesson(lesson, userTier));
+  }, [allLessons, profile?.subscription_tier, canAccessLesson]);
+
+  // All lessons (unfiltered) for admin and CourseView navigation
+  const allLessonsUnfiltered = allLessons;
+
+  const completedCount = Object.values(progress).filter((p) => p.completed).length;
+  const progressPercent = lessons.length > 0 ? Math.round((completedCount / lessons.length) * 100) : 0;
 
   return {
     lessons,
+    allLessonsUnfiltered,
     progress,
     loading,
     completedCount,
