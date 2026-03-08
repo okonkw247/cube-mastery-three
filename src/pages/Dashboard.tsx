@@ -45,6 +45,8 @@ import { DownloadManager } from "@/components/dashboard/DownloadManager";
 import { UpgradeBanner } from "@/components/dashboard/UpgradeBanner";
 import { UpgradeModal } from "@/components/modals/UpgradeModal";
 import { CommunityCard } from "@/components/dashboard/CommunityCard";
+import { ReferralCard } from "@/components/dashboard/ReferralCard";
+import { DailyChallengeCard } from "@/components/dashboard/DailyChallengeCard";
 import {
   LineChart,
   Line,
@@ -361,6 +363,16 @@ const Dashboard = () => {
           {/* Community Card */}
           <div className="lg:col-span-2 xl:col-span-1">
             <CommunityCard />
+          </div>
+
+          {/* Daily Challenge */}
+          <div className="lg:col-span-1">
+            <DailyChallengeCard />
+          </div>
+
+          {/* Referral Card */}
+          <div className="lg:col-span-1">
+            <ReferralCard />
           </div>
         </div>
 

@@ -127,6 +127,39 @@ export type Database = {
           },
         ]
       }
+      certificates: {
+        Row: {
+          certificate_id: string
+          completed_at: string
+          course_name: string
+          created_at: string
+          id: string
+          pdf_url: string | null
+          student_name: string
+          user_id: string
+        }
+        Insert: {
+          certificate_id?: string
+          completed_at?: string
+          course_name: string
+          created_at?: string
+          id?: string
+          pdf_url?: string | null
+          student_name: string
+          user_id: string
+        }
+        Update: {
+          certificate_id?: string
+          completed_at?: string
+          course_name?: string
+          created_at?: string
+          id?: string
+          pdf_url?: string | null
+          student_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       challenge_attempts: {
         Row: {
           challenge_id: string
@@ -241,6 +274,74 @@ export type Database = {
           },
         ]
       }
+      daily_challenge_completions: {
+        Row: {
+          challenge_id: string
+          completed_at: string
+          id: string
+          user_id: string
+          xp_earned: number
+        }
+        Insert: {
+          challenge_id: string
+          completed_at?: string
+          id?: string
+          user_id: string
+          xp_earned?: number
+        }
+        Update: {
+          challenge_id?: string
+          completed_at?: string
+          id?: string
+          user_id?: string
+          xp_earned?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_challenge_completions_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "daily_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_challenges: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          repeat_weekly: boolean
+          scheduled_date: string | null
+          title: string
+          xp_reward: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          repeat_weekly?: boolean
+          scheduled_date?: string | null
+          title: string
+          xp_reward?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          repeat_weekly?: boolean
+          scheduled_date?: string | null
+          title?: string
+          xp_reward?: number
+        }
+        Relationships: []
+      }
       email_logs: {
         Row: {
           details: Json | null
@@ -339,6 +440,42 @@ export type Database = {
           inviter_id?: string
           status?: string
           token?: string
+        }
+        Relationships: []
+      }
+      gifts: {
+        Row: {
+          claim_token: string
+          claimed_at: string | null
+          claimed_by: string | null
+          created_at: string
+          id: string
+          personal_message: string | null
+          plan: string
+          recipient_email: string
+          sender_id: string
+        }
+        Insert: {
+          claim_token?: string
+          claimed_at?: string | null
+          claimed_by?: string | null
+          created_at?: string
+          id?: string
+          personal_message?: string | null
+          plan: string
+          recipient_email: string
+          sender_id: string
+        }
+        Update: {
+          claim_token?: string
+          claimed_at?: string | null
+          claimed_by?: string | null
+          created_at?: string
+          id?: string
+          personal_message?: string | null
+          plan?: string
+          recipient_email?: string
+          sender_id?: string
         }
         Relationships: []
       }
@@ -711,11 +848,14 @@ export type Database = {
           id: string
           is_suspended: boolean | null
           onboarding_completed: boolean | null
+          referral_code: string | null
+          referred_by: string | null
           subscription_status: string
           subscription_tier: string
           total_points: number | null
           updated_at: string
           user_id: string
+          username: string | null
           whop_membership_id: string | null
         }
         Insert: {
@@ -725,11 +865,14 @@ export type Database = {
           id?: string
           is_suspended?: boolean | null
           onboarding_completed?: boolean | null
+          referral_code?: string | null
+          referred_by?: string | null
           subscription_status?: string
           subscription_tier?: string
           total_points?: number | null
           updated_at?: string
           user_id: string
+          username?: string | null
           whop_membership_id?: string | null
         }
         Update: {
@@ -739,11 +882,14 @@ export type Database = {
           id?: string
           is_suspended?: boolean | null
           onboarding_completed?: boolean | null
+          referral_code?: string | null
+          referred_by?: string | null
           subscription_status?: string
           subscription_tier?: string
           total_points?: number | null
           updated_at?: string
           user_id?: string
+          username?: string | null
           whop_membership_id?: string | null
         }
         Relationships: []
@@ -775,6 +921,42 @@ export type Database = {
           p256dh?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          click_count: number
+          converted_at: string | null
+          created_at: string
+          id: string
+          paid_at: string | null
+          referred_email: string | null
+          referred_user_id: string | null
+          referrer_id: string
+          status: string
+        }
+        Insert: {
+          click_count?: number
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          referred_email?: string | null
+          referred_user_id?: string | null
+          referrer_id: string
+          status?: string
+        }
+        Update: {
+          click_count?: number
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          referred_email?: string | null
+          referred_user_id?: string | null
+          referrer_id?: string
+          status?: string
         }
         Relationships: []
       }
@@ -1081,6 +1263,17 @@ export type Database = {
       }
     }
     Views: {
+      referral_leaderboard: {
+        Row: {
+          avatar_url: string | null
+          full_name: string | null
+          successful_referrals: number | null
+          total_clicks: number | null
+          total_signups: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       weekly_leaderboard: {
         Row: {
           avatar_url: string | null

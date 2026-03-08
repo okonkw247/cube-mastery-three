@@ -26,10 +26,15 @@ import AdminResources from "./pages/admin/AdminResources";
 import AdminChallenges from "./pages/admin/AdminChallenges";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminDailyChallenges from "./pages/admin/AdminDailyChallenges";
 import AdminInviteAccept from "./pages/admin/AdminInviteAccept";
 import MyDownloads from "./pages/MyDownloads";
 import Community from "./pages/Community";
 import Leaderboard from "./pages/Leaderboard";
+import PublicProfile from "./pages/PublicProfile";
+import Certificates from "./pages/Certificates";
+import VerifyCertificate from "./pages/VerifyCertificate";
+import ReferralLanding from "./pages/ReferralLanding";
 import { CubeCoachChat } from "@/components/chat/CubeCoachChat";
 
 const queryClient = new QueryClient();
@@ -59,6 +64,10 @@ const App = () => (
                 <Route path="/downloads" element={<MyDownloads />} />
                 <Route path="/community" element={<Community />} />
                 <Route path="/leaderboard" element={<Leaderboard />} />
+                <Route path="/u/:username" element={<PublicProfile />} />
+                <Route path="/certificates" element={<Certificates />} />
+                <Route path="/verify/:certificateId" element={<VerifyCertificate />} />
+                <Route path="/ref/:code" element={<ReferralLanding />} />
                 {/* Admin Routes */}
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/lessons" element={<AdminLessons />} />
@@ -67,6 +76,7 @@ const App = () => (
                 <Route path="/admin/challenges" element={<AdminChallenges />} />
                 <Route path="/admin/analytics" element={<AdminAnalytics />} />
                 <Route path="/admin/settings" element={<AdminSettings />} />
+                <Route path="/admin/daily-challenges" element={<AdminDailyChallenges />} />
                 <Route path="/admin/invite/:token" element={<AdminInviteAccept />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />

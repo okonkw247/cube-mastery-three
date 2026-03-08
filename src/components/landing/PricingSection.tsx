@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, ArrowRight } from "lucide-react";
+import { Check, ArrowRight, Gift } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import ContactModal from "@/components/modals/ContactModal";
+import GiftModal from "@/components/modals/GiftModal";
 import heroCube from "@/assets/hero-cube.jpg";
 
 // Real Whop plan IDs
@@ -72,6 +73,7 @@ const plans = [
 const PricingSection = () => {
   const [selectedPlan, setSelectedPlan] = useState("free");
   const [contactOpen, setContactOpen] = useState(false);
+  const [giftOpen, setGiftOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -198,15 +200,28 @@ const PricingSection = () => {
                   ))}
                 </ul>
 
-                <Button
-                  variant="hero"
-                  size="lg"
-                  className="w-full gap-2"
-                  onClick={handlePlanSelect}
-                >
-                  {selectedPlan === "free" ? "Get Started Free" : `Continue With ${currentPlan.name}`}
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="hero"
+                    size="lg"
+                    className="flex-1 gap-2"
+                    onClick={handlePlanSelect}
+                  >
+                    {selectedPlan === "free" ? "Get Started Free" : `Continue With ${currentPlan.name}`}
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                  {selectedPlan !== "free" && (
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="gap-2"
+                      onClick={() => setGiftOpen(true)}
+                    >
+                      <Gift className="w-4 h-4" />
+                      🎁 Gift
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
 
@@ -231,6 +246,7 @@ const PricingSection = () => {
       </div>
 
       <ContactModal open={contactOpen} onOpenChange={setContactOpen} />
+      <GiftModal open={giftOpen} onOpenChange={setGiftOpen} defaultPlan={selectedPlan === "free" ? "starter" : selectedPlan} />
     </section>
   );
 };
