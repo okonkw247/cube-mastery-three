@@ -1,9 +1,9 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import jsnLogo from "@/assets/jsn-logo.png";
 import LegalModal from "@/components/modals/LegalModal";
 
-const FooterSection = () => {
+const FooterSection = React.forwardRef<HTMLElement>((_, ref) => {
   const [legalOpen, setLegalOpen] = useState<"privacy" | "terms" | "refund" | null>(null);
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
