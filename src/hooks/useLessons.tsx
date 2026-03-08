@@ -181,10 +181,7 @@ export function useLessons() {
     }
   };
 
-  const completedCount = Object.values(progress).filter((p) => p.completed).length;
-  const progressPercent = lessons.length > 0 ? Math.round((completedCount / lessons.length) * 100) : 0;
-
-  const canAccessLesson = (lesson: Lesson, userTier: string | null): boolean => {
+  const canAccessLesson = useCallback((lesson: Lesson, userTier: string | null): boolean => {
     if (lesson.is_free) return true;
     if (!userTier) return false;
     
@@ -193,10 +190,23 @@ export function useLessons() {
     const lessonTierIndex = tierHierarchy.indexOf(lesson.plan_access || 'free');
     
     return userTierIndex >= lessonTierIndex;
-  };
+  }, []);
+
+  // Filter lessons: completely hide courses above user's plan tier
+  const lessons = useMemo(() => {
+    const userTier = profile?.subscription_tier || 'free';
+    return allLessons.filter((lesson) => canAccessLesson(lesson, userTier));
+  }, [allLessons, profile?.subscription_tier, canAccessLesson]);
+
+  // All lessons (unfiltered) for admin and CourseView navigation
+  const allLessonsUnfiltered = allLessons;
+
+  const completedCount = Object.values(progress).filter((p) => p.completed).length;
+  const progressPercent = lessons.length > 0 ? Math.round((completedCount / lessons.length) * 100) : 0;
 
   return {
     lessons,
+    allLessonsUnfiltered,
     progress,
     loading,
     completedCount,
