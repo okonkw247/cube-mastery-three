@@ -29,7 +29,8 @@ export interface LessonProgress {
 
 export function useLessons() {
   const { user } = useAuth();
-  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const { profile } = useProfile();
+  const [allLessons, setAllLessons] = useState<Lesson[]>([]);
   const [progress, setProgress] = useState<Record<string, LessonProgress>>({});
   const [loading, setLoading] = useState(true);
 
