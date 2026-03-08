@@ -26,6 +26,7 @@ import AdminResources from "./pages/admin/AdminResources";
 import AdminChallenges from "./pages/admin/AdminChallenges";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminDailyChallenges from "./pages/admin/AdminDailyChallenges";
 import AdminInviteAccept from "./pages/admin/AdminInviteAccept";
 import MyDownloads from "./pages/MyDownloads";
 import Community from "./pages/Community";
