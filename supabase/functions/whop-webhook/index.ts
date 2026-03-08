@@ -348,6 +348,33 @@ const handler = async (req: Request): Promise<Response> => {
         );
 
         await logWebhookEvent(supabase, action, payload, "success");
+        // Send payment confirmation email via Resend
+        try {
+          const resendApiKey = Deno.env.get("RESEND_API_KEY");
+          if (resendApiKey && email) {
+            const resend = new Resend(resendApiKey);
+            const planLabel = planType === 'starter' ? 'Starter Plan' : 'Pro Plan';
+            const price = planType === 'starter' ? '$15' : '$40';
+            const userName = user.full_name || email.split('@')[0];
+
+            // Fetch the engagement email function for consistency
+            const engagementUrl = `${supabaseUrl}/functions/v1/send-engagement-email`;
+            await fetch(engagementUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${supabaseServiceKey}` },
+              body: JSON.stringify({
+                type: 'payment_confirmed',
+                email,
+                name: userName,
+                data: { planName: planLabel, price },
+              }),
+            });
+            console.log(`Payment confirmation email sent to ${email}`);
+          }
+        } catch (emailErr) {
+          console.error("Failed to send payment confirmation email:", emailErr);
+        }
+
         console.log(`Successfully activated ${planType} for user ${email}`);
 
         return new Response(
