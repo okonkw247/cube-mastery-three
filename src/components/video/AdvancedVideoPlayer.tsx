@@ -75,6 +75,14 @@ const AdvancedVideoPlayer = ({
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [isPiP, setIsPiP] = useState(false);
 
+  // Timeline thumbnail extraction
+  const { 
+    getThumbnailAtTime, 
+    extractFrames, 
+    isExtracting, 
+    frames 
+  } = useTimelineThumbnails(videoUrl, { interval: 5, width: 160, height: 90 });
+
   // Load saved preferences
   useEffect(() => {
     const savedQuality = localStorage.getItem("video_quality_preference");
