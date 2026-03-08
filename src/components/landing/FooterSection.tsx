@@ -1,9 +1,9 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import jsnLogo from "@/assets/jsn-logo.png";
 import LegalModal from "@/components/modals/LegalModal";
 
-const FooterSection = () => {
+const FooterSection = React.forwardRef<HTMLElement>((_, ref) => {
   const [legalOpen, setLegalOpen] = useState<"privacy" | "terms" | "refund" | null>(null);
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -13,7 +13,7 @@ const FooterSection = () => {
   };
 
   return (
-    <footer className="py-10 sm:py-12 md:py-16 border-t border-border">
+    <footer ref={ref} className="py-10 sm:py-12 md:py-16 border-t border-border">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 md:gap-12 mb-8 sm:mb-12">
           {/* Brand */}
@@ -89,6 +89,8 @@ const FooterSection = () => {
       {legalOpen && <LegalModal open={!!legalOpen} onOpenChange={() => setLegalOpen(null)} type={legalOpen} />}
     </footer>
   );
-};
+});
+
+FooterSection.displayName = "FooterSection";
 
 export default FooterSection;

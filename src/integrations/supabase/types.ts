@@ -906,6 +906,68 @@ export type Database = {
         }
         Relationships: []
       }
+      video_metadata: {
+        Row: {
+          available_resolutions: string[] | null
+          created_at: string
+          duration_seconds: number | null
+          frame_count: number | null
+          id: string
+          lesson_id: string
+          preview_clip_path: string | null
+          processed_at: string | null
+          processing_status: string
+          sprite_columns: number | null
+          sprite_frame_height: number | null
+          sprite_frame_interval: number | null
+          sprite_frame_width: number | null
+          thumbnail_sprite_path: string | null
+          updated_at: string
+        }
+        Insert: {
+          available_resolutions?: string[] | null
+          created_at?: string
+          duration_seconds?: number | null
+          frame_count?: number | null
+          id?: string
+          lesson_id: string
+          preview_clip_path?: string | null
+          processed_at?: string | null
+          processing_status?: string
+          sprite_columns?: number | null
+          sprite_frame_height?: number | null
+          sprite_frame_interval?: number | null
+          sprite_frame_width?: number | null
+          thumbnail_sprite_path?: string | null
+          updated_at?: string
+        }
+        Update: {
+          available_resolutions?: string[] | null
+          created_at?: string
+          duration_seconds?: number | null
+          frame_count?: number | null
+          id?: string
+          lesson_id?: string
+          preview_clip_path?: string | null
+          processed_at?: string | null
+          processing_status?: string
+          sprite_columns?: number | null
+          sprite_frame_height?: number | null
+          sprite_frame_interval?: number | null
+          sprite_frame_width?: number | null
+          thumbnail_sprite_path?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_metadata_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: true
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webhook_logs: {
         Row: {
           error_message: string | null

@@ -4,6 +4,7 @@ import {
   Settings, SkipBack, SkipForward, Loader2, PictureInPicture2,
   Check, ChevronRight
 } from "lucide-react";
+import { useTimelineThumbnails } from "@/hooks/useTimelineThumbnails";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import {
@@ -73,6 +74,14 @@ const AdvancedVideoPlayer = ({
   const [hoverPosition, setHoverPosition] = useState(0);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [isPiP, setIsPiP] = useState(false);
+
+  // Timeline thumbnail extraction
+  const { 
+    getThumbnailAtTime, 
+    extractFrames, 
+    isExtracting, 
+    frames 
+  } = useTimelineThumbnails(videoUrl, { interval: 5, width: 160, height: 90 });
 
   // Load saved preferences
   useEffect(() => {
@@ -245,6 +254,8 @@ const AdvancedVideoPlayer = ({
     if (videoRef.current) {
       setDuration(videoRef.current.duration);
     }
+    // Start extracting timeline thumbnails after video loads
+    extractFrames();
   };
 
   const handleTimeUpdate = () => {
@@ -562,15 +573,27 @@ const AdvancedVideoPlayer = ({
             />
           ))}
 
-          {/* Hover Time Preview */}
-          {hoverTime !== null && (
-            <div 
-              className="absolute bottom-full mb-2 -translate-x-1/2 bg-black/90 text-white text-xs px-2 py-1 rounded"
-              style={{ left: hoverPosition }}
-            >
-              {formatTime(hoverTime)}
-            </div>
-          )}
+          {/* Hover Time Preview with Thumbnail */}
+          {hoverTime !== null && (() => {
+            const thumb = getThumbnailAtTime(hoverTime);
+            return (
+              <div 
+                className="absolute bottom-full mb-2 -translate-x-1/2 flex flex-col items-center pointer-events-none"
+                style={{ left: Math.max(80, Math.min(hoverPosition, (progressRef.current?.clientWidth || 800) - 80)) }}
+              >
+                {thumb && (
+                  <img 
+                    src={thumb.dataUrl} 
+                    alt="" 
+                    className="w-40 h-[90px] rounded border border-white/20 shadow-lg mb-1 object-cover"
+                  />
+                )}
+                <span className="bg-black/90 text-white text-xs px-2 py-1 rounded">
+                  {formatTime(hoverTime)}
+                </span>
+              </div>
+            );
+          })()}
         </div>
 
         {/* Controls Row */}

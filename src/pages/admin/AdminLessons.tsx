@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
+import { triggerVideoProcessing } from '@/hooks/useVideoMetadata';
 import { useLessons } from '@/hooks/useLessons';
 import { useAdminLessons } from '@/hooks/useAdminLessons';
 import { Button } from '@/components/ui/button';
@@ -211,6 +212,30 @@ export default function AdminLessons() {
         p_type: 'new_lesson',
         p_reference_id: result.id,
       });
+
+      // Trigger video processing pipeline if video was uploaded
+      if (formData.video_url) {
+        // Parse duration to seconds
+        let durationSec: number | undefined;
+        if (formData.duration) {
+          const parts = formData.duration.split(':').map(Number);
+          if (parts.length === 3) durationSec = parts[0] * 3600 + parts[1] * 60 + parts[2];
+          else if (parts.length === 2) durationSec = parts[0] * 60 + parts[1];
+        }
+
+        triggerVideoProcessing({
+          lessonId: result.id,
+          videoUrl: formData.video_url,
+          title: formData.title,
+          description: formData.description,
+          durationSeconds: durationSec,
+        }).then(() => {
+          toast.success('Video processing started — AI thumbnails generating...');
+        }).catch((err) => {
+          console.error('Video processing trigger failed:', err);
+        });
+      }
+
       setDialogOpen(false);
       refetch();
       setFormData({ ...formData, title: '', description: '', video_url: '', lesson_notes: '', hologram_sheet_url: '' });
@@ -284,6 +309,17 @@ export default function AdminLessons() {
         p_message: `"${editingLesson.title}" has a new video. Watch it now!`,
         p_type: 'new_video',
         p_reference_id: editingLesson.id,
+      });
+      // Trigger video processing for the new video
+      triggerVideoProcessing({
+        lessonId: editingLesson.id,
+        videoUrl: editFormData.video_url,
+        title: editingLesson.title,
+        description: editingLesson.description || '',
+      }).then(() => {
+        toast.success('Video processing started — AI thumbnails generating...');
+      }).catch((err) => {
+        console.error('Video processing trigger failed:', err);
       });
     } else if (hasNewNotes || hasNewHologram) {
       await supabase.rpc('notify_all_users', {
