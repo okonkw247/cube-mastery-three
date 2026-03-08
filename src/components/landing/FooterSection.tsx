@@ -89,6 +89,8 @@ const FooterSection = React.forwardRef<HTMLElement>((_, ref) => {
       {legalOpen && <LegalModal open={!!legalOpen} onOpenChange={() => setLegalOpen(null)} type={legalOpen} />}
     </footer>
   );
-};
+});
+
+FooterSection.displayName = "FooterSection";
 
 export default FooterSection;
