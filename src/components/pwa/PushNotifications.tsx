@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -142,7 +142,7 @@ export function usePushNotifications() {
   return { permission, isSupported, requestPermission, sendNotification };
 }
 
-export function PushNotificationPrompt() {
+export const PushNotificationPrompt = React.forwardRef<HTMLDivElement>(function PushNotificationPrompt(_props, ref) {
   const { user } = useAuth();
   const { permission, isSupported, requestPermission } = usePushNotifications();
   const [show, setShow] = useState(false);
@@ -198,4 +198,5 @@ export function PushNotificationPrompt() {
       </div>
     </div>
   );
-}
+});
+PushNotificationPrompt.displayName = "PushNotificationPrompt";
