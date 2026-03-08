@@ -42,7 +42,7 @@ export function useLessons() {
       .order('order_index', { ascending: true });
 
     if (!error && data) {
-      setLessons(data);
+      setAllLessons(data);
     }
     setLoading(false);
   }, []);
