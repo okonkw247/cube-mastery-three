@@ -169,15 +169,33 @@ export function useLessons() {
       });
 
     if (!error) {
-      setProgress((prev) => ({
-        ...prev,
+      const newProgress = {
+        ...progress,
         [lessonId]: {
           lesson_id: lessonId,
           completed: true,
-          watched_seconds: prev[lessonId]?.watched_seconds || 0,
+          watched_seconds: progress[lessonId]?.watched_seconds || 0,
           completed_at: new Date().toISOString(),
         },
-      }));
+      };
+      setProgress(newProgress);
+
+      // Check if all accessible lessons are now complete → send course complete email
+      const newCompletedCount = Object.values(newProgress).filter((p) => p.completed).length;
+      if (lessons.length > 0 && newCompletedCount >= lessons.length) {
+        try {
+          await supabase.functions.invoke('send-engagement-email', {
+            body: {
+              type: 'course_complete',
+              email: user.email,
+              name: profile?.full_name || user.email?.split('@')[0],
+              data: { planType: profile?.subscription_tier || 'free' },
+            },
+          });
+        } catch (e) {
+          console.error('Failed to send course completion email:', e);
+        }
+      }
     }
   };
 
