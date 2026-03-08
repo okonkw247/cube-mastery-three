@@ -391,16 +391,15 @@ const Dashboard = () => {
           <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">{t('dashboard.lessons')}</h2>
           <div className="space-y-2 sm:space-y-3">
             {lessons.map((lesson) => {
-              const isLocked = !canAccessLesson(lesson, profile?.subscription_tier || null);
               const isCompleted = progress[lesson.id]?.completed || false;
               const bookmarked = isBookmarked(lesson.id);
               
               return (
-                <div key={lesson.id} className={`card-gradient rounded-xl p-3 sm:p-5 border transition-all duration-300 ${isLocked ? "border-border opacity-60" : "border-border hover:border-primary/50"}`}>
+                <div key={lesson.id} className="card-gradient rounded-xl p-3 sm:p-5 border border-border hover:border-primary/50 transition-all duration-300">
                   <div className="flex items-center gap-2 sm:gap-4">
-                    <Link to={isLocked ? "#" : `/lesson/${lesson.id}`} onClick={(e) => isLocked && e.preventDefault()} className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
-                      <div className={`w-9 h-9 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 ${isCompleted ? "bg-primary/20" : isLocked ? "bg-muted" : "bg-secondary"}`}>
-                        {isCompleted ? <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-primary" /> : isLocked ? <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" /> : <Play className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" />}
+                    <Link to={`/lesson/${lesson.id}`} className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+                      <div className={`w-9 h-9 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 ${isCompleted ? "bg-primary/20" : "bg-secondary"}`}>
+                        {isCompleted ? <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-primary" /> : <Play className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
@@ -421,43 +420,27 @@ const Dashboard = () => {
                     </Link>
                     <div className="flex items-center gap-1 sm:gap-2 shrink-0">
                       <span className="text-xs sm:text-sm text-muted-foreground hidden md:block">{lesson.duration}</span>
-                      {!isLocked && (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => toggleBookmark(lesson.id)}
-                            className={`h-7 w-7 sm:h-9 sm:w-9 ${bookmarked ? "text-primary" : "text-muted-foreground"}`}
-                          >
-                            <Bookmark className={`w-3 h-3 sm:w-4 sm:h-4 ${bookmarked ? "fill-current" : ""}`} />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setPracticeLesson({ id: lesson.id, title: lesson.title })}
-                            className="h-7 w-7 sm:h-9 sm:w-9 text-muted-foreground hover:text-primary"
-                          >
-                            <Timer className="w-3 h-3 sm:w-4 sm:h-4" />
-                          </Button>
-                        </>
-                      )}
-                      {isLocked && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-xs"
-                          onClick={scrollToPricing}
-                        >
-                          Upgrade
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => toggleBookmark(lesson.id)}
+                        className={`h-7 w-7 sm:h-9 sm:w-9 ${bookmarked ? "text-primary" : "text-muted-foreground"}`}
+                      >
+                        <Bookmark className={`w-3 h-3 sm:w-4 sm:h-4 ${bookmarked ? "fill-current" : ""}`} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setPracticeLesson({ id: lesson.id, title: lesson.title })}
+                        className="h-7 w-7 sm:h-9 sm:w-9 text-muted-foreground hover:text-primary"
+                      >
+                        <Timer className="w-3 h-3 sm:w-4 sm:h-4" />
+                      </Button>
+                      <Link to={`/lesson/${lesson.id}`}>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-9 sm:w-9">
+                          <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                         </Button>
-                      )}
-                      {!isLocked && (
-                        <Link to={`/lesson/${lesson.id}`}>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-9 sm:w-9">
-                            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                          </Button>
-                        </Link>
-                      )}
+                      </Link>
                     </div>
                   </div>
                 </div>
