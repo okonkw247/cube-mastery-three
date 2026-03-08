@@ -357,6 +357,12 @@ const Dashboard = () => {
           </div>
           </div>
 
+          {/* Community Card */}
+          <div className="lg:col-span-2 xl:col-span-1">
+            <CommunityCard />
+          </div>
+          </div>
+
           {/* Download Manager */}
           <div className="mb-4 sm:mb-8">
             <DownloadManager />
