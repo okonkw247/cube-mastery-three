@@ -67,6 +67,8 @@ const BonusSection = React.forwardRef<HTMLElement>((_, ref) => {
       </div>
     </section>
   );
-};
+});
+
+BonusSection.displayName = "BonusSection";
 
 export default BonusSection;
