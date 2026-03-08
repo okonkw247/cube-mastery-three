@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,28 +15,30 @@ import { PushNotificationPrompt } from "@/components/pwa/PushNotifications";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
-import Settings from "./pages/Settings";
-import Profile from "./pages/Profile";
-import Lesson from "./pages/Lesson";
 import NotFound from "./pages/NotFound";
-import Notifications from "./pages/Notifications";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminLessons from "./pages/admin/AdminLessons";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminResources from "./pages/admin/AdminResources";
-import AdminChallenges from "./pages/admin/AdminChallenges";
-import AdminAnalytics from "./pages/admin/AdminAnalytics";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AdminDailyChallenges from "./pages/admin/AdminDailyChallenges";
-import AdminInviteAccept from "./pages/admin/AdminInviteAccept";
-import MyDownloads from "./pages/MyDownloads";
-import Community from "./pages/Community";
-import Leaderboard from "./pages/Leaderboard";
-import PublicProfile from "./pages/PublicProfile";
-import Certificates from "./pages/Certificates";
-import VerifyCertificate from "./pages/VerifyCertificate";
-import ReferralLanding from "./pages/ReferralLanding";
-import { CubeCoachChat } from "@/components/chat/CubeCoachChat";
+
+// Lazy-loaded pages
+const Settings = lazy(() => import("./pages/Settings"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Lesson = lazy(() => import("./pages/Lesson"));
+const Notifications = lazy(() => import("./pages/Notifications"));
+const MyDownloads = lazy(() => import("./pages/MyDownloads"));
+const Community = lazy(() => import("./pages/Community"));
+const Leaderboard = lazy(() => import("./pages/Leaderboard"));
+const PublicProfile = lazy(() => import("./pages/PublicProfile"));
+const Certificates = lazy(() => import("./pages/Certificates"));
+const VerifyCertificate = lazy(() => import("./pages/VerifyCertificate"));
+const ReferralLanding = lazy(() => import("./pages/ReferralLanding"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminLessons = lazy(() => import("./pages/admin/AdminLessons"));
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const AdminResources = lazy(() => import("./pages/admin/AdminResources"));
+const AdminChallenges = lazy(() => import("./pages/admin/AdminChallenges"));
+const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminDailyChallenges = lazy(() => import("./pages/admin/AdminDailyChallenges"));
+const AdminInviteAccept = lazy(() => import("./pages/admin/AdminInviteAccept"));
+const CubeCoachChat = lazy(() => import("@/components/chat/CubeCoachChat").then(m => ({ default: m.CubeCoachChat })));
 
 const queryClient = new QueryClient();
 
