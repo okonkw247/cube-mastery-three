@@ -34,10 +34,9 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       workbox: {
-        // DO NOT use navigateFallback — it causes offline.html to be served even when online.
-        // Instead, we handle navigation via runtimeCaching with NetworkFirst strategy.
         navigateFallback: null,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MiB
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
