@@ -132,7 +132,6 @@ export function WhopCheckoutModal({
               theme="dark"
               returnUrl={returnUrl}
               onComplete={handleComplete}
-              onError={() => setEmbedFailed(true)}
               fallback={
                 <div className="flex flex-col items-center justify-center py-12 gap-3">
                   <Loader2 className="w-6 h-6 animate-spin text-primary" />
