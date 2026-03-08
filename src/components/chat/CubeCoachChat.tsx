@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { MessageCircle, X, Send, Bot, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useProfile } from "@/hooks/useProfile";
@@ -9,7 +9,7 @@ type Msg = { role: "user" | "assistant"; content: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/cube-coach-chat`;
 
-export function CubeCoachChat() {
+export const CubeCoachChat = React.forwardRef<HTMLDivElement, object>((_props, _ref) => {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([
     { role: "assistant", content: "Hey! I'm the Cube Coach 🤖 Ask me anything about solving the Rubik's Cube, algorithms, or your courses!" },

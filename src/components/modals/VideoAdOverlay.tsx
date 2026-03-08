@@ -218,6 +218,8 @@ const VideoAdOverlay = React.forwardRef<HTMLDivElement, VideoAdOverlayProps>(({ 
       </div>
     </div>
   );
-};
+});
+
+VideoAdOverlay.displayName = "VideoAdOverlay";
 
 export default VideoAdOverlay;
