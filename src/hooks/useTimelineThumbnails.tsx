@@ -72,7 +72,7 @@ export function useTimelineThumbnails(videoUrl: string | null, options?: {
             ctx.drawImage(video, 0, 0, width, height);
             extractedFrames.push({
               time,
-              dataUrl: canvas.toDataURL('image/jpeg', 0.6),
+              dataUrl: canvas.toDataURL('image/webp', 0.5),
             });
             resolve();
           };
