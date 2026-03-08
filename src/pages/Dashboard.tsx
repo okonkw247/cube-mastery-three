@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import {
   Play,
@@ -44,6 +44,7 @@ import { SubscriptionStatusBadge, PlanBadge } from "@/components/dashboard/Subsc
 import { DownloadManager } from "@/components/dashboard/DownloadManager";
 import { UpgradeBanner } from "@/components/dashboard/UpgradeBanner";
 import { UpgradeModal } from "@/components/modals/UpgradeModal";
+import { WhopCheckoutModal } from "@/components/modals/WhopCheckoutModal";
 import { CommunityCard } from "@/components/dashboard/CommunityCard";
 import { ReferralCard } from "@/components/dashboard/ReferralCard";
 import { DailyChallengeCard } from "@/components/dashboard/DailyChallengeCard";
@@ -68,6 +69,7 @@ interface TodoItem {
 const Dashboard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, signOut, loading: authLoading } = useAuth();
   const { profile, isPro, loading: profileLoading } = useProfile();
   const { lessons, progress, progressPercent, completedCount, loading: lessonsLoading } = useLessons();
@@ -83,6 +85,8 @@ const Dashboard = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [practiceLesson, setPracticeLesson] = useState<{ id: string; title: string } | null>(null);
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [checkoutPlan, setCheckoutPlan] = useState<"starter" | "pro">("starter");
   const [todos, setTodos] = useState<TodoItem[]>([
     { id: 1, title: "Complete F2L algorithms practice", date: new Date().toISOString().slice(0, 19).replace("T", " "), urgent: true, done: false },
     { id: 2, title: "Watch OLL lesson video", date: new Date().toISOString().slice(0, 19).replace("T", " "), urgent: false, done: true },
@@ -127,7 +131,13 @@ const Dashboard = () => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('showUpgrade') === 'true') {
       setUpgradeModalOpen(true);
-      // Clean up URL
+      window.history.replaceState({}, '', '/dashboard');
+    }
+    // Check if redirected from auth with a checkout plan
+    const checkoutParam = params.get('checkout');
+    if (checkoutParam === 'starter' || checkoutParam === 'pro') {
+      setCheckoutPlan(checkoutParam);
+      setCheckoutOpen(true);
       window.history.replaceState({}, '', '/dashboard');
     }
   }, [user, authLoading, navigate]);
@@ -525,6 +535,14 @@ const Dashboard = () => {
 
       {/* Upgrade Modal */}
       <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
+
+      {/* Embedded Whop Checkout Modal */}
+      <WhopCheckoutModal
+        open={checkoutOpen}
+        onOpenChange={setCheckoutOpen}
+        plans={[checkoutPlan]}
+        defaultPlan={checkoutPlan}
+      />
 
       {/* Modals */}
       <TodoModal
