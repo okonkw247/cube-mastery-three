@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "prompt",
-      includeAssets: ["favicon.ico", "icons/icon-192.png", "icons/icon-512.png"],
+      includeAssets: ["favicon.ico", "icons/icon-192.png", "icons/icon-512.png", "offline.html"],
       manifest: {
         name: "Rubiks Academy",
         short_name: "Rubiks",
@@ -34,10 +34,49 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       workbox: {
-        navigateFallback: "/offline.html",
-        navigateFallbackDenylist: [/^\/~oauth/, /^\/api/],
+        // DO NOT use navigateFallback — it causes offline.html to be served even when online.
+        // Instead, we handle navigation via runtimeCaching with NetworkFirst strategy.
+        navigateFallback: null,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"],
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
         runtimeCaching: [
+          // 1. Auth & payment requests — NEVER cache
+          {
+            urlPattern: /\/auth\/|\/~oauth|whop\.com|\/functions\/v1\/(complete-login|send-otp|verify-otp|verify-password|reset-password|whop-webhook)/,
+            handler: "NetworkOnly",
+          },
+          // 2. Navigation requests (HTML pages) — Network First, offline.html fallback
+          {
+            urlPattern: ({ request }: { request: Request }) => request.mode === "navigate",
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "pages-cache",
+              networkTimeoutSeconds: 5,
+            },
+          },
+          // 3. API / Edge Function requests — Network First with short cache
+          {
+            urlPattern: /\/functions\/v1\//,
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "api-cache",
+              networkTimeoutSeconds: 10,
+              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 5 },
+            },
+          },
+          // 4. Supabase REST API — Network First
+          {
+            urlPattern: /\/rest\/v1\//,
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "supabase-rest-cache",
+              networkTimeoutSeconds: 10,
+              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 5 },
+            },
+          },
+          // 5. Google Fonts stylesheets — Cache First
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: "CacheFirst",
@@ -47,6 +86,7 @@ export default defineConfig(({ mode }) => ({
               cacheableResponse: { statuses: [0, 200] },
             },
           },
+          // 6. Google Fonts files — Cache First
           {
             urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
             handler: "CacheFirst",
@@ -56,6 +96,7 @@ export default defineConfig(({ mode }) => ({
               cacheableResponse: { statuses: [0, 200] },
             },
           },
+          // 7. Images — Cache First
           {
             urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif)$/,
             handler: "CacheFirst",
@@ -64,6 +105,7 @@ export default defineConfig(({ mode }) => ({
               expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 },
             },
           },
+          // 8. PWA icons — Cache First
           {
             urlPattern: /\/icons\/.*/,
             handler: "CacheFirst",
@@ -72,12 +114,22 @@ export default defineConfig(({ mode }) => ({
               expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
             },
           },
+          // 9. Splash screens — Cache First
           {
             urlPattern: /\/splash\/.*/,
             handler: "CacheFirst",
             options: {
               cacheName: "splash-cache",
               expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            },
+          },
+          // 10. JS/CSS static assets — StaleWhileRevalidate
+          {
+            urlPattern: /\.(?:js|css)$/,
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "static-resources-cache",
+              expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 7 },
             },
           },
         ],
