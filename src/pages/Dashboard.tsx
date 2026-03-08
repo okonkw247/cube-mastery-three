@@ -115,6 +115,13 @@ const Dashboard = () => {
     if (!authLoading && !user) {
       navigate("/auth");
     }
+    // Check if redirected here with upgrade modal flag
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('showUpgrade') === 'true') {
+      setUpgradeModalOpen(true);
+      // Clean up URL
+      window.history.replaceState({}, '', '/dashboard');
+    }
   }, [user, authLoading, navigate]);
 
   const handleSignOut = async () => {
