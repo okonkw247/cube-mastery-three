@@ -23,7 +23,7 @@ export default function Leaderboard() {
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
     fetchLeaderboard();
-  }, [user]);
+  }, [user, navigate]);
 
   const fetchLeaderboard = async () => {
     setLoading(true);

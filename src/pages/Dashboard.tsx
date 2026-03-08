@@ -109,6 +109,8 @@ const Dashboard = () => {
       if (!hasCompletedOnboarding && !profile?.full_name) {
         setShowOnboarding(true);
       }
+      // Award daily login XP
+      awardXP("daily_login");
     }
   }, [user, profile, profileLoading]);
 
