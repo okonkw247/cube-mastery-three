@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
+import { triggerVideoProcessing } from '@/hooks/useVideoMetadata';
 import { useLessons } from '@/hooks/useLessons';
 import { useAdminLessons } from '@/hooks/useAdminLessons';
 import { Button } from '@/components/ui/button';
