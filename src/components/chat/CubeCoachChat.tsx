@@ -192,4 +192,6 @@ export const CubeCoachChat = React.forwardRef<HTMLDivElement, object>((_props, _
       )}
     </>
   );
-}
+});
+
+CubeCoachChat.displayName = "CubeCoachChat";
