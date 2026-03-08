@@ -64,16 +64,7 @@ export function useNotifications() {
           setNotifications(prev => [newNotification, ...prev]);
           setUnreadCount(prev => prev + 1);
           
-          // Send browser push notification if permitted
-          if (typeof window.Notification !== "undefined" && window.Notification.permission === "granted") {
-            try {
-              new window.Notification(newNotification.title, {
-                body: newNotification.message,
-                icon: "/pwa-icon-512.png",
-                badge: "/pwa-icon-512.png",
-              });
-            } catch {}
-          }
+          // Browser push handled by useSmartNotifications for personalization
         }
       )
       .subscribe();

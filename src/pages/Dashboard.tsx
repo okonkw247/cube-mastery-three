@@ -27,6 +27,7 @@ import { useLessons } from "@/hooks/useLessons";
 import { useBookmarks } from "@/hooks/useBookmarks";
 import { usePracticeAttempts } from "@/hooks/usePracticeAttempts";
 import { useAdmin } from "@/hooks/useAdmin";
+import { useSmartNotifications } from "@/hooks/useSmartNotifications";
 import { useXP } from "@/hooks/useXP";
 import { LogoWithGlow } from "@/components/LogoWithGlow";
 import TodoModal from "@/components/modals/TodoModal";
@@ -72,6 +73,7 @@ const Dashboard = () => {
   const { totalAttempts, attempts } = usePracticeAttempts();
   const { isAdmin, isPreviewMode, setPreviewMode } = useAdmin();
   const { awardXP } = useXP();
+  useSmartNotifications();
   const [chartPeriod, setChartPeriod] = useState("Year");
   const [todoModalOpen, setTodoModalOpen] = useState(false);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
