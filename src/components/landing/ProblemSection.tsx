@@ -1,34 +1,37 @@
+import { useTranslation } from "react-i18next";
 import { Clock, Frown, Shuffle } from "lucide-react";
 
-const problems = [
-  {
-    icon: Shuffle,
-    title: "Stuck & Confused",
-    description: "You've tried YouTube tutorials but always get stuck at the same point. The cube feels impossible.",
-  },
-  {
-    icon: Clock,
-    title: "Painfully Slow",
-    description: "You can technically solve it, but it takes 5+ minutes and you forget the algorithms constantly.",
-  },
-  {
-    icon: Frown,
-    title: "No Structure",
-    description: "Random tips and tricks don't add up to real skill. You need a clear path from beginner to fast.",
-  },
-];
-
 const ProblemSection = () => {
+  const { t } = useTranslation();
+
+  const problems = [
+    {
+      icon: Shuffle,
+      title: t('landing.problem.stuck.title'),
+      description: t('landing.problem.stuck.desc'),
+    },
+    {
+      icon: Clock,
+      title: t('landing.problem.slow.title'),
+      description: t('landing.problem.slow.desc'),
+    },
+    {
+      icon: Frown,
+      title: t('landing.problem.noStructure.title'),
+      description: t('landing.problem.noStructure.desc'),
+    },
+  ];
+
   return (
     <section id="problem" className="py-16 sm:py-20 md:py-24 relative">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="text-center mb-10 sm:mb-12 md:mb-16 animate-on-scroll">
-          <span className="text-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">The Problem</span>
+          <span className="text-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">{t('landing.problem.label')}</span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mt-3 sm:mt-4 mb-4 sm:mb-6">
-            Why Most Cubers Stay Stuck
+            {t('landing.problem.title')}
           </h2>
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-            Most people give up on the Rubik's Cube or plateau at slow times. Here's why.
+            {t('landing.problem.subtitle')}
           </p>
         </div>
 

@@ -1,7 +1,10 @@
+import { useTranslation } from "react-i18next";
 import { TrendingUp, Users, BarChart3, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const WhatWeOfferSection = () => {
+  const { t } = useTranslation();
+
   return (
     <section id="offers" className="py-16 sm:py-20 md:py-24 relative overflow-hidden">
       {/* Decorative elements */}
@@ -14,12 +17,12 @@ const WhatWeOfferSection = () => {
 
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center mb-10 sm:mb-12 md:mb-16 animate-on-scroll">
-          <span className="text-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">What We Offer</span>
+          <span className="text-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">{t('landing.offer.label')}</span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mt-3 sm:mt-4 mb-4 sm:mb-6">
-            We Will Handle Your Learning 📖
+            {t('landing.offer.title')}
           </h2>
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-            Our experienced team will manage your speedcubing journey from start to finish, here are some changes you will notice in your skills
+            {t('landing.offer.subtitle')}
           </p>
         </div>
 
@@ -31,25 +34,8 @@ const WhatWeOfferSection = () => {
               <div className="flex justify-center mb-4 sm:mb-6">
                 <div className="relative w-36 h-36 sm:w-44 sm:h-44 md:w-48 md:h-48">
                   <svg className="w-full h-full transform -rotate-90" viewBox="0 0 192 192">
-                    <circle
-                      cx="96"
-                      cy="96"
-                      r="80"
-                      fill="none"
-                      stroke="hsl(var(--muted))"
-                      strokeWidth="12"
-                    />
-                    <circle
-                      cx="96"
-                      cy="96"
-                      r="80"
-                      fill="none"
-                      stroke="url(#gradient)"
-                      strokeWidth="12"
-                      strokeDasharray="502"
-                      strokeDashoffset="100"
-                      strokeLinecap="round"
-                    />
+                    <circle cx="96" cy="96" r="80" fill="none" stroke="hsl(var(--muted))" strokeWidth="12" />
+                    <circle cx="96" cy="96" r="80" fill="none" stroke="url(#gradient)" strokeWidth="12" strokeDasharray="502" strokeDashoffset="100" strokeLinecap="round" />
                     <defs>
                       <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
                         <stop offset="0%" stopColor="hsl(var(--primary))" />
@@ -59,16 +45,16 @@ const WhatWeOfferSection = () => {
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span className="text-2xl sm:text-3xl md:text-4xl font-bold">30.2K</span>
-                    <span className="text-xs sm:text-sm text-muted-foreground">Students trained</span>
+                    <span className="text-xs sm:text-sm text-muted-foreground">{t('landing.offer.studentsTrained')}</span>
                   </div>
                 </div>
               </div>
               <p className="text-center text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4">
-                You gained +510 seconds improvement this week
+                {t('landing.offer.weekImprovement')}
               </p>
               <div className="flex justify-center">
                 <Button variant="outline" size="sm">
-                  Track Progress
+                  {t('landing.offer.trackProgress')}
                 </Button>
               </div>
             </div>
@@ -81,9 +67,9 @@ const WhatWeOfferSection = () => {
                 <Users className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
               <div>
-                <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2">Increased Skill Level</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2">{t('landing.offer.skillTitle')}</h3>
                 <p className="text-sm sm:text-base text-muted-foreground">
-                  Boost your solving speed and watch your times drop with our effective strategies. Reach sub-30 seconds and build confidence around your solves.
+                  {t('landing.offer.skillDesc')}
                 </p>
               </div>
             </div>
@@ -93,9 +79,9 @@ const WhatWeOfferSection = () => {
                 <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
               <div>
-                <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2">Practice Converts To Speed</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2">{t('landing.offer.practiceTitle')}</h3>
                 <p className="text-sm sm:text-base text-muted-foreground">
-                  Turn your practice sessions into real improvements with our expert techniques. We optimize every solve attempt to build muscle memory and drive faster times.
+                  {t('landing.offer.practiceDesc')}
                 </p>
               </div>
             </div>
@@ -106,18 +92,18 @@ const WhatWeOfferSection = () => {
         <div className="mt-12 sm:mt-16 card-gradient rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 border border-border animate-on-scroll">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-center">
             <div>
-              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Track Your Journey</h3>
+              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">{t('landing.offer.trackTitle')}</h3>
               <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
-                Monitor your solve times, track algorithm mastery, and see your improvement over time with our comprehensive analytics dashboard.
+                {t('landing.offer.trackDesc')}
               </p>
               <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                 <div className="flex items-center gap-2">
                   <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                  <span className="text-xs sm:text-sm">Real-time tracking</span>
+                  <span className="text-xs sm:text-sm">{t('landing.offer.realTime')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                  <span className="text-xs sm:text-sm">Detailed analytics</span>
+                  <span className="text-xs sm:text-sm">{t('landing.offer.detailedAnalytics')}</span>
                 </div>
               </div>
             </div>
@@ -135,7 +121,7 @@ const WhatWeOfferSection = () => {
           </div>
 
           <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs sm:text-sm text-muted-foreground">
-            <span>Current average: 45 seconds</span>
+            <span>{t('landing.offer.currentAvg')}</span>
             <span className="text-primary font-semibold">32.5s → 18.2s</span>
           </div>
         </div>
