@@ -251,5 +251,26 @@
     "noInvitations": "No has enviado invitaciones aún",
     "inviteNow": "Invitar Amigos Ahora",
     "more": "más"
+  },
+  "landing": {
+    "hero": {
+      "badge": "Únete a 10,000+ cuberos dominando el cubo",
+      "title1": "Resuelve Cualquier Cubo en",
+      "titleHighlight": "Menos de 30 Segundos",
+      "subtitle": "Domina el Cubo de Rubik con nuestro sistema de video paso a paso probado. De principiante completo a profesional del speedcubing.",
+      "startFree": "Iniciar Curso Gratis",
+      "watchPreview": "Ver Vista Previa",
+      "reviews": "4.9/5 de 2,000+ reseñas",
+      "heroAlt": "Cubo de Rubik 3D flotando en el espacio"
+    },
+    "problem": {
+      "label": "El Problema",
+      "title": "Por Qué La Mayoría de Cuberos Se Quedan Atascados",
+      "subtitle": "La mayoría de personas se rinde con el Cubo de Rubik o se estanca en tiempos lentos. Aquí está el por qué."
+    },
+    "footer": {
+      "selectLanguage": "Seleccionar Idioma",
+      "tagline": "La plataforma de aprendizaje de Cubo de Rubik más completa. Domina el cubo con nuestro sistema de video probado."
+    }
   }
 }
