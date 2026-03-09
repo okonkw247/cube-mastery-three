@@ -77,7 +77,7 @@ export function WhopCheckoutModal({
 
   const returnUrl = typeof window !== "undefined"
     ? `${window.location.origin}/dashboard`
-    : "https://cube-mastery.site/dashboard";
+    : "https://www.cube-mastery.site/dashboard";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
