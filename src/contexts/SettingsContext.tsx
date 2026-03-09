@@ -40,7 +40,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const { theme, toggleTheme } = useTheme();
 
   // Computed values with fallbacks
-  const language = userSettings.settings?.language || 'en';
+  // Use i18n.language as primary source (reads from localStorage) for instant language changes
+  // Falls back to DB setting for logged-in users, then 'en'
+  const language = i18n.language || userSettings.settings?.language || 'en';
   const timezone = userSettings.settings?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 
   // Apply language to document and i18n

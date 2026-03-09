@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Check, ArrowRight, Gift } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -8,64 +9,8 @@ import GiftModal from "@/components/modals/GiftModal";
 import { WhopCheckoutModal } from "@/components/modals/WhopCheckoutModal";
 import heroCube from "@/assets/hero-cube.jpg";
 
-const plans = [
-  {
-    id: "free",
-    name: "Free Plan",
-    price: "$0",
-    period: "/forever",
-    description: "Try before you buy. Perfect for exploring.",
-    features: [
-      "Access to 3 free lessons",
-      "Basic algorithm reference",
-      "Community forum access",
-      "Limited practice tips",
-    ],
-  },
-  {
-    id: "starter",
-    name: "Starter Plan",
-    price: "$15",
-    period: " one-time",
-    description: "Perfect for beginners new to speedcubing.",
-    features: [
-      "Access to 15 video lessons",
-      "Basic algorithm library",
-      "Beginner practice routines",
-      "Community forum access",
-      "Weekly progress reports",
-      "Email support",
-    ],
-  },
-  {
-    id: "pro",
-    name: "Pro Plan",
-    price: "$40",
-    period: " one-time",
-    description: "Everything to become a speedcuber.",
-    features: [
-      "50+ HD video lessons",
-      "Advanced algorithm library",
-      "Speed techniques masterclass",
-      "Practice routines & drills",
-      "Progress tracking dashboard",
-      "Private Discord community",
-      "1-on-1 coaching session",
-      "Lifetime access & updates",
-    ],
-  },
-  {
-    id: "enterprise",
-    name: "Enterprise",
-    price: "Custom",
-    period: "",
-    description: "For schools and cubing clubs.",
-    features: [],
-    isEnterprise: true,
-  },
-];
-
 const PricingSection = () => {
+  const { t } = useTranslation();
   const [selectedPlan, setSelectedPlan] = useState("free");
   const [contactOpen, setContactOpen] = useState(false);
   const [giftOpen, setGiftOpen] = useState(false);
@@ -73,6 +18,63 @@ const PricingSection = () => {
   const [checkoutPlan, setCheckoutPlan] = useState<"starter" | "pro">("starter");
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const plans = useMemo(() => [
+    {
+      id: "free",
+      name: t('landing.pricing.plans.free.name'),
+      price: "$0",
+      period: t('landing.pricing.forever'),
+      description: t('landing.pricing.plans.free.desc'),
+      features: [
+        t('landing.pricing.plans.free.f1'),
+        t('landing.pricing.plans.free.f2'),
+        t('landing.pricing.plans.free.f3'),
+        t('landing.pricing.plans.free.f4'),
+      ],
+    },
+    {
+      id: "starter",
+      name: t('landing.pricing.plans.starter.name'),
+      price: "$15",
+      period: t('landing.pricing.oneTime'),
+      description: t('landing.pricing.plans.starter.desc'),
+      features: [
+        t('landing.pricing.plans.starter.f1'),
+        t('landing.pricing.plans.starter.f2'),
+        t('landing.pricing.plans.starter.f3'),
+        t('landing.pricing.plans.starter.f4'),
+        t('landing.pricing.plans.starter.f5'),
+        t('landing.pricing.plans.starter.f6'),
+      ],
+    },
+    {
+      id: "pro",
+      name: t('landing.pricing.plans.pro.name'),
+      price: "$40",
+      period: t('landing.pricing.oneTime'),
+      description: t('landing.pricing.plans.pro.desc'),
+      features: [
+        t('landing.pricing.plans.pro.f1'),
+        t('landing.pricing.plans.pro.f2'),
+        t('landing.pricing.plans.pro.f3'),
+        t('landing.pricing.plans.pro.f4'),
+        t('landing.pricing.plans.pro.f5'),
+        t('landing.pricing.plans.pro.f6'),
+        t('landing.pricing.plans.pro.f7'),
+        t('landing.pricing.plans.pro.f8'),
+      ],
+    },
+    {
+      id: "enterprise",
+      name: t('landing.pricing.plans.enterprise.name'),
+      price: "Custom",
+      period: "",
+      description: t('landing.pricing.plans.enterprise.desc'),
+      features: [],
+      isEnterprise: true,
+    },
+  ], [t]);
 
   const currentPlan = plans.find((p) => p.id === selectedPlan) || plans[0];
 
@@ -93,11 +95,9 @@ const PricingSection = () => {
 
     if (selectedPlan === "starter" || selectedPlan === "pro") {
       if (user) {
-        // Logged in — open embedded checkout
         setCheckoutPlan(selectedPlan);
         setCheckoutOpen(true);
       } else {
-        // NOT logged in — send to auth first
         navigate(`/auth?mode=signup&plan=${selectedPlan}`);
       }
     }
@@ -107,12 +107,12 @@ const PricingSection = () => {
     <section id="pricing" className="py-16 sm:py-20 md:py-24 relative">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="text-center mb-10 sm:mb-12 md:mb-16 animate-on-scroll">
-          <span className="text-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">Pricing</span>
+          <span className="text-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">{t('landing.pricing.label')}</span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mt-3 sm:mt-4 mb-4 sm:mb-6">
-            Choose A Plan That Suits You 👌
+            {t('landing.pricing.title')}
           </h2>
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-            99% of students excel after subscribing to one of our plans
+            {t('landing.pricing.subtitle')}
           </p>
         </div>
 
@@ -155,18 +155,18 @@ const PricingSection = () => {
                     <span className="font-semibold">{plan.name}</span>
                     {plan.id === "free" && (
                       <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
-                        Try Free
+                        {t('landing.pricing.tryFree')}
                       </span>
                     )}
                     {plan.id === "pro" && (
                       <span className="text-xs bg-green-500/20 text-green-500 px-2 py-0.5 rounded-full">
-                        Most Popular
+                        {t('landing.pricing.mostPopular')}
                       </span>
                     )}
                   </div>
                   <div className="text-right">
                     {plan.isEnterprise ? (
-                      <span className="text-muted-foreground text-sm">View details</span>
+                      <span className="text-muted-foreground text-sm">{t('landing.pricing.viewDetails')}</span>
                     ) : (
                       <span className="font-bold">
                         {plan.price}
@@ -201,7 +201,7 @@ const PricingSection = () => {
                     className="flex-1 gap-2"
                     onClick={handlePlanSelect}
                   >
-                    {selectedPlan === "free" ? "Get Started Free" : `Continue With ${currentPlan.name}`}
+                    {selectedPlan === "free" ? t('landing.pricing.getStartedFree') : t('landing.pricing.continueWith', { plan: currentPlan.name })}
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                   {selectedPlan !== "free" && (
@@ -212,7 +212,7 @@ const PricingSection = () => {
                       onClick={() => setGiftOpen(true)}
                     >
                       <Gift className="w-4 h-4" />
-                      🎁 Gift
+                      🎁 {t('landing.pricing.gift')}
                     </Button>
                   )}
                 </div>
@@ -222,7 +222,7 @@ const PricingSection = () => {
             {currentPlan.isEnterprise && (
               <div className="card-gradient rounded-2xl p-6 border border-border mt-6 text-center">
                 <p className="text-muted-foreground mb-6">
-                  Perfect for schools, cubing clubs, and organizations. Get custom pricing, dedicated support, and group features.
+                  {t('landing.pricing.enterpriseDesc')}
                 </p>
                 <Button 
                   variant="outline" 
@@ -230,7 +230,7 @@ const PricingSection = () => {
                   className="gap-2"
                   onClick={() => setContactOpen(true)}
                 >
-                  Contact Us
+                  {t('landing.pricing.contactUs')}
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </div>

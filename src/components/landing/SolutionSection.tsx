@@ -1,33 +1,36 @@
+import { useTranslation } from "react-i18next";
 import { Check, Target, Layers, Zap } from "lucide-react";
 
-const features = [
-  {
-    icon: Layers,
-    title: "Layer-by-Layer System",
-    description: "Our proven method breaks the cube into manageable layers. Master each one before moving on.",
-  },
-  {
-    icon: Target,
-    title: "Clear Progression",
-    description: "From first solve to sub-30 seconds. Every lesson builds on the last with clear milestones.",
-  },
-  {
-    icon: Zap,
-    title: "Speed Techniques",
-    description: "Advanced finger tricks, lookahead training, and algorithm optimization for serious speedcubers.",
-  },
-];
-
-const benefits = [
-  "50+ HD video lessons",
-  "Printable algorithm sheets",
-  "Practice routines",
-  "Progress tracking",
-  "Community access",
-  "Lifetime updates",
-];
-
 const SolutionSection = () => {
+  const { t } = useTranslation();
+
+  const features = [
+    {
+      icon: Layers,
+      title: t('landing.solution.layerTitle'),
+      description: t('landing.solution.layerDesc'),
+    },
+    {
+      icon: Target,
+      title: t('landing.solution.progressTitle'),
+      description: t('landing.solution.progressDesc'),
+    },
+    {
+      icon: Zap,
+      title: t('landing.solution.speedTitle'),
+      description: t('landing.solution.speedDesc'),
+    },
+  ];
+
+  const benefits = [
+    t('landing.solution.benefit1'),
+    t('landing.solution.benefit2'),
+    t('landing.solution.benefit3'),
+    t('landing.solution.benefit4'),
+    t('landing.solution.benefit5'),
+    t('landing.solution.benefit6'),
+  ];
+
   return (
     <section id="solution" className="py-16 sm:py-20 md:py-24 relative">
       {/* Background Glow */}
@@ -35,12 +38,12 @@ const SolutionSection = () => {
       
       <div className="container mx-auto px-4 sm:px-6 relative">
         <div className="text-center mb-10 sm:mb-12 md:mb-16 animate-on-scroll">
-          <span className="text-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">The Solution</span>
+          <span className="text-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">{t('landing.solution.label')}</span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mt-3 sm:mt-4 mb-4 sm:mb-6">
-            The CubeMaster Method
+            {t('landing.solution.title')}
           </h2>
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-            A structured, step-by-step video system designed by speedcubing champions to get you solving fast.
+            {t('landing.solution.subtitle')}
           </p>
         </div>
 
@@ -62,7 +65,7 @@ const SolutionSection = () => {
 
           {/* Benefits Card */}
           <div className="card-gradient rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 border border-border animate-on-scroll">
-            <h3 className="text-xl sm:text-2xl font-bold mb-5 sm:mb-8">What You Get</h3>
+            <h3 className="text-xl sm:text-2xl font-bold mb-5 sm:mb-8">{t('landing.solution.whatYouGet')}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {benefits.map((benefit, index) => (
                 <div key={index} className="flex items-center gap-2 sm:gap-3">

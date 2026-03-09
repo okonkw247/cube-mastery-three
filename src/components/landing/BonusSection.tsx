@@ -1,27 +1,30 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Download, FileText, Timer, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const bonuses = [
-  {
-    icon: FileText,
-    title: "Algorithm Cheat Sheet",
-    description: "All essential algorithms on one printable page",
-  },
-  {
-    icon: Timer,
-    title: "Practice Routine Guide",
-    description: "Daily drills to build muscle memory fast",
-  },
-  {
-    icon: BookOpen,
-    title: "Speedcubing Glossary",
-    description: "Learn the language of competitive cubing",
-  },
-];
-
 const BonusSection = React.forwardRef<HTMLElement>((_, ref) => {
+  const { t } = useTranslation();
+
+  const bonuses = [
+    {
+      icon: FileText,
+      title: t('landing.bonus.cheatSheet'),
+      description: t('landing.bonus.cheatSheetDesc'),
+    },
+    {
+      icon: Timer,
+      title: t('landing.bonus.routineGuide'),
+      description: t('landing.bonus.routineGuideDesc'),
+    },
+    {
+      icon: BookOpen,
+      title: t('landing.bonus.glossary'),
+      description: t('landing.bonus.glossaryDesc'),
+    },
+  ];
+
   return (
     <section ref={ref} className="py-16 sm:py-20 md:py-24 relative overflow-hidden">
       {/* Background */}
@@ -31,14 +34,14 @@ const BonusSection = React.forwardRef<HTMLElement>((_, ref) => {
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 border border-primary/20 mb-6 sm:mb-8 animate-on-scroll">
             <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
-            <span className="text-xs sm:text-sm font-medium text-primary">Free Bonus</span>
+            <span className="text-xs sm:text-sm font-medium text-primary">{t('landing.bonus.label')}</span>
           </div>
 
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 animate-on-scroll">
-            Get Your Free <span className="text-gradient">Starter Kit</span>
+            {t('landing.bonus.title1')} <span className="text-gradient">{t('landing.bonus.titleHighlight')}</span>
           </h2>
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground mb-8 sm:mb-10 md:mb-12 max-w-2xl mx-auto animate-on-scroll">
-            Sign up today and get instant access to these bonus resources — no payment required.
+            {t('landing.bonus.subtitle')}
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mb-8 sm:mb-10 md:mb-12">
@@ -59,7 +62,7 @@ const BonusSection = React.forwardRef<HTMLElement>((_, ref) => {
 
           <Link to="/auth?mode=signup" className="animate-on-scroll inline-block">
             <Button variant="hero" size="lg" className="gap-2 sm:gap-3 text-sm sm:text-base">
-              Get Free Access
+              {t('landing.bonus.getAccess')}
               <Download className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
           </Link>

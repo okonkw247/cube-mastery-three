@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import jsnLogo from "@/assets/jsn-logo.png";
 import LegalModal from "@/components/modals/LegalModal";
 
 const FooterSection = React.forwardRef<HTMLElement>((_, ref) => {
+  const { t } = useTranslation();
   const [legalOpen, setLegalOpen] = useState<"privacy" | "terms" | "refund" | null>(null);
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -23,48 +25,48 @@ const FooterSection = React.forwardRef<HTMLElement>((_, ref) => {
               <span className="text-lg sm:text-xl font-bold text-foreground">JSN Cubing</span>
             </Link>
             <p className="text-sm sm:text-base text-muted-foreground max-w-sm">
-              The most comprehensive Rubik's Cube learning platform. Master the cube with our proven video system.
+              {t('landing.footer.tagline')}
             </p>
           </div>
 
           {/* Links */}
           <div>
-            <h4 className="font-semibold text-sm sm:text-base mb-3 sm:mb-4">Product</h4>
+            <h4 className="font-semibold text-sm sm:text-base mb-3 sm:mb-4">{t('landing.footer.product')}</h4>
             <ul className="space-y-2 sm:space-y-3">
               <li>
                 <button onClick={() => scrollToSection("solution")} className="text-sm sm:text-base text-muted-foreground hover:text-foreground transition-colors">
-                  Method
+                  {t('landing.footer.method')}
                 </button>
               </li>
               <li>
                 <button onClick={() => scrollToSection("pricing")} className="text-sm sm:text-base text-muted-foreground hover:text-foreground transition-colors">
-                  Pricing
+                  {t('landing.footer.pricing')}
                 </button>
               </li>
               <li>
                 <Link to="/dashboard" className="text-sm sm:text-base text-muted-foreground hover:text-foreground transition-colors">
-                  Dashboard
+                  {t('landing.footer.dashboard')}
                 </Link>
               </li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-semibold text-sm sm:text-base mb-3 sm:mb-4">Legal</h4>
+            <h4 className="font-semibold text-sm sm:text-base mb-3 sm:mb-4">{t('landing.footer.legal')}</h4>
             <ul className="space-y-2 sm:space-y-3">
               <li>
                 <button onClick={() => setLegalOpen("privacy")} className="text-sm sm:text-base text-muted-foreground hover:text-foreground transition-colors">
-                  Privacy Policy
+                  {t('landing.footer.privacy')}
                 </button>
               </li>
               <li>
                 <button onClick={() => setLegalOpen("terms")} className="text-sm sm:text-base text-muted-foreground hover:text-foreground transition-colors">
-                  Terms of Service
+                  {t('landing.footer.terms')}
                 </button>
               </li>
               <li>
                 <button onClick={() => setLegalOpen("refund")} className="text-sm sm:text-base text-muted-foreground hover:text-foreground transition-colors">
-                  Refund Policy
+                  {t('landing.footer.refund')}
                 </button>
               </li>
             </ul>
@@ -73,7 +75,7 @@ const FooterSection = React.forwardRef<HTMLElement>((_, ref) => {
 
         <div className="pt-6 sm:pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs sm:text-sm text-muted-foreground">
-            © 2026 JSN Cubing. All rights reserved.
+            {t('landing.footer.copyright')}
           </p>
           <div className="flex items-center gap-6">
             <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">

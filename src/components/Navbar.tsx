@@ -57,10 +57,10 @@ const Navbar = () => {
                   <Button variant="ghost">{t('nav.dashboard')}</Button>
                 </Link>
                 <Link to="/community">
-                  <Button variant="ghost">Community</Button>
+                  <Button variant="ghost">{t('nav.community')}</Button>
                 </Link>
                 <Link to="/leaderboard">
-                  <Button variant="ghost">Leaderboard</Button>
+                  <Button variant="ghost">{t('nav.leaderboard')}</Button>
                 </Link>
                 <Link to="/profile">
                   <Button variant="ghost">{t('common.profile')}</Button>
@@ -123,10 +123,10 @@ const Navbar = () => {
                         <Button variant="ghost" className="w-full">{t('nav.dashboard')}</Button>
                       </Link>
                       <Link to="/community">
-                        <Button variant="ghost" className="w-full">Community</Button>
+                        <Button variant="ghost" className="w-full">{t('nav.community')}</Button>
                       </Link>
                       <Link to="/leaderboard">
-                        <Button variant="ghost" className="w-full">Leaderboard</Button>
+                        <Button variant="ghost" className="w-full">{t('nav.leaderboard')}</Button>
                       </Link>
                       <Link to="/profile">
                         <Button variant="ghost" className="w-full">{t('common.profile')}</Button>
