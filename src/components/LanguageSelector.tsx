@@ -18,7 +18,7 @@ export const languages = [
   { code: 'es', name: 'Spanish', nativeName: 'Español', flag: '🇪🇸' },
   { code: 'fr', name: 'French', nativeName: 'Français', flag: '🇫🇷' },
   { code: 'de', name: 'German', nativeName: 'Deutsch', flag: '🇩🇪' },
-  { code: 'pt', name: 'Portuguese', nativeName: 'Português', flag: '🇵🇹' },
+  { code: 'pt', name: 'Portuguese', nativeName: 'Português', flag: '🇧🇷' },
   { code: 'it', name: 'Italian', nativeName: 'Italiano', flag: '🇮🇹' },
   { code: 'nl', name: 'Dutch', nativeName: 'Nederlands', flag: '🇳🇱' },
   { code: 'ru', name: 'Russian', nativeName: 'Русский', flag: '🇷🇺' },
@@ -41,13 +41,21 @@ interface LanguageSelectorProps {
 }
 
 export function LanguageSelector({ compact = false }: LanguageSelectorProps) {
-  const { i18n } = useTranslation();
-  const { updateSetting, language } = useSettingsContext();
+  const { i18n, t } = useTranslation();
+  const { updateSetting } = useSettingsContext();
 
-  const currentLanguage = languages.find(l => l.code === language) || languages[0];
+  // Read language directly from i18n (which reads from localStorage)
+  // This ensures the flag updates instantly, even for guest users
+  const currentLangCode = i18n.language || 'en';
+  const currentLanguage = languages.find(l => l.code === currentLangCode) ||
+                           languages.find(l => currentLangCode.startsWith(l.code)) ||
+                           languages[0];
 
   const handleLanguageChange = async (langCode: string) => {
-    // Change i18n language
+    // Save to localStorage IMMEDIATELY (persists for guests and logged-in users)
+    localStorage.setItem('i18nextLng', langCode);
+    
+    // Change i18n language (triggers React re-render)
     await i18n.changeLanguage(langCode);
     
     // Update document lang attribute
@@ -62,20 +70,20 @@ export function LanguageSelector({ compact = false }: LanguageSelectorProps) {
       document.body.classList.remove('rtl');
     }
     
-    // Save to database
+    // Save to database (only works for logged-in users, silent fail for guests)
     await updateSetting('language', langCode, false);
   };
 
   // Apply RTL on initial load
   useEffect(() => {
-    if (rtlLanguages.includes(language)) {
+    if (rtlLanguages.includes(currentLangCode)) {
       document.documentElement.dir = 'rtl';
       document.body.classList.add('rtl');
     } else {
       document.documentElement.dir = 'ltr';
       document.body.classList.remove('rtl');
     }
-  }, [language]);
+  }, [currentLangCode]);
 
   return (
     <DropdownMenu>
@@ -93,7 +101,7 @@ export function LanguageSelector({ compact = false }: LanguageSelectorProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 max-h-80 overflow-y-auto">
-        <DropdownMenuLabel>Select Language</DropdownMenuLabel>
+        <DropdownMenuLabel>{t('landing.footer.selectLanguage') || 'Select Language'}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {languages.map((lang) => (
           <DropdownMenuItem
@@ -105,7 +113,7 @@ export function LanguageSelector({ compact = false }: LanguageSelectorProps) {
               <span className="text-lg">{lang.flag}</span>
               <span>{lang.nativeName}</span>
             </span>
-            {language === lang.code && (
+            {currentLangCode === lang.code && (
               <Check className="w-4 h-4 text-primary" />
             )}
           </DropdownMenuItem>
