@@ -122,7 +122,7 @@ const WhatWeOfferSection = () => {
 
           <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs sm:text-sm text-muted-foreground">
             <span>{t('landing.offer.currentAvg')}</span>
-            <span className="text-primary font-semibold">32.5s → 18.2s</span>
+            <span className="text-primary font-semibold">32s → 18s</span>
           </div>
         </div>
       </div>
