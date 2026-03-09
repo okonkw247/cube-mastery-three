@@ -47,7 +47,16 @@
     "admin": "Admin",
     "signIn": "Iniciar Sesión",
     "signUp": "Registrarse",
-    "getStarted": "Comenzar"
+    "logIn": "Iniciar Sesión",
+    "startFree": "Comenzar Gratis",
+    "getStarted": "Comenzar",
+    "whyUs": "Por Qué Nosotros",
+    "whatWeOffer": "Qué Ofrecemos",
+    "method": "Método",
+    "pricing": "Precios",
+    "community": "Comunidad",
+    "leaderboard": "Tabla de Líderes",
+    "logout": "Cerrar Sesión"
   },
   "auth": {
     "signIn": "Iniciar Sesión",
