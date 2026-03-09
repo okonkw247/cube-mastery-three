@@ -252,7 +252,7 @@ const handler = async (req: Request): Promise<Response> => {
             </div>
 
             <div class="cta">
-              <a href="https://cube-mastery.site/dashboard">${content.ctaButton}</a>
+              <a href="https://www.cube-mastery.site/dashboard">${content.ctaButton}</a>
             </div>
 
             <div class="section">
