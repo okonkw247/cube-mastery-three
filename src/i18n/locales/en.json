@@ -487,5 +487,107 @@
     "pro": "Pro",
     "enterprise": "Enterprise",
     "updatePayment": "Please update your payment method"
+  },
+  "landing": {
+    "hero": {
+      "badge": "Join 10,000+ cubers mastering the cube",
+      "title1": "Solve Any Cube in",
+      "titleHighlight": "Under 30 Seconds",
+      "subtitle": "Master the Rubik's Cube with our proven step-by-step video system. From complete beginner to speedcubing pro.",
+      "startFree": "Start Free Course",
+      "watchPreview": "Watch Preview",
+      "reviews": "4.9/5 from 2,000+ reviews",
+      "heroAlt": "3D Rubik's Cube floating in space"
+    },
+    "problem": {
+      "label": "The Problem",
+      "title": "Why Most Cubers Stay Stuck",
+      "subtitle": "Most people give up on the Rubik's Cube or plateau at slow times. Here's why.",
+      "stuck": { "title": "Stuck & Confused", "desc": "You've tried YouTube tutorials but always get stuck at the same point. The cube feels impossible." },
+      "slow": { "title": "Painfully Slow", "desc": "You can technically solve it, but it takes 5+ minutes and you forget the algorithms constantly." },
+      "noStructure": { "title": "No Structure", "desc": "Random tips and tricks don't add up to real skill. You need a clear path from beginner to fast." }
+    },
+    "offer": {
+      "label": "What We Offer",
+      "title": "We Will Handle Your Learning 📖",
+      "subtitle": "Our experienced team will manage your speedcubing journey from start to finish, here are some changes you will notice in your skills",
+      "studentsTrained": "Students trained",
+      "weekImprovement": "You gained +510 seconds improvement this week",
+      "trackProgress": "Track Progress",
+      "skillTitle": "Increased Skill Level",
+      "skillDesc": "Boost your solving speed and watch your times drop with our effective strategies. Reach sub-30 seconds and build confidence around your solves.",
+      "practiceTitle": "Practice Converts To Speed",
+      "practiceDesc": "Turn your practice sessions into real improvements with our expert techniques. We optimize every solve attempt to build muscle memory and drive faster times.",
+      "trackTitle": "Track Your Journey",
+      "trackDesc": "Monitor your solve times, track algorithm mastery, and see your improvement over time with our comprehensive analytics dashboard.",
+      "realTime": "Real-time tracking",
+      "detailedAnalytics": "Detailed analytics",
+      "currentAvg": "Current average: 45 seconds"
+    },
+    "solution": {
+      "label": "The Solution",
+      "title": "The CubeMaster Method",
+      "subtitle": "A structured, step-by-step video system designed by speedcubing champions to get you solving fast.",
+      "layerTitle": "Layer-by-Layer System",
+      "layerDesc": "Our proven method breaks the cube into manageable layers. Master each one before moving on.",
+      "progressTitle": "Clear Progression",
+      "progressDesc": "From first solve to sub-30 seconds. Every lesson builds on the last with clear milestones.",
+      "speedTitle": "Speed Techniques",
+      "speedDesc": "Advanced finger tricks, lookahead training, and algorithm optimization for serious speedcubers.",
+      "whatYouGet": "What You Get",
+      "benefit1": "50+ HD video lessons",
+      "benefit2": "Printable algorithm sheets",
+      "benefit3": "Practice routines",
+      "benefit4": "Progress tracking",
+      "benefit5": "Community access",
+      "benefit6": "Lifetime updates"
+    },
+    "pricing": {
+      "label": "Pricing",
+      "title": "Choose A Plan That Suits You 👌",
+      "subtitle": "99% of students excel after subscribing to one of our plans",
+      "tryFree": "Try Free",
+      "mostPopular": "Most Popular",
+      "viewDetails": "View details",
+      "getStartedFree": "Get Started Free",
+      "continueWith": "Continue With {{plan}}",
+      "gift": "Gift",
+      "contactUs": "Contact Us",
+      "forever": "/forever",
+      "oneTime": " one-time",
+      "enterpriseDesc": "Perfect for schools, cubing clubs, and organizations. Get custom pricing, dedicated support, and group features.",
+      "plans": {
+        "free": { "name": "Free Plan", "desc": "Try before you buy. Perfect for exploring.", "f1": "Access to 3 free lessons", "f2": "Basic algorithm reference", "f3": "Community forum access", "f4": "Limited practice tips" },
+        "starter": { "name": "Starter Plan", "desc": "Perfect for beginners new to speedcubing.", "f1": "Access to 15 video lessons", "f2": "Basic algorithm library", "f3": "Beginner practice routines", "f4": "Community forum access", "f5": "Weekly progress reports", "f6": "Email support" },
+        "pro": { "name": "Pro Plan", "desc": "Everything to become a speedcuber.", "f1": "50+ HD video lessons", "f2": "Advanced algorithm library", "f3": "Speed techniques masterclass", "f4": "Practice routines & drills", "f5": "Progress tracking dashboard", "f6": "Private Discord community", "f7": "1-on-1 coaching session", "f8": "Lifetime access & updates" },
+        "enterprise": { "name": "Enterprise", "desc": "For schools and cubing clubs." }
+      }
+    },
+    "bonus": {
+      "label": "Free Bonus",
+      "title1": "Get Your Free",
+      "titleHighlight": "Starter Kit",
+      "subtitle": "Sign up today and get instant access to these bonus resources — no payment required.",
+      "getAccess": "Get Free Access",
+      "cheatSheet": "Algorithm Cheat Sheet",
+      "cheatSheetDesc": "All essential algorithms on one printable page",
+      "routineGuide": "Practice Routine Guide",
+      "routineGuideDesc": "Daily drills to build muscle memory fast",
+      "glossary": "Speedcubing Glossary",
+      "glossaryDesc": "Learn the language of competitive cubing"
+    },
+    "footer": {
+      "tagline": "The most comprehensive Rubik's Cube learning platform. Master the cube with our proven video system.",
+      "product": "Product",
+      "method": "Method",
+      "pricing": "Pricing",
+      "dashboard": "Dashboard",
+      "legal": "Legal",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "refund": "Refund Policy",
+      "copyright": "© 2026 JSN Cubing. All rights reserved.",
+      "selectLanguage": "Select Language"
+    }
   }
 }
