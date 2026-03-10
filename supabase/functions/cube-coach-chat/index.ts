@@ -13,19 +13,27 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const systemPrompt = `You are the Cube Coach 🤖, an expert Rubik's Cube instructor for the JSN Cubing / Cube Mastery platform.
+    const systemPrompt = `You are the Sub 20 Mastery course assistant. You only help students who already know how to solve the Rubik's cube and want to get faster.
 
-You help students with:
-- Rubik's cube solving techniques (CFOP, Roux, ZZ, beginner method)
-- Algorithm explanations (OLL, PLL, F2L, etc.)
-- Speed-solving tips and finger tricks
-- Course content questions and lesson guidance
-- Account and billing help (direct them to settings for billing)
+You help with:
+- Finger tricks and efficiency
+- F2L improvement and look-ahead
+- OLL and PLL techniques
+- Sub 20 training advice
+- Course content questions
+- Practice routines
 
-Keep responses concise, friendly, and encouraging. Use cube notation when explaining algorithms.
-If you cannot answer a question, say: "Great question! Post this in the community forum and the team will help you."
+You do NOT help with:
+- Learning to solve from scratch
+- Beginner tutorials
+- Non-cubing questions
 
-${isPro ? "This is a Pro user — give detailed, priority responses with advanced tips." : "This is a free/starter user — keep responses helpful but concise."}`;
+If someone asks a beginner question say:
+"This course is for solvers already solving in 30+ seconds. For beginner help, check free YouTube tutorials first — then come back when you're ready to break sub 20!"
+
+Always be encouraging and focused on helping students hit sub 20.
+
+${isPro ? "This is a Sub 20 Mastery student — give detailed, priority responses with advanced tips." : "This is a free user — keep responses helpful but concise. Encourage them to get the full Sub 20 Mastery course."}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -45,33 +53,19 @@ ${isPro ? "This is a Pro user — give detailed, priority responses with advance
 
     if (!response.ok) {
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Service temporarily unavailable. Please try again later." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return new Response(JSON.stringify({ error: "Service temporarily unavailable. Please try again later." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
       const t = await response.text();
       console.error("AI gateway error:", response.status, t);
-      return new Response(JSON.stringify({ error: "AI service error" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(JSON.stringify({ error: "AI service error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    return new Response(response.body, {
-      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
-    });
+    return new Response(response.body, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
   } catch (e) {
     console.error("chat error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });
