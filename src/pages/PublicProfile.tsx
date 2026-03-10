@@ -105,9 +105,10 @@ export default function PublicProfile() {
   const planBadge = (tier: string) => {
     const colors: Record<string, string> = {
       free: "bg-secondary text-muted-foreground",
-      starter: "bg-blue-500/20 text-blue-500",
-      pro: "bg-green-500/20 text-green-500",
-      enterprise: "bg-purple-500/20 text-purple-500",
+      paid: "bg-primary/20 text-primary",
+      starter: "bg-primary/20 text-primary",
+      pro: "bg-primary/20 text-primary",
+      enterprise: "bg-primary/20 text-primary",
     };
     return colors[tier] || colors.free;
   };

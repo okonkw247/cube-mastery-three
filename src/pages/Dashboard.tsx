@@ -510,12 +510,8 @@ const Dashboard = () => {
                     <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                       {lesson.is_free && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary">Free</span>}
                       {lesson.plan_access && lesson.plan_access !== 'free' && (
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                          lesson.plan_access === 'starter' ? 'bg-blue-500/20 text-blue-500' :
-                          lesson.plan_access === 'pro' ? 'bg-green-500/20 text-green-500' :
-                          'bg-purple-500/20 text-purple-500'
-                        }`}>
-                          {lesson.plan_access.charAt(0).toUpperCase() + lesson.plan_access.slice(1)}
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary">
+                          Sub 20 Mastery
                         </span>
                       )}
                       <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-secondary text-muted-foreground capitalize">{lesson.skill_level}</span>

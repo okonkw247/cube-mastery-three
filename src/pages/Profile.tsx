@@ -226,13 +226,13 @@ const Profile = () => {
                 <Label className="text-muted-foreground">{t('profile.subscription')}</Label>
                 <div className="flex items-center gap-3 p-4 bg-secondary rounded-lg border border-border">
                   <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    profile?.subscription_tier === 'pro' 
+                    profile?.subscription_tier === 'paid' 
                       ? 'bg-primary/20 text-primary' 
                       : 'bg-muted text-muted-foreground'
                   }`}>
-                    {profile?.subscription_tier === 'pro' ? t('profile.pro') : t('profile.free')}
+                    {profile?.subscription_tier === 'paid' ? 'Sub 20 Mastery' : t('profile.free')}
                   </div>
-                  {profile?.subscription_tier !== 'pro' && (
+                  {profile?.subscription_tier !== 'paid' && (
                     <Link to="/#pricing">
                       <Button variant="link" className="text-primary p-0 h-auto">
                         {t('common.upgradeToPro')}
