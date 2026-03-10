@@ -58,11 +58,8 @@ export function NotificationComposer() {
           case 'free':
             query = query.eq('subscription_tier', 'free');
             break;
-          case 'starter':
-            query = query.eq('subscription_tier', 'starter');
-            break;
-          case 'pro':
-            query = query.eq('subscription_tier', 'pro');
+          case 'paid':
+            query = query.neq('subscription_tier', 'free');
             break;
           // For active/inactive, we'd need additional tracking
         }
