@@ -134,8 +134,7 @@ const Dashboard = () => {
     }
     // Check if redirected from auth with a checkout plan
     const checkoutParam = params.get('checkout');
-    if (checkoutParam === 'starter' || checkoutParam === 'pro') {
-      setCheckoutPlan(checkoutParam);
+    if (checkoutParam === 'paid' || checkoutParam === 'starter' || checkoutParam === 'pro') {
       setCheckoutOpen(true);
       window.history.replaceState({}, '', '/dashboard');
     }
