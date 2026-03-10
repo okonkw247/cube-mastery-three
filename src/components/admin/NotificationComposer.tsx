@@ -182,8 +182,7 @@ export function NotificationComposer() {
               <SelectContent>
                 <SelectItem value="all">👥 All Users</SelectItem>
                 <SelectItem value="free">🆓 Free Plan Users</SelectItem>
-                <SelectItem value="starter">⭐ Starter Plan Users</SelectItem>
-                <SelectItem value="pro">👑 Pro Plan Users</SelectItem>
+                <SelectItem value="paid">⭐ Sub 20 Mastery Users</SelectItem>
                 <SelectItem value="active">🟢 Active Users (7 days)</SelectItem>
                 <SelectItem value="inactive">🔴 Inactive Users (30+ days)</SelectItem>
               </SelectContent>
