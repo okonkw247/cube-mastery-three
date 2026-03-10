@@ -106,14 +106,11 @@ export function NotificationComposer() {
           .select('user_id');
         
         switch (formData.recipientGroup) {
-          case 'free':
+           case 'free':
             query = query.eq('subscription_tier', 'free');
             break;
-          case 'starter':
-            query = query.eq('subscription_tier', 'starter');
-            break;
-          case 'pro':
-            query = query.eq('subscription_tier', 'pro');
+           case 'paid':
+            query = query.neq('subscription_tier', 'free');
             break;
         }
 
