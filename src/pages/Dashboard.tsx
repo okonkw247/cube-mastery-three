@@ -538,8 +538,6 @@ const Dashboard = () => {
       <WhopCheckoutModal
         open={checkoutOpen}
         onOpenChange={setCheckoutOpen}
-        plans={[checkoutPlan]}
-        defaultPlan={checkoutPlan}
       />
 
       {/* Modals */}
