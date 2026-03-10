@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
 export interface UserPlan {
-  subscription_tier: 'free' | 'starter' | 'pro' | 'enterprise';
+  subscription_tier: 'free' | 'paid';
   subscription_status: 'active' | 'inactive' | 'cancelled';
   whop_membership_id: string | null;
 }
@@ -31,23 +31,19 @@ export function useUserPlan() {
         .eq('user_id', user.id)
         .maybeSingle();
 
-      if (fetchError) {
-        throw fetchError;
-      }
+      if (fetchError) throw fetchError;
 
       if (data) {
+        const rawTier = data.subscription_tier || 'free';
+        const normalizedTier = (rawTier === 'starter' || rawTier === 'pro' || rawTier === 'enterprise' || rawTier === 'paid')
+          ? 'paid' : 'free';
         setPlan({
-          subscription_tier: (data.subscription_tier as UserPlan['subscription_tier']) || 'free',
+          subscription_tier: normalizedTier as 'free' | 'paid',
           subscription_status: (data.subscription_status as UserPlan['subscription_status']) || 'inactive',
           whop_membership_id: data.whop_membership_id,
         });
       } else {
-        // Default to free if no profile exists
-        setPlan({
-          subscription_tier: 'free',
-          subscription_status: 'inactive',
-          whop_membership_id: null,
-        });
+        setPlan({ subscription_tier: 'free', subscription_status: 'inactive', whop_membership_id: null });
       }
     } catch (err: any) {
       console.error('Error fetching user plan:', err);
@@ -58,53 +54,26 @@ export function useUserPlan() {
     }
   }, [user]);
 
-  useEffect(() => {
-    fetchPlan();
-  }, [fetchPlan]);
+  useEffect(() => { fetchPlan(); }, [fetchPlan]);
 
-  // Subscribe to realtime updates
   useEffect(() => {
     if (!user) return;
-
     const channel = supabase
       .channel('profile-plan-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'profiles',
-          filter: `user_id=eq.${user.id}`,
-        },
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `user_id=eq.${user.id}` },
         (payload) => {
-          const newData = payload.new as any;
-          setPlan({
-            subscription_tier: newData.subscription_tier || 'free',
-            subscription_status: newData.subscription_status || 'inactive',
-            whop_membership_id: newData.whop_membership_id,
-          });
-        }
-      )
+          const d = payload.new as any;
+          const rawTier = d.subscription_tier || 'free';
+          const normalizedTier = (rawTier === 'starter' || rawTier === 'pro' || rawTier === 'enterprise' || rawTier === 'paid') ? 'paid' : 'free';
+          setPlan({ subscription_tier: normalizedTier as 'free' | 'paid', subscription_status: d.subscription_status || 'inactive', whop_membership_id: d.whop_membership_id });
+        })
       .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, [user]);
 
-  const isPro = plan?.subscription_tier === 'pro' || plan?.subscription_tier === 'enterprise';
-  const isStarter = plan?.subscription_tier === 'starter';
+  const isPro = plan?.subscription_tier === 'paid';
   const isFree = plan?.subscription_tier === 'free' || !plan;
   const isActive = plan?.subscription_status === 'active';
 
-  return {
-    plan,
-    loading,
-    error,
-    refetch: fetchPlan,
-    isPro,
-    isStarter,
-    isFree,
-    isActive,
-  };
+  return { plan, loading, error, refetch: fetchPlan, isPro, isStarter: false, isFree, isActive };
 }

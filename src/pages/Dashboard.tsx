@@ -86,7 +86,6 @@ const Dashboard = () => {
   const [practiceLesson, setPracticeLesson] = useState<{ id: string; title: string } | null>(null);
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [checkoutPlan, setCheckoutPlan] = useState<"starter" | "pro">("starter");
   const [todos, setTodos] = useState<TodoItem[]>([
     { id: 1, title: "Complete F2L algorithms practice", date: new Date().toISOString().slice(0, 19).replace("T", " "), urgent: true, done: false },
     { id: 2, title: "Watch OLL lesson video", date: new Date().toISOString().slice(0, 19).replace("T", " "), urgent: false, done: true },
@@ -135,8 +134,7 @@ const Dashboard = () => {
     }
     // Check if redirected from auth with a checkout plan
     const checkoutParam = params.get('checkout');
-    if (checkoutParam === 'starter' || checkoutParam === 'pro') {
-      setCheckoutPlan(checkoutParam);
+    if (checkoutParam === 'paid' || checkoutParam === 'starter' || checkoutParam === 'pro') {
       setCheckoutOpen(true);
       window.history.replaceState({}, '', '/dashboard');
     }
@@ -512,12 +510,8 @@ const Dashboard = () => {
                     <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                       {lesson.is_free && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary">Free</span>}
                       {lesson.plan_access && lesson.plan_access !== 'free' && (
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                          lesson.plan_access === 'starter' ? 'bg-blue-500/20 text-blue-500' :
-                          lesson.plan_access === 'pro' ? 'bg-green-500/20 text-green-500' :
-                          'bg-purple-500/20 text-purple-500'
-                        }`}>
-                          {lesson.plan_access.charAt(0).toUpperCase() + lesson.plan_access.slice(1)}
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary">
+                          Sub 20 Mastery
                         </span>
                       )}
                       <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-secondary text-muted-foreground capitalize">{lesson.skill_level}</span>
@@ -540,8 +534,6 @@ const Dashboard = () => {
       <WhopCheckoutModal
         open={checkoutOpen}
         onOpenChange={setCheckoutOpen}
-        plans={[checkoutPlan]}
-        defaultPlan={checkoutPlan}
       />
 
       {/* Modals */}

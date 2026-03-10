@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { useProfile } from '@/hooks/useProfile';
-import { Loader2, AlertTriangle, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Loader2, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export function SubscriptionStatusBadge() {
@@ -9,10 +9,7 @@ export function SubscriptionStatusBadge() {
 
   if (loading || !profile) return null;
 
-  // Only show badge for non-normal statuses
-  if (isActive && profile.subscription_tier !== 'free') {
-    return null; // Active paid subscription - no badge needed
-  }
+  if (isActive && profile.subscription_tier !== 'free') return null;
 
   if (isPaymentPending) {
     return (
@@ -45,34 +42,15 @@ export function SubscriptionStatusBadge() {
 }
 
 export function PlanBadge() {
-  const { t } = useTranslation();
-  const { profile, loading, isPro, isStarter, isFree } = useProfile();
+  const { profile, loading, isPro, isFree } = useProfile();
 
   if (loading || !profile) return null;
 
-  if (profile.subscription_tier === 'enterprise') {
-    return (
-      <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 flex items-center gap-1">
-        <CheckCircle className="w-3 h-3" />
-        Enterprise
-      </Badge>
-    );
-  }
-
   if (isPro) {
     return (
-      <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 flex items-center gap-1">
+      <Badge className="bg-primary/20 text-primary border-primary/30 flex items-center gap-1">
         <CheckCircle className="w-3 h-3" />
-        Pro
-      </Badge>
-    );
-  }
-
-  if (isStarter) {
-    return (
-      <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 flex items-center gap-1">
-        <CheckCircle className="w-3 h-3" />
-        Starter
+        Sub 20 Mastery
       </Badge>
     );
   }

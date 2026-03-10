@@ -21,18 +21,12 @@ interface GiftModalProps {
   defaultPlan?: string;
 }
 
-export default function GiftModal({ open, onOpenChange, defaultPlan = "starter" }: GiftModalProps) {
+export default function GiftModal({ open, onOpenChange }: GiftModalProps) {
   const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-  const [selectedPlan, setSelectedPlan] = useState(defaultPlan);
   const [sending, setSending] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
-
-  const plans = [
-    { id: "starter", name: "Starter Plan", price: "$15" },
-    { id: "pro", name: "Pro Plan", price: "$40" },
-  ];
 
   const handleGift = async () => {
     const validation = giftSchema.safeParse({ email, message });
@@ -42,17 +36,14 @@ export default function GiftModal({ open, onOpenChange, defaultPlan = "starter" 
     }
 
     setSending(true);
-
     try {
-      // Save gift record
       await supabase.from('gifts' as any).insert({
         sender_id: user?.id,
         recipient_email: email.trim(),
-        plan: selectedPlan,
+        plan: "paid",
         personal_message: message.trim() || null,
       } as any);
 
-      // Open embedded checkout with recipient email pre-filled
       onOpenChange(false);
       setCheckoutOpen(true);
     } catch {
@@ -69,36 +60,19 @@ export default function GiftModal({ open, onOpenChange, defaultPlan = "starter" 
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Gift className="w-5 h-5 text-primary" />
-              Gift a Course 🎁
+              Gift Sub 20 Mastery 🎁
             </DialogTitle>
             <DialogDescription>
-              Send a course as a gift to someone special
+              Gift the course to someone special
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
-            {/* Plan selection */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Select Plan</label>
-              <div className="grid grid-cols-2 gap-2">
-                {plans.map((plan) => (
-                  <button
-                    key={plan.id}
-                    onClick={() => setSelectedPlan(plan.id)}
-                    className={`p-3 rounded-xl border text-left transition-all ${
-                      selectedPlan === plan.id
-                        ? "border-primary bg-primary/5"
-                        : "border-border bg-secondary/30 hover:border-primary/50"
-                    }`}
-                  >
-                    <p className="font-semibold text-sm">{plan.name}</p>
-                    <p className="text-xs text-muted-foreground">{plan.price}</p>
-                  </button>
-                ))}
-              </div>
+            <div className="p-3 rounded-xl border border-primary/30 bg-primary/5">
+              <p className="font-semibold text-sm">Sub 20 Mastery</p>
+              <p className="text-xs text-muted-foreground">$24.99 one-time</p>
             </div>
 
-            {/* Recipient email */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Recipient's Email</label>
               <Input
@@ -110,11 +84,10 @@ export default function GiftModal({ open, onOpenChange, defaultPlan = "starter" 
               />
             </div>
 
-            {/* Personal message */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Personal Message (optional)</label>
               <Textarea
-                placeholder="Happy birthday! I thought you'd love learning to solve the cube..."
+                placeholder="Happy birthday! I thought you'd love breaking sub 20..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 maxLength={500}
@@ -133,8 +106,6 @@ export default function GiftModal({ open, onOpenChange, defaultPlan = "starter" 
       <WhopCheckoutModal
         open={checkoutOpen}
         onOpenChange={setCheckoutOpen}
-        plans={[(selectedPlan === "starter" || selectedPlan === "pro") ? selectedPlan : "starter"]}
-        defaultPlan={(selectedPlan === "starter" || selectedPlan === "pro") ? selectedPlan : "starter"}
         prefillEmail={email.trim()}
       />
     </>
