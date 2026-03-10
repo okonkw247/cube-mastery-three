@@ -7,7 +7,7 @@ export interface Profile {
   user_id: string;
   full_name: string | null;
   avatar_url: string | null;
-  subscription_tier: 'free' | 'starter' | 'pro' | 'enterprise';
+  subscription_tier: 'free' | 'paid';
   subscription_status: 'active' | 'inactive' | 'payment_pending' | 'payment_failed' | 'cancelled';
   whop_membership_id: string | null;
   total_points: number;
@@ -39,7 +39,11 @@ export function useProfile() {
       .maybeSingle();
 
     if (!error && data) {
-      setProfile(data as Profile);
+      // Normalize old tier values to new system
+      const rawTier = (data as any).subscription_tier || 'free';
+      const normalizedTier = (rawTier === 'starter' || rawTier === 'pro' || rawTier === 'enterprise' || rawTier === 'paid')
+        ? 'paid' : 'free';
+      setProfile({ ...data, subscription_tier: normalizedTier } as Profile);
     }
     setLoading(false);
   }, [user]);
@@ -53,7 +57,7 @@ export function useProfile() {
     }
   }, [user, fetchProfile]);
 
-  // Real-time subscription for profile changes (plan upgrades, status changes)
+  // Real-time subscription for profile changes
   useEffect(() => {
     if (!user) return;
 
@@ -70,7 +74,10 @@ export function useProfile() {
         (payload) => {
           console.log('Profile updated in real-time:', payload);
           if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
-            setProfile(payload.new as Profile);
+            const rawTier = (payload.new as any).subscription_tier || 'free';
+            const normalizedTier = (rawTier === 'starter' || rawTier === 'pro' || rawTier === 'enterprise' || rawTier === 'paid')
+              ? 'paid' : 'free';
+            setProfile({ ...payload.new, subscription_tier: normalizedTier } as Profile);
           }
         }
       )
@@ -81,8 +88,8 @@ export function useProfile() {
     };
   }, [user]);
 
-  const isPro = profile?.subscription_tier === 'pro' || profile?.subscription_tier === 'enterprise';
-  const isStarter = profile?.subscription_tier === 'starter';
+  const isPro = profile?.subscription_tier === 'paid';
+  const isStarter = false; // No longer exists
   const isFree = profile?.subscription_tier === 'free' || !profile;
   const isActive = profile?.subscription_status === 'active';
   const isPaymentPending = profile?.subscription_status === 'payment_pending';
