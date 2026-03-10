@@ -25,7 +25,7 @@ import { Send, Bell, Users, Mail, Smartphone, Loader2 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 type NotificationType = 'announcement' | 'new_video' | 'new_notes' | 'new_hologram_sheet';
-type RecipientGroup = 'all' | 'free' | 'starter' | 'pro' | 'active' | 'inactive';
+type RecipientGroup = 'all' | 'free' | 'paid' | 'active' | 'inactive';
 type Channel = 'inapp' | 'email' | 'both';
 
 interface SendProgress {
