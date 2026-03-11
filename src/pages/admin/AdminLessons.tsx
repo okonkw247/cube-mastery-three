@@ -400,7 +400,7 @@ export default function AdminLessons() {
                         disabled={uploadingVideo}
                         className="hidden"
                       />
-                      <span className="text-xs text-muted-foreground">Max 500MB</span>
+                      <span className="text-xs text-muted-foreground">Max 5GB</span>
                     </div>
                     {formData.video_url && formData.video_url.includes('supabase') && (
                       <div className="flex items-center gap-2 text-xs text-green-500">
