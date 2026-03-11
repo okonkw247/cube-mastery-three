@@ -50,7 +50,7 @@ const PricingSection = () => {
     "20+ HD video lessons",
     "Complete sub 20 system",
     "Advanced algorithm library",
-    "Speed techniques masterclass",
+    "Lookahead & finger tricks training",
     "Sub 20 practice routines and drills",
     "Progress tracking dashboard",
     "Private Discord community access",
@@ -200,13 +200,13 @@ const PricingSection = () => {
                 </>
               )}
 
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Button variant="hero" size="lg" className="flex-1 gap-2" onClick={handlePlanSelect}>
                   {selectedPlan === "free" ? "Start Free →" : "Break Sub 20 Now →"}
                   <ArrowRight className="w-4 h-4" />
                 </Button>
                 {selectedPlan !== "free" && (
-                  <Button variant="outline" size="lg" className="gap-2" onClick={() => setGiftOpen(true)}>
+                  <Button variant="outline" size="lg" className="gap-2 w-full sm:w-auto" onClick={() => setGiftOpen(true)}>
                     <Gift className="w-4 h-4" />
                     🎁 {t('landing.pricing.gift')}
                   </Button>

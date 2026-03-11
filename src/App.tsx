@@ -12,6 +12,7 @@ import { PWAInstallPrompt } from "@/components/pwa/PWAInstallPrompt";
 import { PWAUpdatePrompt } from "@/components/pwa/PWAUpdatePrompt";
 import { OfflineBanner } from "@/components/pwa/OfflineBanner";
 import { PushNotificationPrompt } from "@/components/pwa/PushNotifications";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -90,6 +91,7 @@ const App = () => (
               <Suspense fallback={null}>
                 <CubeCoachChat />
               </Suspense>
+              <SpeedInsights />
             </TooltipProvider>
           </SettingsProvider>
         </AdminProvider>
