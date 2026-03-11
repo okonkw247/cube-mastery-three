@@ -425,14 +425,8 @@ export default function AdminLessons() {
                     {formData.duration && <p className="text-[10px] text-primary mt-0.5">Auto-detected from video</p>}
                   </div>
                   <div><Label>Skill Level</Label>
-                    <Select value={formData.skill_level} onValueChange={v => setFormData({ ...formData, skill_level: v })}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="beginner">Beginner</SelectItem>
-                        <SelectItem value="intermediate">Intermediate</SelectItem>
-                        <SelectItem value="advanced">Advanced</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Input value="Intermediate / Advanced" readOnly className="bg-muted cursor-not-allowed" />
+                    <input type="hidden" value="intermediate" />
                   </div>
                 </div>
                 <div>
