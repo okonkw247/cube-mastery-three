@@ -1,6 +1,7 @@
-import { CheckCircle2, Lock, Play, ChevronDown, ChevronRight } from "lucide-react";
+import { CheckCircle2, Lock, ChevronDown, ChevronRight, Video, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { DownloadButton } from "@/components/video/DownloadButton";
 
 interface Lesson {
   id: string;
@@ -8,6 +9,7 @@ interface Lesson {
   duration: string | null;
   is_free: boolean;
   plan_access: string;
+  video_url?: string | null;
 }
 
 interface LessonProgress {
@@ -22,6 +24,7 @@ interface CourseSidebarProps {
   canAccessLesson: (lesson: Lesson, tier: string | null) => boolean;
   userTier: string | null;
   onSelectLesson: (lessonId: string) => void;
+  inline?: boolean;
 }
 
 export function CourseSidebar({
@@ -31,32 +34,28 @@ export function CourseSidebar({
   canAccessLesson,
   userTier,
   onSelectLesson,
+  inline = false,
 }: CourseSidebarProps) {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    beginner: true,
-    intermediate: true,
-    advanced: true,
+    free: true,
+    paid: true,
   });
 
-  // Group lessons by skill level
+  // Group lessons by plan access
   const groupedLessons = lessons.reduce((acc, lesson: any) => {
-    const level = lesson.skill_level || "beginner";
-    if (!acc[level]) acc[level] = [];
-    acc[level].push(lesson);
+    const group = (lesson.is_free || lesson.plan_access === 'free') ? 'free' : 'paid';
+    if (!acc[group]) acc[group] = [];
+    acc[group].push(lesson);
     return acc;
   }, {} as Record<string, Lesson[]>);
 
   const toggleSection = (section: string) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
   const sectionLabels: Record<string, string> = {
-    beginner: "Getting Started",
-    intermediate: "Intermediate",
-    advanced: "Advanced",
+    free: "Introduction",
+    paid: "Sub 20 Mastery",
   };
 
   const getSectionProgress = (sectionLessons: Lesson[]) => {
@@ -64,25 +63,34 @@ export function CourseSidebar({
     return { completed, total: sectionLessons.length };
   };
 
+  // Track global lesson index
+  let globalIndex = 0;
+
+  const containerClass = inline
+    ? "w-full"
+    : "w-full lg:w-80 shrink-0 bg-card border-r border-border overflow-y-auto max-h-[calc(100vh-64px)]";
+
   return (
-    <div className="w-full lg:w-80 shrink-0 bg-card border-r border-border overflow-y-auto max-h-[calc(100vh-64px)]">
-      <div className="p-4 border-b border-border">
-        <h2 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">
-          Course Content
-        </h2>
-        <p className="text-xs text-muted-foreground mt-1">
-          {Object.values(progress).filter(p => p.completed).length} / {lessons.length} lessons completed
-        </p>
-      </div>
+    <div className={containerClass}>
+      {!inline && (
+        <div className="p-4 border-b border-border">
+          <h2 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">
+            Course Content
+          </h2>
+          <p className="text-xs text-muted-foreground mt-1">
+            {Object.values(progress).filter(p => p.completed).length} / {lessons.length} lessons completed
+          </p>
+        </div>
+      )}
 
       <div className="divide-y divide-border">
         {Object.entries(groupedLessons).map(([section, sectionLessons]) => {
           const { completed, total } = getSectionProgress(sectionLessons);
-          const isExpanded = expandedSections[section];
+          const isExpanded = expandedSections[section] !== false;
+          const sectionStartIndex = globalIndex;
 
           return (
             <div key={section}>
-              {/* Section Header */}
               <button
                 onClick={() => toggleSection(section)}
                 className="w-full flex items-center justify-between p-4 hover:bg-secondary/50 transition-colors"
@@ -96,22 +104,23 @@ export function CourseSidebar({
                   <div className="text-left">
                     <p className="font-medium text-sm">{sectionLabels[section] || section}</p>
                     <p className="text-xs text-muted-foreground">
-                      {completed}/{total} completed
+                      {total} lessons • {completed}/{total} completed
                     </p>
                   </div>
                 </div>
                 <div className="w-12 h-1.5 bg-secondary rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-primary transition-all"
                     style={{ width: `${total > 0 ? (completed / total) * 100 : 0}%` }}
                   />
                 </div>
               </button>
 
-              {/* Lessons List */}
               {isExpanded && (
                 <div className="bg-secondary/20">
                   {sectionLessons.map((lesson, index) => {
+                    const lessonNumber = sectionStartIndex + index + 1;
+                    globalIndex++;
                     const isLocked = !canAccessLesson(lesson, userTier);
                     const isCompleted = progress[lesson.id]?.completed;
                     const isCurrent = lesson.id === currentLessonId;
@@ -130,7 +139,7 @@ export function CourseSidebar({
                       >
                         <div className={cn(
                           "w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-medium",
-                          isCompleted ? "bg-primary/20 text-primary" : 
+                          isCompleted ? "bg-primary/20 text-primary" :
                           isCurrent ? "bg-primary text-primary-foreground" :
                           isLocked ? "bg-muted text-muted-foreground" :
                           "bg-secondary text-foreground"
@@ -140,7 +149,7 @@ export function CourseSidebar({
                           ) : isLocked ? (
                             <Lock className="w-3 h-3" />
                           ) : (
-                            index + 1
+                            lessonNumber
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -150,11 +159,12 @@ export function CourseSidebar({
                           )}>
                             {lesson.title}
                           </p>
-                          <p className="text-xs text-muted-foreground">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Video className="w-3 h-3" />
                             {lesson.duration || "5 min"}
-                          </p>
+                          </div>
                         </div>
-                        {lesson.is_free && !isLocked && (
+                        {(lesson.is_free || lesson.plan_access === 'free') && !isLocked && (
                           <span className="text-[10px] px-1.5 py-0.5 bg-primary/20 text-primary rounded">
                             Free
                           </span>
