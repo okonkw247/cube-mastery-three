@@ -201,13 +201,12 @@ export function useLessons() {
 
   const canAccessLesson = useCallback((lesson: Lesson, userTier: string | null): boolean => {
     if (lesson.is_free) return true;
+    if (lesson.plan_access === 'free') return true;
     if (!userTier) return false;
     
-    const tierHierarchy = ['free', 'starter', 'pro', 'enterprise'];
-    const userTierIndex = tierHierarchy.indexOf(userTier);
-    const lessonTierIndex = tierHierarchy.indexOf(lesson.plan_access || 'free');
-    
-    return userTierIndex >= lessonTierIndex;
+    // New simplified model: free or paid
+    const isPaid = userTier === 'paid' || userTier === 'starter' || userTier === 'pro' || userTier === 'enterprise';
+    return isPaid;
   }, []);
 
   // Filter lessons: completely hide courses above user's plan tier
