@@ -461,9 +461,7 @@ export default function AdminLessons() {
           {[
             { key: 'all', label: 'All' },
             { key: 'free', label: 'Free' },
-            { key: 'starter', label: 'Starter' },
-            { key: 'pro', label: 'Pro' },
-            { key: 'enterprise', label: 'Enterprise' },
+            { key: 'paid', label: 'Sub 20 Mastery' },
           ].map(tab => (
             <button
               key={tab.key}
@@ -472,7 +470,7 @@ export default function AdminLessons() {
                 planFilter === tab.key ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {tab.label} ({planCounts[tab.key as keyof typeof planCounts]})
+              {tab.label} ({planCounts[tab.key as keyof typeof planCounts] || 0})
             </button>
           ))}
         </div>
