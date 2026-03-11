@@ -112,7 +112,7 @@ export default function AdminLessons() {
   const [detectingDuration, setDetectingDuration] = useState(false);
   const [planFilter, setPlanFilter] = useState<string>('all');
   const [formData, setFormData] = useState({
-    title: '', description: '', video_url: '', duration: '', skill_level: 'beginner',
+    title: '', description: '', video_url: '', duration: '', skill_level: 'intermediate',
     is_free: false, order_index: lessons.length, status: 'published' as const,
     tags: [] as string[], prerequisites: [] as string[], preview_duration: 30,
     video_quality: 'high' as const, thumbnail_url: '', lesson_notes: '', hologram_sheet_url: '',
