@@ -137,8 +137,8 @@ export default function AdminLessons() {
       return;
     }
 
-    if (file.size > 500 * 1024 * 1024) {
-      toast.error('Video must be under 500MB');
+    if (file.size > 5 * 1024 * 1024 * 1024) {
+      toast.error('Video must be under 5GB');
       return;
     }
 
