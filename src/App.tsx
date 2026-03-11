@@ -91,6 +91,7 @@ const App = () => (
               <Suspense fallback={null}>
                 <CubeCoachChat />
               </Suspense>
+              <SpeedInsights />
             </TooltipProvider>
           </SettingsProvider>
         </AdminProvider>

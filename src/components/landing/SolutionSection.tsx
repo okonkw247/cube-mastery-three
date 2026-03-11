@@ -29,6 +29,8 @@ const SolutionSection = () => {
     t('landing.solution.benefit4'),
     t('landing.solution.benefit5'),
     t('landing.solution.benefit6'),
+    t('landing.solution.benefit7'),
+    t('landing.solution.benefit8'),
   ];
 
   return (
