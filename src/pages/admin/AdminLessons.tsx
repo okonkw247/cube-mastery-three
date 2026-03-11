@@ -77,13 +77,9 @@ function SortableLesson({ lesson, onPreview, onDelete, onUpdate, onEdit }: Sorta
       <div className="flex items-center gap-2 sm:gap-1 shrink-0 pl-7 sm:pl-0">
         <span className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${
           lesson.is_free || lesson.plan_access === 'free' ? 'bg-green-500/10 text-green-500' :
-          lesson.plan_access === 'starter' ? 'bg-blue-500/10 text-blue-500' :
-          lesson.plan_access === 'pro' ? 'bg-amber-500/10 text-amber-500' :
-          'bg-purple-500/10 text-purple-500'
+          'bg-primary/10 text-primary'
         }`}>
-          {lesson.is_free || lesson.plan_access === 'free' ? 'Free' :
-           lesson.plan_access === 'starter' ? 'Starter' :
-           lesson.plan_access === 'pro' ? 'Pro' : 'Enterprise'}
+          {lesson.is_free || lesson.plan_access === 'free' ? 'Free' : 'Sub 20 Mastery'}
         </span>
         <div className="flex gap-1">
           <Button variant="ghost" size="icon" onClick={() => onEdit(lesson)} title="Edit lesson">
@@ -116,7 +112,7 @@ export default function AdminLessons() {
   const [detectingDuration, setDetectingDuration] = useState(false);
   const [planFilter, setPlanFilter] = useState<string>('all');
   const [formData, setFormData] = useState({
-    title: '', description: '', video_url: '', duration: '', skill_level: 'beginner',
+    title: '', description: '', video_url: '', duration: '', skill_level: 'intermediate',
     is_free: false, order_index: lessons.length, status: 'published' as const,
     tags: [] as string[], prerequisites: [] as string[], preview_duration: 30,
     video_quality: 'high' as const, thumbnail_url: '', lesson_notes: '', hologram_sheet_url: '',
@@ -137,8 +133,8 @@ export default function AdminLessons() {
       return;
     }
 
-    if (file.size > 500 * 1024 * 1024) {
-      toast.error('Video must be under 500MB');
+    if (file.size > 5 * 1024 * 1024 * 1024) {
+      toast.error('Video must be under 5GB');
       return;
     }
 
@@ -343,14 +339,12 @@ export default function AdminLessons() {
   const sortedLessons = [...lessons].sort((a, b) => a.order_index - b.order_index);
   const filteredLessons = planFilter === 'all' ? sortedLessons : sortedLessons.filter(l => {
     if (planFilter === 'free') return l.is_free || l.plan_access === 'free';
-    return l.plan_access === planFilter;
+    return l.plan_access === planFilter || l.plan_access === 'starter' || l.plan_access === 'pro' || l.plan_access === 'enterprise';
   });
   const planCounts = {
     all: sortedLessons.length,
     free: sortedLessons.filter(l => l.is_free || l.plan_access === 'free').length,
-    starter: sortedLessons.filter(l => l.plan_access === 'starter').length,
-    pro: sortedLessons.filter(l => l.plan_access === 'pro').length,
-    enterprise: sortedLessons.filter(l => l.plan_access === 'enterprise').length,
+    paid: sortedLessons.filter(l => !l.is_free && l.plan_access !== 'free').length,
   };
 
   return (
@@ -404,7 +398,7 @@ export default function AdminLessons() {
                         disabled={uploadingVideo}
                         className="hidden"
                       />
-                      <span className="text-xs text-muted-foreground">Max 500MB</span>
+                      <span className="text-xs text-muted-foreground">Max 5GB</span>
                     </div>
                     {formData.video_url && formData.video_url.includes('supabase') && (
                       <div className="flex items-center gap-2 text-xs text-green-500">
@@ -429,14 +423,8 @@ export default function AdminLessons() {
                     {formData.duration && <p className="text-[10px] text-primary mt-0.5">Auto-detected from video</p>}
                   </div>
                   <div><Label>Skill Level</Label>
-                    <Select value={formData.skill_level} onValueChange={v => setFormData({ ...formData, skill_level: v })}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="beginner">Beginner</SelectItem>
-                        <SelectItem value="intermediate">Intermediate</SelectItem>
-                        <SelectItem value="advanced">Advanced</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Input value="Intermediate / Advanced" readOnly className="bg-muted cursor-not-allowed" />
+                    <input type="hidden" value="intermediate" />
                   </div>
                 </div>
                 <div>
@@ -451,13 +439,11 @@ export default function AdminLessons() {
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="free">Free (everyone)</SelectItem>
-                      <SelectItem value="starter">Starter+</SelectItem>
-                      <SelectItem value="pro">Pro+</SelectItem>
-                      <SelectItem value="enterprise">Enterprise only</SelectItem>
+                      <SelectItem value="paid">Sub 20 Mastery (paid)</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-[10px] text-muted-foreground mt-1">
-                    {formData.is_free ? 'Visible to all users' : `Visible to ${(formData as any).plan_access || 'free'} and above`}
+                    {formData.is_free || formData.plan_access === 'free' ? 'Visible to all users' : 'Requires Sub 20 Mastery plan'}
                   </p>
                 </div>
                 <Button type="submit" disabled={saving || !formData.thumbnail_url} className="w-full">
@@ -473,9 +459,7 @@ export default function AdminLessons() {
           {[
             { key: 'all', label: 'All' },
             { key: 'free', label: 'Free' },
-            { key: 'starter', label: 'Starter' },
-            { key: 'pro', label: 'Pro' },
-            { key: 'enterprise', label: 'Enterprise' },
+            { key: 'paid', label: 'Sub 20 Mastery' },
           ].map(tab => (
             <button
               key={tab.key}
@@ -484,7 +468,7 @@ export default function AdminLessons() {
                 planFilter === tab.key ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {tab.label} ({planCounts[tab.key as keyof typeof planCounts]})
+              {tab.label} ({planCounts[tab.key as keyof typeof planCounts] || 0})
             </button>
           ))}
         </div>
@@ -546,7 +530,7 @@ export default function AdminLessons() {
                     disabled={uploadingVideo}
                     className="hidden"
                   />
-                  <span className="text-xs text-muted-foreground">Max 500MB</span>
+                  <span className="text-xs text-muted-foreground">Max 5GB</span>
                 </div>
                 {editFormData.video_url && editFormData.video_url.includes('supabase') && (
                   <div className="flex items-center gap-2 text-xs text-green-500">
