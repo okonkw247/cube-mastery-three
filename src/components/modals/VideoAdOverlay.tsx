@@ -18,8 +18,8 @@ const VideoAdOverlay = React.forwardRef<HTMLDivElement, VideoAdOverlayProps>(({ 
   const [progress, setProgress] = useState(0);
   const [canSkip, setCanSkip] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const hasOptedOut = () => localStorage.getItem(AD_OPT_OUT_KEY) === "true";
   const hasSeenFirstAd = () => localStorage.getItem(AD_SHOWN_KEY) === "true";

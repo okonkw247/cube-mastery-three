@@ -53,8 +53,8 @@ const AdvancedVideoPlayer = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
-  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const progressSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const progressSaveIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // State
   const [isLoading, setIsLoading] = useState(true);

@@ -82,7 +82,7 @@ const VideoPlayer = ({ videoUrl, title, lessonId, onProgressUpdate }: VideoPlaye
   const [quality, setQuality] = useState("Auto");
   const [volume, setVolume] = useState(1);
   const [savedProgress, setSavedProgress] = useState<number | null>(null);
-  const progressSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const progressSaveIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Load saved progress from localStorage
   useEffect(() => {
@@ -126,7 +126,7 @@ const VideoPlayer = ({ videoUrl, title, lessonId, onProgressUpdate }: VideoPlaye
 
   // Hide controls after inactivity
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
+    let timeout: ReturnType<typeof setTimeout>;
     if (isPlaying && showControls) {
       timeout = setTimeout(() => setShowControls(false), 3000);
     }
