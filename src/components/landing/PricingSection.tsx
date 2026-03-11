@@ -50,7 +50,7 @@ const PricingSection = () => {
     "20+ HD video lessons",
     "Complete sub 20 system",
     "Advanced algorithm library",
-    "Speed techniques masterclass",
+    "Lookahead & finger tricks training",
     "Sub 20 practice routines and drills",
     "Progress tracking dashboard",
     "Private Discord community access",
