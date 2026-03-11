@@ -40,17 +40,22 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Generating thumbnail for:", title);
 
-    const prompt = `Create a professional, eye-catching YouTube-style thumbnail for a Rubik's Cube tutorial video titled "${title}". ${description ? `The lesson covers: ${description}.` : ""} 
-    
-    Style requirements:
-    - Modern, clean design with vibrant colors
-    - Include a colorful 3D Rubik's Cube as the main visual element
-    - Dark or gradient background for contrast
-    - Professional and educational feel
-    - 16:9 aspect ratio composition
-    - High quality, photorealistic style
-    - Dynamic lighting with subtle glow effects
-    - No text overlays`;
+    const prompt = `Create a professional, eye-catching YouTube-style thumbnail for a Rubik's Cube speedcubing tutorial video.
+
+Title: "${title}"
+${description ? `Topic: ${description}` : ""}
+
+REQUIREMENTS:
+- Dark moody background with teal/cyan accent lighting and glow effects
+- A photorealistic colorful 3D Rubik's Cube as the hero element, slightly angled
+- High contrast, dramatic lighting with cinematic feel
+- Bold white text overlay showing: "${title}" in large sans-serif font
+- Teal/cyan colored accent elements (streaks, glows, particles)
+- 16:9 aspect ratio (1280x720)
+- YouTube thumbnail style: bold, clean, high contrast
+- Make it look professional and premium
+- Include subtle speed lines or motion blur to suggest speedcubing
+- NO watermarks, NO logos except the cube itself`;
 
     console.log("Sending request to Lovable AI Gateway...");
 
@@ -96,7 +101,7 @@ const handler = async (req: Request): Promise<Response> => {
     const data = await response.json();
     console.log("AI response received successfully");
 
-    // Extract the base64 image from the response - handle multiple response formats
+    // Extract the base64 image from the response
     const imageData = data.choices?.[0]?.message?.images?.[0]?.image_url?.url 
       || data.choices?.[0]?.message?.content?.match(/data:image\/[^;]+;base64,[^\s"]+/)?.[0];
 
@@ -105,12 +110,11 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("No image was generated. Please try again.");
     }
 
-    // If we have Supabase credentials, upload the image to storage
+    // Upload to Supabase storage
     if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
       try {
         const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
         
-        // Convert base64 to blob
         const base64Data = imageData.replace(/^data:image\/\w+;base64,/, '');
         const imageBuffer = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
         
@@ -147,7 +151,7 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    // Return base64 image if storage upload failed or not configured
+    // Return base64 image if storage upload failed
     return new Response(
       JSON.stringify({ 
         success: true, 
