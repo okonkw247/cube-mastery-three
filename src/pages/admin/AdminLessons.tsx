@@ -339,14 +339,12 @@ export default function AdminLessons() {
   const sortedLessons = [...lessons].sort((a, b) => a.order_index - b.order_index);
   const filteredLessons = planFilter === 'all' ? sortedLessons : sortedLessons.filter(l => {
     if (planFilter === 'free') return l.is_free || l.plan_access === 'free';
-    return l.plan_access === planFilter;
+    return l.plan_access === planFilter || l.plan_access === 'starter' || l.plan_access === 'pro' || l.plan_access === 'enterprise';
   });
   const planCounts = {
     all: sortedLessons.length,
     free: sortedLessons.filter(l => l.is_free || l.plan_access === 'free').length,
-    starter: sortedLessons.filter(l => l.plan_access === 'starter').length,
-    pro: sortedLessons.filter(l => l.plan_access === 'pro').length,
-    enterprise: sortedLessons.filter(l => l.plan_access === 'enterprise').length,
+    paid: sortedLessons.filter(l => !l.is_free && l.plan_access !== 'free').length,
   };
 
   return (
