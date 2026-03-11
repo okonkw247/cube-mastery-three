@@ -441,13 +441,11 @@ export default function AdminLessons() {
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="free">Free (everyone)</SelectItem>
-                      <SelectItem value="starter">Starter+</SelectItem>
-                      <SelectItem value="pro">Pro+</SelectItem>
-                      <SelectItem value="enterprise">Enterprise only</SelectItem>
+                      <SelectItem value="paid">Sub 20 Mastery (paid)</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-[10px] text-muted-foreground mt-1">
-                    {formData.is_free ? 'Visible to all users' : `Visible to ${(formData as any).plan_access || 'free'} and above`}
+                    {formData.is_free || formData.plan_access === 'free' ? 'Visible to all users' : 'Requires Sub 20 Mastery plan'}
                   </p>
                 </div>
                 <Button type="submit" disabled={saving || !formData.thumbnail_url} className="w-full">
