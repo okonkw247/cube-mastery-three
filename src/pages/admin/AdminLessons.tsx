@@ -77,13 +77,9 @@ function SortableLesson({ lesson, onPreview, onDelete, onUpdate, onEdit }: Sorta
       <div className="flex items-center gap-2 sm:gap-1 shrink-0 pl-7 sm:pl-0">
         <span className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${
           lesson.is_free || lesson.plan_access === 'free' ? 'bg-green-500/10 text-green-500' :
-          lesson.plan_access === 'starter' ? 'bg-blue-500/10 text-blue-500' :
-          lesson.plan_access === 'pro' ? 'bg-amber-500/10 text-amber-500' :
-          'bg-purple-500/10 text-purple-500'
+          'bg-primary/10 text-primary'
         }`}>
-          {lesson.is_free || lesson.plan_access === 'free' ? 'Free' :
-           lesson.plan_access === 'starter' ? 'Starter' :
-           lesson.plan_access === 'pro' ? 'Pro' : 'Enterprise'}
+          {lesson.is_free || lesson.plan_access === 'free' ? 'Free' : 'Sub 20 Mastery'}
         </span>
         <div className="flex gap-1">
           <Button variant="ghost" size="icon" onClick={() => onEdit(lesson)} title="Edit lesson">
