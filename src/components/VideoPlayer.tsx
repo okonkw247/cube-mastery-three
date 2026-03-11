@@ -126,7 +126,7 @@ const VideoPlayer = ({ videoUrl, title, lessonId, onProgressUpdate }: VideoPlaye
 
   // Hide controls after inactivity
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
+    let timeout: ReturnType<typeof setTimeout>;
     if (isPlaying && showControls) {
       timeout = setTimeout(() => setShowControls(false), 3000);
     }

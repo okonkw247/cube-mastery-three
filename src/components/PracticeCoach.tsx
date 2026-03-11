@@ -58,7 +58,7 @@ export function PracticeCoach({ lessonId, lessonTitle, open, onOpenChange, onCom
   const [elapsed, setElapsed] = useState(0);
   const [showCelebration, setShowCelebration] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const lastSecondRef = useRef<number>(0);
 
