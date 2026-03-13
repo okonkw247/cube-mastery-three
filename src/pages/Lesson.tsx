@@ -64,7 +64,7 @@ const Lesson = () => {
   return (
     <>
       <CourseView
-        lessons={lessons}
+        lessons={allLessonsUnfiltered}
         progress={progress}
         currentLessonId={id!}
         canAccessLesson={canAccessLesson}
