@@ -293,3 +293,26 @@
 .rtl .gap-4 {
   direction: rtl;
 }
+
+/* Fullscreen video styles */
+:fullscreen .navbar,
+:-webkit-full-screen .navbar {
+  display: none !important;
+}
+
+:fullscreen video,
+:-webkit-full-screen video {
+  width: 100vw !important;
+  height: 100vh !important;
+  object-fit: contain !important;
+}
+
+/* Subtitle styling */
+video::cue {
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  font-size: 1.1em;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
