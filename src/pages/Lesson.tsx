@@ -15,6 +15,7 @@ const Lesson = () => {
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading } = useProfile();
   const { lessons, allLessonsUnfiltered, progress, markComplete, loading: lessonsLoading, canAccessLesson } = useLessons();
+  // Use allLessonsUnfiltered for CourseView so locked lessons show with lock icons
   const [showPractice, setShowPractice] = useState(false);
 
   // Redirect if not logged in
