@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, Clock, Menu, ChevronDown, Info, Star, Share2, Award } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ChevronDown, Info, Star, Share2, Award, MessageSquare, StickyNote, FolderDown, Bell, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import AdvancedVideoPlayer from "@/components/video/AdvancedVideoPlayer";
 import { DownloadButton } from "@/components/video/DownloadButton";
@@ -42,14 +41,6 @@ interface CourseViewProps {
   markComplete: (lessonId: string) => Promise<void>;
 }
 
-const tabItems = [
-  { value: "lectures", label: "Lectures" },
-  { value: "qa", label: "Q&A" },
-  { value: "notes", label: "Notes" },
-  { value: "resources", label: "Resources" },
-  { value: "announcements", label: "Announcements" },
-];
-
 export function CourseView({
   lessons,
   progress,
@@ -60,7 +51,6 @@ export function CourseView({
 }: CourseViewProps) {
   const navigate = useNavigate();
   const [isMarking, setIsMarking] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("lectures");
   const [showProgressPopup, setShowProgressPopup] = useState(true);
 
@@ -68,9 +58,10 @@ export function CourseView({
   const currentIndex = lessons.findIndex(l => l.id === currentLessonId);
   const isCompleted = currentLesson ? progress[currentLesson.id]?.completed : false;
 
+  const accessibleLessons = lessons.filter(l => canAccessLesson(l, userTier));
   const completedCount = Object.values(progress).filter(p => p.completed).length;
+  const totalAccessible = accessibleLessons.length;
   const totalLessons = lessons.length;
-  const progressPercent = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
   const remainingForCert = totalLessons - completedCount;
 
   useEffect(() => {
@@ -87,7 +78,6 @@ export function CourseView({
       return;
     }
     navigate(`/lesson/${lessonId}`);
-    setSidebarOpen(false);
   };
 
   const handleComplete = async () => {
@@ -123,8 +113,8 @@ export function CourseView({
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex flex-col text-foreground">
-      {/* Progress Popup Overlay */}
+    <div className="min-h-screen bg-background flex flex-col text-foreground">
+      {/* Progress Popup */}
       {showProgressPopup && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in">
           <div className="bg-card border border-border rounded-xl p-6 max-w-sm w-full mx-4 shadow-2xl">
@@ -147,111 +137,120 @@ export function CourseView({
         </div>
       )}
 
-      {/* Video Player - full width, always at top */}
+      {/* Video Player — full width, always top */}
       <div className="w-full bg-black">
-        <div className="max-w-6xl mx-auto">
-          <AdvancedVideoPlayer
-            videoUrl={currentLesson.video_url}
-            title={currentLesson.title}
-            lessonId={currentLesson.id}
-            onComplete={() => {
-              if (!isCompleted) handleComplete();
-            }}
-          />
-        </div>
+        <AdvancedVideoPlayer
+          videoUrl={currentLesson.video_url}
+          title={currentLesson.title}
+          lessonId={currentLesson.id}
+          onComplete={() => {
+            if (!isCompleted) handleComplete();
+          }}
+        />
       </div>
 
-      {/* Course Info Section */}
-      <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 pt-4 pb-3">
+      {/* Course Info */}
+      <div className="w-full px-4 sm:px-6 pt-4 pb-3 max-w-6xl mx-auto">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl sm:text-2xl font-bold leading-tight">{currentLesson.title}</h1>
-            <p className="text-sm text-muted-foreground mt-1">by JSN Cube Mastery</p>
+            <h1 className="text-lg sm:text-xl font-bold leading-tight text-foreground">{currentLesson.title}</h1>
+            <p className="text-xs text-muted-foreground mt-1">by JSN Cube Mastery</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <DownloadButton lessonId={currentLesson.id} videoUrl={currentLesson.video_url} title={currentLesson.title} compact />
-            {!isCompleted && (
-              <Button size="sm" onClick={handleComplete} disabled={isMarking} className="gap-1.5">
-                <CheckCircle2 className="w-4 h-4" />
+            {!isCompleted ? (
+              <Button size="sm" onClick={handleComplete} disabled={isMarking} className="gap-1.5 text-xs">
+                <CheckCircle2 className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">{isMarking ? "Saving..." : "Complete"}</span>
               </Button>
-            )}
-            {isCompleted && (
+            ) : (
               <span className="flex items-center gap-1 text-xs text-primary bg-primary/10 px-2 py-1 rounded-full">
                 <CheckCircle2 className="w-3 h-3" /> Done
               </span>
             )}
           </div>
         </div>
-        {/* Progress bar */}
-        <div className="flex items-center gap-2 mt-3">
-          <div className="flex-1 h-1 bg-secondary rounded-full overflow-hidden">
-            <div className="h-full bg-primary transition-all duration-500" style={{ width: `${progressPercent}%` }} />
-          </div>
-          <span className="text-xs text-muted-foreground whitespace-nowrap">{completedCount}/{totalLessons} · {progressPercent}%</span>
-        </div>
       </div>
 
       {/* Divider */}
       <div className="border-t border-border" />
 
-      {/* Tab Bar - sticky below video */}
-      <div className="sticky top-0 z-40 bg-[#0a0a0a] border-b border-border">
+      {/* Tab Bar — sticky */}
+      <div className="sticky top-0 z-40 bg-background border-b border-border">
         <div className="max-w-6xl mx-auto w-full px-4 sm:px-6">
           <div className="flex items-center">
-            <div className="flex-1 overflow-x-auto scrollbar-hide">
-              <div className="flex gap-0 min-w-max">
-                {tabItems.map(tab => (
-                  <button
-                    key={tab.value}
-                    onClick={() => setActiveTab(tab.value)}
-                    className={cn(
-                      "px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors",
-                      activeTab === tab.value
-                        ? "border-primary text-primary"
-                        : "border-transparent text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {/* More dropdown */}
+            <button
+              onClick={() => setActiveTab("lectures")}
+              className={cn(
+                "px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors",
+                activeTab === "lectures"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Lectures
+            </button>
+
+            {/* More dropdown — contains all other tabs */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1 px-3 py-3 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <button className={cn(
+                  "flex items-center gap-1 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors",
+                  ["qa", "notes", "resources", "announcements", "about"].includes(activeTab)
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                )}>
                   More <ChevronDown className="w-3.5 h-3.5" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent align="start" className="w-60">
                 <DropdownMenuItem onClick={() => setActiveTab("about")}>
-                  <Info className="w-4 h-4 mr-2" /> About this Course
+                  <Info className="w-4 h-4 mr-3 text-muted-foreground" /> About this Course
                 </DropdownMenuItem>
-                {progressPercent === 100 && (
+                {completedCount === totalLessons && totalLessons > 0 && (
                   <DropdownMenuItem onClick={() => navigate("/certificates")}>
-                    <Award className="w-4 h-4 mr-2" /> Course certificate
+                    <Award className="w-4 h-4 mr-3 text-muted-foreground" /> Course certificate
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem onClick={() => {
                   navigator.clipboard.writeText(window.location.href);
                   toast.success("Link copied!");
                 }}>
-                  <Share2 className="w-4 h-4 mr-2" /> Share this Course
+                  <Share2 className="w-4 h-4 mr-3 text-muted-foreground" /> Share this Course
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setActiveTab("qa")}>❓ Q&A</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setActiveTab("notes")}>📝 Notes</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setActiveTab("resources")}>📋 Resources</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setActiveTab("announcements")}>🔔 Announcements</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("qa")}>
+                  <MessageSquare className="w-4 h-4 mr-3 text-muted-foreground" /> Q&A
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("notes")}>
+                  <StickyNote className="w-4 h-4 mr-3 text-muted-foreground" /> Notes
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("resources")}>
+                  <FolderDown className="w-4 h-4 mr-3 text-muted-foreground" /> Resources
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab("announcements")}>
+                  <Bell className="w-4 h-4 mr-3 text-muted-foreground" /> Announcements
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => toast.success("Added to favorites! ⭐")}>
+                  <Heart className="w-4 h-4 mr-3 text-muted-foreground" /> Add course to favorites
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            {/* Spacer */}
+            <div className="flex-1" />
+
+            {/* Lesson counter */}
+            <span className="text-xs text-muted-foreground hidden sm:block">
+              {completedCount}/{totalLessons} complete
+            </span>
           </div>
         </div>
       </div>
 
       {/* Tab Content */}
-      <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 py-6 flex-1">
+      <div className="max-w-6xl mx-auto w-full px-0 sm:px-6 py-0 sm:py-4 flex-1">
         {activeTab === "lectures" && (
           <CourseSidebar
             lessons={lessons}
@@ -264,16 +263,32 @@ export function CourseView({
           />
         )}
 
-        {activeTab === "qa" && <LessonQA lessonId={currentLesson.id} />}
+        {activeTab === "qa" && (
+          <div className="px-4 sm:px-0">
+            <LessonQA lessonId={currentLesson.id} />
+          </div>
+        )}
 
-        {activeTab === "notes" && <StudentNotes lessonId={currentLesson.id} />}
+        {activeTab === "notes" && (
+          <div className="px-4 sm:px-0">
+            <StudentNotes lessonId={currentLesson.id} />
+          </div>
+        )}
 
-        {activeTab === "resources" && <LessonResources lesson={currentLesson} userTier={userTier} />}
+        {activeTab === "resources" && (
+          <div className="px-4 sm:px-0">
+            <LessonResources lesson={currentLesson} userTier={userTier} />
+          </div>
+        )}
 
-        {activeTab === "announcements" && <CourseAnnouncements />}
+        {activeTab === "announcements" && (
+          <div className="px-4 sm:px-0">
+            <CourseAnnouncements />
+          </div>
+        )}
 
         {activeTab === "about" && (
-          <div className="space-y-8 max-w-3xl">
+          <div className="space-y-8 max-w-3xl px-4 sm:px-0">
             <div>
               <button onClick={() => setActiveTab("lectures")} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
                 <ArrowLeft className="w-4 h-4" /> Back to Lectures
@@ -325,7 +340,9 @@ export function CourseView({
               <span className="hidden sm:inline">Previous</span>
             </Button>
           ) : <div />}
-          <span className="text-xs text-muted-foreground">Lesson {currentIndex + 1} of {totalLessons}</span>
+          <span className="text-xs text-muted-foreground">
+            Lesson {currentIndex + 1} of {totalLessons}
+          </span>
           {currentIndex < totalLessons - 1 ? (
             <Button
               size="sm"
