@@ -1,7 +1,8 @@
-import { CheckCircle2, Lock, ChevronDown, ChevronRight, Video, Download } from "lucide-react";
+import { CheckCircle2, ChevronDown, ChevronRight, Video, Download, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { DownloadButton } from "@/components/video/DownloadButton";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface Lesson {
   id: string;
@@ -36,26 +37,21 @@ export function CourseSidebar({
   onSelectLesson,
   inline = false,
 }: CourseSidebarProps) {
+  const navigate = useNavigate();
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     free: true,
     paid: true,
   });
 
-  // Group lessons by plan access
-  const groupedLessons = lessons.reduce((acc, lesson: any) => {
-    const group = (lesson.is_free || lesson.plan_access === 'free') ? 'free' : 'paid';
-    if (!acc[group]) acc[group] = [];
-    acc[group].push(lesson);
-    return acc;
-  }, {} as Record<string, Lesson[]>);
+  // Separate free vs paid lessons
+  const freeLessons = lessons.filter(l => l.is_free || l.plan_access === 'free');
+  const paidLessons = lessons.filter(l => !l.is_free && l.plan_access !== 'free');
+  
+  // Determine if user is free tier (can't access paid)
+  const isFreeUser = paidLessons.length > 0 && !canAccessLesson(paidLessons[0], userTier);
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
-  };
-
-  const sectionLabels: Record<string, string> = {
-    free: "Introduction",
-    paid: "Sub 20 Mastery",
   };
 
   const getSectionProgress = (sectionLessons: Lesson[]) => {
@@ -63,121 +59,125 @@ export function CourseSidebar({
     return { completed, total: sectionLessons.length };
   };
 
-  // Track global lesson index
-  let globalIndex = 0;
+  const renderLessonRow = (lesson: Lesson, index: number) => {
+    const isCompleted = progress[lesson.id]?.completed;
+    const isCurrent = lesson.id === currentLessonId;
 
-  const containerClass = inline
-    ? "w-full"
-    : "w-full lg:w-80 shrink-0 bg-card border-r border-border overflow-y-auto max-h-[calc(100vh-64px)]";
+    return (
+      <button
+        key={lesson.id}
+        onClick={() => onSelectLesson(lesson.id)}
+        className={cn(
+          "w-full flex items-start gap-3 p-3 pl-6 text-left transition-colors",
+          isCurrent && "bg-primary/10 border-l-[3px] border-l-primary",
+          !isCurrent && "hover:bg-secondary/50 border-l-[3px] border-l-transparent"
+        )}
+      >
+        {/* Lesson number */}
+        <span className="text-xs text-muted-foreground mt-0.5 w-4 shrink-0 text-right">{index + 1}</span>
+        
+        {/* Checkbox */}
+        <div className={cn(
+          "w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5",
+          isCompleted ? "text-primary" : "border-2 border-muted-foreground/40"
+        )}>
+          {isCompleted && <CheckCircle2 className="w-5 h-5 fill-primary text-primary-foreground" />}
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <p className={cn(
+            "text-sm leading-snug",
+            isCurrent && "font-semibold text-foreground",
+            !isCurrent && isCompleted && "text-muted-foreground",
+            !isCurrent && !isCompleted && "text-foreground"
+          )}>
+            {lesson.title}
+          </p>
+          <div className="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground">
+            <Video className="w-3 h-3" />
+            <span>Video</span>
+            {lesson.duration && (
+              <>
+                <span>·</span>
+                <span>{lesson.duration}</span>
+              </>
+            )}
+          </div>
+        </div>
+      </button>
+    );
+  };
+
+  const renderSection = (
+    key: string,
+    label: string,
+    sectionLessons: Lesson[],
+    startIndex: number
+  ) => {
+    if (sectionLessons.length === 0) return null;
+    const { completed, total } = getSectionProgress(sectionLessons);
+    const isExpanded = expandedSections[key] !== false;
+
+    return (
+      <div key={key}>
+        <button
+          onClick={() => toggleSection(key)}
+          className="w-full flex items-center justify-between p-4 hover:bg-secondary/30 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            {isExpanded ? (
+              <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+            ) : (
+              <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+            )}
+            <div className="text-left">
+              <p className="font-semibold text-sm text-foreground">{label}</p>
+              <p className="text-xs text-muted-foreground">
+                {completed} / {total} lessons
+              </p>
+            </div>
+          </div>
+        </button>
+
+        {isExpanded && (
+          <div>
+            {sectionLessons.map((lesson, idx) => renderLessonRow(lesson, startIndex + idx))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
-    <div className={containerClass}>
-      {!inline && (
-        <div className="p-4 border-b border-border">
-          <h2 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">
-            Course Content
-          </h2>
-          <p className="text-xs text-muted-foreground mt-1">
-            {Object.values(progress).filter(p => p.completed).length} / {lessons.length} lessons completed
+    <div className={inline ? "w-full" : "w-full lg:w-80 shrink-0"}>
+      {/* Free section */}
+      {renderSection("free", "Section 1 — Introduction", freeLessons, 0)}
+
+      {/* Paid section - only show lessons if user has access, otherwise upgrade card */}
+      {isFreeUser ? (
+        /* Upgrade Card for free users */
+        <div className="mx-4 my-4 rounded-xl border border-primary/30 bg-gradient-to-b from-primary/10 to-primary/5 p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Flame className="w-5 h-5 text-orange-400" />
+            <span className="font-semibold text-sm text-foreground">You're watching the intro</span>
+          </div>
+          <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+            The full Sub 20 system is waiting — 20+ lessons, drills, algorithms and the exact method to break sub 20. Get lifetime access now.
+          </p>
+          <Button 
+            className="w-full font-semibold"
+            onClick={() => navigate("/dashboard?showUpgrade=true")}
+          >
+            Break Sub 20 — $24.99 →
+          </Button>
+          <p className="text-center text-xs text-primary mt-2 font-medium">
+            Use EARLYBIRD for $19.99 🔥
           </p>
         </div>
+      ) : (
+        renderSection("paid", "Section 2 — Sub 20 Mastery", paidLessons, freeLessons.length)
       )}
-
-      <div className="divide-y divide-border">
-        {Object.entries(groupedLessons).map(([section, sectionLessons]) => {
-          const { completed, total } = getSectionProgress(sectionLessons);
-          const isExpanded = expandedSections[section] !== false;
-          const sectionStartIndex = globalIndex;
-
-          return (
-            <div key={section}>
-              <button
-                onClick={() => toggleSection(section)}
-                className="w-full flex items-center justify-between p-4 hover:bg-secondary/50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  {isExpanded ? (
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                  ) : (
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                  )}
-                  <div className="text-left">
-                    <p className="font-medium text-sm">{sectionLabels[section] || section}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {total} lessons • {completed}/{total} completed
-                    </p>
-                  </div>
-                </div>
-                <div className="w-12 h-1.5 bg-secondary rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary transition-all"
-                    style={{ width: `${total > 0 ? (completed / total) * 100 : 0}%` }}
-                  />
-                </div>
-              </button>
-
-              {isExpanded && (
-                <div className="bg-secondary/20">
-                  {sectionLessons.map((lesson, index) => {
-                    const lessonNumber = sectionStartIndex + index + 1;
-                    globalIndex++;
-                    const isLocked = !canAccessLesson(lesson, userTier);
-                    const isCompleted = progress[lesson.id]?.completed;
-                    const isCurrent = lesson.id === currentLessonId;
-
-                    return (
-                      <button
-                        key={lesson.id}
-                        onClick={() => !isLocked && onSelectLesson(lesson.id)}
-                        disabled={isLocked}
-                        className={cn(
-                          "w-full flex items-center gap-3 p-3 pl-8 text-left transition-colors",
-                          isCurrent && "bg-primary/10 border-l-2 border-primary",
-                          !isCurrent && !isLocked && "hover:bg-secondary/50",
-                          isLocked && "opacity-50 cursor-not-allowed"
-                        )}
-                      >
-                        <div className={cn(
-                          "w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-medium",
-                          isCompleted ? "bg-primary/20 text-primary" :
-                          isCurrent ? "bg-primary text-primary-foreground" :
-                          isLocked ? "bg-muted text-muted-foreground" :
-                          "bg-secondary text-foreground"
-                        )}>
-                          {isCompleted ? (
-                            <CheckCircle2 className="w-4 h-4" />
-                          ) : isLocked ? (
-                            <Lock className="w-3 h-3" />
-                          ) : (
-                            lessonNumber
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className={cn(
-                            "text-sm truncate",
-                            isCompleted && "text-muted-foreground"
-                          )}>
-                            {lesson.title}
-                          </p>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <Video className="w-3 h-3" />
-                            {lesson.duration || "5 min"}
-                          </div>
-                        </div>
-                        {(lesson.is_free || lesson.plan_access === 'free') && !isLocked && (
-                          <span className="text-[10px] px-1.5 py-0.5 bg-primary/20 text-primary rounded">
-                            Free
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
     </div>
   );
 }
