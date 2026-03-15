@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = 'https://www.cube-mastery.site/dashboard';
     
     const { error } = await supabase.auth.signUp({
       email,
@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const resetPassword = async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth?mode=reset`,
+      redirectTo: 'https://www.cube-mastery.site/auth?mode=reset',
     });
     
     return { error: error as Error | null };

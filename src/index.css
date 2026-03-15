@@ -307,6 +307,73 @@
   object-fit: contain !important;
 }
 
+/* Brand Marquee */
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee-outer {
+  width: 100%;
+  overflow: hidden;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0,0,0,1) 15%,
+    rgba(0,0,0,1) 85%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0,0,0,1) 15%,
+    rgba(0,0,0,1) 85%,
+    transparent 100%
+  );
+}
+
+.marquee-track {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: max-content;
+  animation: marquee-scroll 25s linear infinite;
+}
+
+.marquee-outer:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.marquee-item {
+  padding: 0 40px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #555555;
+  white-space: nowrap;
+  cursor: default;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+  letter-spacing: 0.5px;
+}
+
+.marquee-item:hover {
+  color: #ffffff;
+  text-shadow: 0 0 12px #00d4d4, 0 0 24px #00d4d4;
+}
+
+@media (max-width: 768px) {
+  .marquee-item {
+    font-size: 14px;
+    padding: 0 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .marquee-item {
+    font-size: 13px;
+    padding: 0 20px;
+  }
+}
+
 /* Subtitle styling */
 video::cue {
   background: rgba(0, 0, 0, 0.75);
