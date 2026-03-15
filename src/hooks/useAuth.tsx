@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const resetPassword = async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth?mode=reset`,
+      redirectTo: 'https://www.cube-mastery.site/auth?mode=reset',
     });
     
     return { error: error as Error | null };
