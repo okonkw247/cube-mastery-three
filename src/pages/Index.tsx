@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/landing/HeroSection";
+import BrandMarquee from "@/components/landing/BrandMarquee";
 import ProblemSection from "@/components/landing/ProblemSection";
 import WhatWeOfferSection from "@/components/landing/WhatWeOfferSection";
 import SolutionSection from "@/components/landing/SolutionSection";
