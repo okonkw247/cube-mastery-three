@@ -21,6 +21,7 @@ const Index = () => {
       <LaunchBanner />
       <Navbar />
       <HeroSection onPreviewModalChange={setIsPreviewModalOpen} />
+      <BrandMarquee />
       <ProblemSection />
       <WhatWeOfferSection />
       <SolutionSection />
