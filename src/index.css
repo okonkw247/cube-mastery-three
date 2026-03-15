@@ -362,15 +362,15 @@
 
 @media (max-width: 768px) {
   .marquee-item {
-    font-size: 14px;
-    padding: 0 24px;
+    font-size: 20px;
+    padding: 0 32px;
   }
 }
 
 @media (max-width: 480px) {
   .marquee-item {
-    font-size: 13px;
-    padding: 0 20px;
+    font-size: 20px;
+    padding: 0 28px;
   }
 }
 
