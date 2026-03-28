@@ -3,7 +3,7 @@ CREATE TABLE public.admin_invites (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   email text,
   role app_role NOT NULL DEFAULT 'content_admin',
-  token text UNIQUE NOT NULL DEFAULT encode(gen_random_bytes(32), 'hex'),
+  token text UNIQUE NOT NULL DEFAULT gen_random_uuid()::text,
   created_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
   used_at timestamp with time zone,
   expires_at timestamp with time zone NOT NULL DEFAULT (now() + interval '7 days'),

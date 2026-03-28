@@ -1,10 +1,12 @@
--- Create friend invitations table
+CREATE EXTENSION IF NOT EXISTS pgcrypto; 
+
+  -- Create friend invitations table
 CREATE TABLE public.friend_invitations (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   inviter_id UUID NOT NULL,
   invitee_email TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'pending',
-  token TEXT NOT NULL DEFAULT encode(gen_random_bytes(32), 'hex'),
+  token TEXT NOT NULL DEFAULT encode(extensions.gen_random_bytes(32), 'hex'),
   invited_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   accepted_at TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
