@@ -9,7 +9,7 @@ type Msg = { role: "user" | "assistant"; content: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/cube-coach-chat`;
 
-export const CubeCoachChat = React.forwardRef<HTMLDivElement, object>((_props, _ref) => {
+export const CubeCoachChat = () => {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([
     { role: "assistant", content: "Hey! I'm the Cube Coach 🤖 Ask me anything about solving the Rubik's Cube, algorithms, or your courses!" },
