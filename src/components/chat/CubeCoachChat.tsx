@@ -192,6 +192,4 @@ export const CubeCoachChat = () => {
       )}
     </>
   );
-});
-
-CubeCoachChat.displayName = "CubeCoachChat";
+};
