@@ -398,8 +398,16 @@ const Settings = () => {
       // Disconnect
       await toggleConnectedApp(appName);
     } else {
-      // Connect - open the app URL in new tab and mark as connected
-      window.open(connectUrl, '_blank', 'noopener,noreferrer');
+      // Discord → redirect to community page for admins
+      if (appName === "Discord") {
+        if (profile?.is_admin) {
+          navigate('/community');
+        } else {
+          window.open(connectUrl, '_blank', 'noopener,noreferrer');
+        }
+      } else {
+        window.open(connectUrl, '_blank', 'noopener,noreferrer');
+      }
       await toggleConnectedApp(appName);
     }
   };
