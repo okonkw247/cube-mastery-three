@@ -6,6 +6,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useLessons } from "@/hooks/useLessons";
 import { CourseView } from "@/components/course/CourseView";
 import { PracticeCoach } from "@/components/PracticeCoach";
+import { LessonSkeleton } from "@/components/skeletons/LessonSkeleton";
 import { toast } from "sonner";
 
 const Lesson = () => {
@@ -37,11 +38,7 @@ const Lesson = () => {
   }, [id, allLessonsUnfiltered, profile, authLoading, profileLoading, lessonsLoading, user, canAccessLesson, navigate]);
 
   if (authLoading || profileLoading || lessonsLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-pulse text-muted-foreground">{t('common.loading')}</div>
-      </div>
-    );
+    return <LessonSkeleton />;
   }
 
   if (!user) return null;

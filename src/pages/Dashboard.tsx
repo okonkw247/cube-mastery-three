@@ -57,6 +57,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
+import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 
 interface TodoItem {
   id: number;
@@ -134,7 +135,7 @@ const Dashboard = () => {
     }
     // Check if redirected from auth with a checkout plan
     const checkoutParam = params.get('checkout');
-    if (checkoutParam === 'paid' || checkoutParam === 'starter' || checkoutParam === 'pro') {
+    if (checkoutParam === 'paid') {
       setCheckoutOpen(true);
       window.history.replaceState({}, '', '/dashboard');
     }
@@ -181,11 +182,7 @@ const Dashboard = () => {
   };
 
   if (authLoading || profileLoading || lessonsLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-pulse text-muted-foreground">{t('common.loading')}</div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (!user) return null;

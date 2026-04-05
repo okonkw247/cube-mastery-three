@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoWithGlow } from "@/components/LogoWithGlow";
+import { ProfileSkeleton } from "@/components/skeletons/ProfileSkeleton";
 
 const Profile = () => {
   const { t } = useTranslation();
@@ -123,11 +124,7 @@ const Profile = () => {
   };
 
   if (authLoading || profileLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-pulse text-muted-foreground">{t('common.loading')}</div>
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   const getInitials = () => {
