@@ -881,24 +881,47 @@ const Settings = () => {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                       <div>
                         <p className="font-medium text-sm sm:text-base">Current Plan</p>
-                        <p className="text-xl sm:text-2xl font-bold text-primary capitalize">{currentPlan}</p>
+                        <p className="text-xl sm:text-2xl font-bold text-primary">
+                          {currentPlan === "paid" ? "Sub 20 Mastery" : "Free"}
+                        </p>
                       </div>
                       {currentPlan === "free" && (
-                        <div className="flex flex-col sm:flex-row gap-2">
-                          <Button size="sm" variant="outline" onClick={handleUpgrade}>
-                            Starter - $15
-                          </Button>
-                          <Button size="sm" onClick={handleUpgrade}>
-                            Pro - $40
-                          </Button>
-                        </div>
+                        <Button size="sm" onClick={handleUpgrade}>
+                          Upgrade to Pro — $24.99
+                        </Button>
                       )}
                     </div>
                     <p className="text-xs sm:text-sm text-muted-foreground">
                       {currentPlan === "free" 
-                        ? "Upgrade to unlock all 50+ lessons and advanced features."
-                        : "Thank you for being a premium member!"}
+                        ? "You have access to 2 free lessons. Upgrade to unlock all 20+ lessons and advanced features."
+                        : "Thank you for being a Sub 20 Mastery member! You have lifetime access to all lessons."}
                     </p>
+                  </div>
+                </div>
+
+                {/* Plan comparison */}
+                <div>
+                  <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Plan Comparison</h3>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div className={`p-4 rounded-xl border ${currentPlan === "free" ? "border-primary bg-primary/5" : "border-border"}`}>
+                      <p className="font-semibold mb-1">Free</p>
+                      <p className="text-2xl font-bold mb-2">$0</p>
+                      <ul className="text-sm text-muted-foreground space-y-1">
+                        <li>• 2 introductory lessons</li>
+                        <li>• Community forum (read-only)</li>
+                        <li>• Progress tracking</li>
+                      </ul>
+                    </div>
+                    <div className={`p-4 rounded-xl border ${currentPlan === "paid" ? "border-primary bg-primary/5" : "border-border"}`}>
+                      <p className="font-semibold mb-1">Sub 20 Mastery (Pro)</p>
+                      <p className="text-2xl font-bold mb-2">$24.99 <span className="text-sm font-normal text-muted-foreground">one-time</span></p>
+                      <ul className="text-sm text-muted-foreground space-y-1">
+                        <li>• 20+ HD video lessons</li>
+                        <li>• Complete sub 20 system</li>
+                        <li>• Private Discord community</li>
+                        <li>• Lifetime access & updates</li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
 
@@ -921,7 +944,7 @@ const Settings = () => {
                   <div className="p-4 rounded-xl border border-border bg-secondary/20">
                     <p className="text-sm text-muted-foreground">
                       {currentPlan === "free" 
-                        ? "No billing history. Upgrade to a paid plan to start."
+                        ? "No billing history. Upgrade to Pro to start."
                         : "View your billing history and invoices in the payment portal."}
                     </p>
                   </div>
