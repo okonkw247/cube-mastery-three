@@ -6,6 +6,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useLessons } from "@/hooks/useLessons";
 import { CourseView } from "@/components/course/CourseView";
 import { PracticeCoach } from "@/components/PracticeCoach";
+import { LessonSkeleton } from "@/components/skeletons/LessonSkeleton";
 import { toast } from "sonner";
 
 const Lesson = () => {
