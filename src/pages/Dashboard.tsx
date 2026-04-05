@@ -57,6 +57,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
+import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 
 interface TodoItem {
   id: number;

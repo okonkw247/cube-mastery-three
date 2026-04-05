@@ -38,6 +38,7 @@ import { LogoWithGlow } from "@/components/LogoWithGlow";
 import EditProfileModal from "@/components/modals/EditProfileModal";
 import ChangePasswordModal from "@/components/modals/ChangePasswordModal";
 import DeleteAccountModal from "@/components/modals/DeleteAccountModal";
+import { SettingsSkeleton } from "@/components/skeletons/SettingsSkeleton";
 
 const getSettingsTabs = (t: (key: string) => string) => [
   { id: "profile", label: t('settings.profile'), icon: User },

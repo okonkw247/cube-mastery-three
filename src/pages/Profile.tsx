@@ -124,11 +124,7 @@ const Profile = () => {
   };
 
   if (authLoading || profileLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-pulse text-muted-foreground">{t('common.loading')}</div>
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   const getInitials = () => {

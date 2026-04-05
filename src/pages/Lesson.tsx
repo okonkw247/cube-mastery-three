@@ -38,11 +38,7 @@ const Lesson = () => {
   }, [id, allLessonsUnfiltered, profile, authLoading, profileLoading, lessonsLoading, user, canAccessLesson, navigate]);
 
   if (authLoading || profileLoading || lessonsLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-pulse text-muted-foreground">{t('common.loading')}</div>
-      </div>
-    );
+    return <LessonSkeleton />;
   }
 
   if (!user) return null;
