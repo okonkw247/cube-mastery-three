@@ -181,11 +181,7 @@ const Dashboard = () => {
   };
 
   if (authLoading || profileLoading || lessonsLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-pulse text-muted-foreground">{t('common.loading')}</div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (!user) return null;
