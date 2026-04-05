@@ -359,6 +359,20 @@ const Auth = () => {
     setFormData({ ...formData, code: "" });
   };
 
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+    setIsLoading(false);
+    if (error) {
+      toast.error(error.message || 'Failed to sign in with Google');
+    }
+  };
+
   const handleQuestionsComplete = async (answers: SignupAnswers) => {
     const questionsKey = `signup_questions_${formData.email}`;
     localStorage.setItem(questionsKey, JSON.stringify(answers));

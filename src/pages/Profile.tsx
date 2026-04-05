@@ -242,6 +242,15 @@ const Profile = () => {
                 </div>
               </div>
 
+              {profile?.is_admin && (
+                <Link to="/admin">
+                  <Button variant="outline" className="w-full h-12 gap-2 border-primary/30 text-primary hover:bg-primary/10">
+                    <ShieldCheck className="w-4 h-4" />
+                    Admin Dashboard
+                  </Button>
+                </Link>
+              )}
+
               <Button
                 onClick={handleSave}
                 disabled={isSaving}

@@ -20,12 +20,12 @@ const innerSizeClasses = {
 export function LogoWithGlow({ size = "md", className = "" }: LogoWithGlowProps) {
   return (
     <div 
-      className={`${sizeClasses[size]} rounded-full overflow-hidden flex items-center justify-center bg-background shadow-[0_0_20px_rgba(0,0,0,0.6)] ${className}`}
+      className={`${sizeClasses[size]} rounded-full overflow-hidden flex items-center justify-center shadow-[0_0_20px_rgba(0,0,0,0.6)] ${className}`}
     >
       <img 
         src={jsnLogo} 
         alt="Cube Mastery Logo" 
-        className={`${innerSizeClasses[size]} object-contain`} 
+        className={`${sizeClasses[size]} rounded-full object-cover`} 
       />
     </div>
   );

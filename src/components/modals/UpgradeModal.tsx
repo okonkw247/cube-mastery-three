@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Check, ArrowRight, Sparkles, Flame } from "lucide-react";
+import { Check, ArrowRight, Sparkles, Flame, Zap, Crown } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { WhopCheckoutModal } from "@/components/modals/WhopCheckoutModal";
 
-// Launch countdown: 21 days from March 10, 2026
 const LAUNCH_END = new Date("2026-03-31T23:59:59Z");
 
 const features = [
@@ -35,8 +34,6 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
   }, [open]);
 
   const currentTier = profile?.subscription_tier || "free";
-
-  // Paid users don't need upgrade
   if (currentTier === "paid") return null;
 
   const handleGetPlan = () => {
@@ -47,75 +44,71 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-[95vw] sm:max-w-lg p-0 overflow-hidden bg-card border-border max-h-[90vh] overflow-y-auto">
-          <div className="p-4 sm:p-6 pb-2">
-            <DialogHeader>
-              <div className="flex items-center gap-2 mb-1">
-                <Sparkles className="w-5 h-5 text-primary" />
-                <DialogTitle className="text-lg sm:text-xl font-bold">
-                  Upgrade to Sub 20 Mastery
-                </DialogTitle>
+        <DialogContent className="max-w-[95vw] sm:max-w-lg p-0 overflow-hidden bg-background border-border max-h-[90vh] overflow-y-auto [&>button]:text-muted-foreground">
+          {/* Top accent bar */}
+          <div className="h-1 w-full bg-gradient-to-r from-primary via-primary/60 to-primary" />
+
+          <div className="p-5 sm:p-8">
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Crown className="w-5 h-5 text-primary" />
               </div>
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                The complete system to break sub 20. Every lesson, every technique, every drill.
-              </p>
-            </DialogHeader>
-          </div>
-
-          <div className="p-4 sm:p-6 pt-2">
-            <div className="relative rounded-xl border-2 border-primary/30 bg-primary/5 p-4 sm:p-5">
-              {/* Launch badge */}
-              {isLaunch && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] sm:text-xs font-semibold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full whitespace-nowrap flex items-center gap-1">
-                  <Flame className="w-3 h-3" />
-                  Launch Price
-                </div>
-              )}
-
-              <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 mt-1">
-                <div>
-                  <h3 className="font-bold text-sm sm:text-base">Sub 20 Mastery</h3>
-                  <p className="text-xs sm:text-sm">
-                    {isLaunch ? (
-                      <>
-                        <span className="line-through text-muted-foreground">$24.99</span>{" "}
-                        <span className="text-xl sm:text-2xl font-bold text-primary">$19.99</span>
-                        <span className="text-muted-foreground ml-1">one-time</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="text-xl sm:text-2xl font-bold">$24.99</span>
-                        <span className="text-muted-foreground ml-1">one-time</span>
-                      </>
-                    )}
-                  </p>
-                </div>
-              </div>
-
-              <ul className="space-y-1.5 sm:space-y-2 mb-4 sm:mb-5">
-                {features.map((feature, i) => (
-                  <li key={i} className="flex items-start gap-1.5 sm:gap-2 text-xs sm:text-sm">
-                    <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 mt-0.5 text-primary" />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <Button
-                variant="default"
-                className="w-full gap-2 text-xs sm:text-sm h-9 sm:h-10"
-                onClick={handleGetPlan}
-              >
-                Break Sub 20 Now →
-                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              </Button>
-
-              {isLaunch && (
-                <p className="text-center text-[10px] sm:text-xs text-muted-foreground mt-2">
-                  Use code <span className="font-bold text-primary">EARLYBIRD</span> for $19.99 🔥
+              <div>
+                <h2 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
+                  Sub 20 Mastery
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Everything you need to break sub 20
                 </p>
+              </div>
+            </div>
+
+            {/* Price block */}
+            <div className="mt-6 mb-6">
+              <div className="flex items-baseline gap-2">
+                {isLaunch ? (
+                  <>
+                    <span className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">$19.99</span>
+                    <span className="text-base text-muted-foreground line-through">$24.99</span>
+                  </>
+                ) : (
+                  <span className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">$24.99</span>
+                )}
+                <span className="text-sm text-muted-foreground font-medium">one-time</span>
+              </div>
+              {isLaunch && (
+                <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/10 border border-primary/20">
+                  <Flame className="w-3.5 h-3.5 text-primary" />
+                  <span className="text-xs font-semibold text-primary">Launch price · Use code EARLYBIRD</span>
+                </div>
               )}
             </div>
+
+            {/* Features */}
+            <div className="space-y-2.5 mb-8">
+              {features.map((feature, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <Check className="w-3 h-3 text-primary" />
+                  </div>
+                  <span className="text-sm text-foreground/80">{feature}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA */}
+            <Button
+              onClick={handleGetPlan}
+              className="w-full h-12 text-sm font-semibold gap-2 bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_4px_24px_hsl(175_80%_50%/0.25)] hover:shadow-[0_6px_32px_hsl(175_80%_50%/0.35)] transition-all duration-300"
+            >
+              Get Lifetime Access
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+
+            <p className="text-center text-[11px] text-muted-foreground mt-3">
+              One-time payment · No subscription · Instant access
+            </p>
           </div>
         </DialogContent>
       </Dialog>

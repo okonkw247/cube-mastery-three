@@ -13,6 +13,7 @@ export interface Profile {
   total_points: number;
   onboarding_completed: boolean;
   is_suspended: boolean;
+  is_admin: boolean;
   created_at: string;
   updated_at: string;
   referral_code: string | null;
