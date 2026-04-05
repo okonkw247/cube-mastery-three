@@ -1071,7 +1071,7 @@ const Settings = () => {
                   <div className="space-y-2">
                     {[
                       { question: "How do I reset my password?", answer: "Go to Profile → Password → Change Password" },
-                      { question: "How do I upgrade my plan?", answer: "Go to Payment tab and select a plan, or click the upgrade buttons" },
+                      { question: "How do I upgrade my plan?", answer: "Go to Payment tab and upgrade to Pro ($24.99 one-time), or click the upgrade buttons" },
                       { question: "Can I download lessons for offline?", answer: "Yes, videos can be downloaded on Pro plan" },
                     ].map((faq, i) => (
                       <div key={i} className="p-3 sm:p-4 rounded-xl bg-secondary/30">
