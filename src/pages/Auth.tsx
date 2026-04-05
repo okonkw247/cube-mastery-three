@@ -9,6 +9,7 @@ import { Mail, Lock, ArrowRight, Eye, EyeOff, ArrowLeft, User, ShieldCheck } fro
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole, getUserRoleByEmail } from "@/hooks/useUserRole";
 import { LogoWithGlow } from "@/components/LogoWithGlow";
+import { supabase } from "@/integrations/supabase/client";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import SignupQuestions, { SignupAnswers } from "@/components/onboarding/SignupQuestions";
 
