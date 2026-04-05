@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoWithGlow } from "@/components/LogoWithGlow";
+import { ProfileSkeleton } from "@/components/skeletons/ProfileSkeleton";
 
 const Profile = () => {
   const { t } = useTranslation();
