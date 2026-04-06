@@ -53,6 +53,7 @@ export default function AdminDashboard() {
 
   return (
     <AdminLayout>
+      {loading ? <AdminDashboardSkeleton /> : (
       <div className="space-y-6">
         <div>
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">{t('admin.adminDashboard')}</h1>
