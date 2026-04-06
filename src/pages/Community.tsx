@@ -206,7 +206,9 @@ export default function Community() {
   const handleDelete = async (postId: string) => {
     if (!confirm("Delete this post?")) return;
     try {
-      await deletePost(postId);
+      const { error } = await supabase.from('forum_posts').delete().eq('id', postId);
+      if (error) throw error;
+      setRealtimePosts(prev => prev.filter(p => p.id !== postId));
       toast.success("Post deleted");
     } catch {
       toast.error("Failed to delete post");
