@@ -3,14 +3,16 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { triggerVideoProcessing } from '@/hooks/useVideoMetadata';
 import { useLessons } from '@/hooks/useLessons';
 import { useAdminLessons } from '@/hooks/useAdminLessons';
+import { useChunkedUpload } from '@/hooks/useChunkedUpload';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Plus, Trash2, Eye, GripVertical, FileText, Download, Edit, Upload, Video, ImageIcon, Clock } from 'lucide-react';
+import { Plus, Trash2, Eye, GripVertical, FileText, Download, Edit, Upload, Video, ImageIcon, Clock, X } from 'lucide-react';
 import { useVideoDuration } from '@/hooks/useVideoDuration';
 import { ThumbnailUploader } from '@/components/admin/ThumbnailUploader';
 import { InlineEdit } from '@/components/admin/InlineEdit';
@@ -103,12 +105,12 @@ export default function AdminLessons() {
   const { lessons, refetch } = useLessons();
   const { createLesson, updateLesson, deleteLesson, reorderLessons, saving } = useAdminLessons();
   const { detectDuration } = useVideoDuration();
+  const { progress: uploadProgress, uploading: uploadingVideo, uploadVideo, cancelUpload } = useChunkedUpload();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingLesson, setEditingLesson] = useState<any>(null);
   const [previewLesson, setPreviewLesson] = useState<any>(null);
   const [uploadingHologram, setUploadingHologram] = useState(false);
-  const [uploadingVideo, setUploadingVideo] = useState(false);
   const [detectingDuration, setDetectingDuration] = useState(false);
   const [planFilter, setPlanFilter] = useState<string>('all');
   const [formData, setFormData] = useState({
@@ -138,8 +140,6 @@ export default function AdminLessons() {
       return;
     }
 
-    setUploadingVideo(true);
-
     // Auto-detect duration from the file
     let detectedDuration = '';
     try {
@@ -151,35 +151,19 @@ export default function AdminLessons() {
       setDetectingDuration(false);
     }
 
-    const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+    const publicUrl = await uploadVideo(file, 'videos');
 
-    const { error } = await supabase.storage
-      .from('videos')
-      .upload(fileName, file, {
-        cacheControl: '3600',
-        upsert: false,
-      });
+    if (!publicUrl) return;
 
-    if (error) {
-      console.error('Video upload error:', error);
-      toast.error('Failed to upload video');
-      setUploadingVideo(false);
-      return;
-    }
-
-    const { data: urlData } = supabase.storage.from('videos').getPublicUrl(fileName);
-    
     if (isEdit) {
-      setEditFormData({ ...editFormData, video_url: urlData.publicUrl });
-      // If editing and we detected duration, update the lesson directly
+      setEditFormData({ ...editFormData, video_url: publicUrl });
       if (detectedDuration && editingLesson) {
         await updateLesson(editingLesson.id, { duration: detectedDuration });
       }
     } else {
-      setFormData({ ...formData, video_url: urlData.publicUrl, duration: detectedDuration || formData.duration });
+      setFormData({ ...formData, video_url: publicUrl, duration: detectedDuration || formData.duration });
     }
     
-    setUploadingVideo(false);
     toast.success(`Video uploaded!${detectedDuration ? ` Duration: ${detectedDuration}` : ''}`);
   };
 
@@ -398,8 +382,19 @@ export default function AdminLessons() {
                         disabled={uploadingVideo}
                         className="hidden"
                       />
+                      {uploadingVideo && (
+                        <Button variant="ghost" size="icon" onClick={cancelUpload} className="h-8 w-8">
+                          <X className="w-4 h-4 text-destructive" />
+                        </Button>
+                      )}
                       <span className="text-xs text-muted-foreground">Max 5GB</span>
                     </div>
+                    {uploadingVideo && (
+                      <div className="space-y-1">
+                        <Progress value={uploadProgress} className="h-2" />
+                        <p className="text-xs text-muted-foreground">{uploadProgress}% uploaded</p>
+                      </div>
+                    )}
                     {formData.video_url && formData.video_url.includes('supabase') && (
                       <div className="flex items-center gap-2 text-xs text-green-500">
                         <Video className="w-3 h-3" /> Video will play directly on site
@@ -530,8 +525,19 @@ export default function AdminLessons() {
                     disabled={uploadingVideo}
                     className="hidden"
                   />
+                  {uploadingVideo && (
+                    <Button variant="ghost" size="icon" onClick={cancelUpload} className="h-8 w-8">
+                      <X className="w-4 h-4 text-destructive" />
+                    </Button>
+                  )}
                   <span className="text-xs text-muted-foreground">Max 5GB</span>
                 </div>
+                {uploadingVideo && (
+                  <div className="space-y-1">
+                    <Progress value={uploadProgress} className="h-2" />
+                    <p className="text-xs text-muted-foreground">{uploadProgress}% uploaded</p>
+                  </div>
+                )}
                 {editFormData.video_url && editFormData.video_url.includes('supabase') && (
                   <div className="flex items-center gap-2 text-xs text-green-500">
                     <Video className="w-3 h-3" /> Video will play directly on site
