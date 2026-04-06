@@ -105,12 +105,12 @@ export default function AdminLessons() {
   const { lessons, refetch } = useLessons();
   const { createLesson, updateLesson, deleteLesson, reorderLessons, saving } = useAdminLessons();
   const { detectDuration } = useVideoDuration();
+  const { progress: uploadProgress, uploading: uploadingVideo, uploadVideo, cancelUpload } = useChunkedUpload();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingLesson, setEditingLesson] = useState<any>(null);
   const [previewLesson, setPreviewLesson] = useState<any>(null);
   const [uploadingHologram, setUploadingHologram] = useState(false);
-  const [uploadingVideo, setUploadingVideo] = useState(false);
   const [detectingDuration, setDetectingDuration] = useState(false);
   const [planFilter, setPlanFilter] = useState<string>('all');
   const [formData, setFormData] = useState({
