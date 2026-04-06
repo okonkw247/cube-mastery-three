@@ -206,6 +206,7 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+      )}
 
       <CelebrationPopup
         open={celebration.open}

@@ -89,7 +89,7 @@ export default function AdminDailyChallenges() {
         </div>
 
         {loading ? (
-          <div className="text-center py-12 text-muted-foreground">Loading...</div>
+          <AdminDailyChallengesSkeleton />
         ) : challenges.length === 0 ? (
           <div className="text-center py-12 bg-card rounded-xl border border-border">
             <Target className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-30" />
