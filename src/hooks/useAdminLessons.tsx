@@ -19,6 +19,7 @@ export interface LessonFormData {
   thumbnail_url: string;
   lesson_notes: string;
   hologram_sheet_url: string;
+  plan_access: string;
 }
 
 export function useAdminLessons() {
