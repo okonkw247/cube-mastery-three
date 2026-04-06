@@ -309,7 +309,7 @@ export function useAdminData() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [isAdmin, fetchStats, fetchTopPerformers, fetchUsers]);
+  }, [isAdmin, fetchStats, fetchTopPerformers, fetchUsers, fetchResources, fetchChallenges]);
 
   return {
     stats,
