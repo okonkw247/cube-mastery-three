@@ -140,8 +140,6 @@ export default function AdminLessons() {
       return;
     }
 
-    setUploadingVideo(true);
-
     // Auto-detect duration from the file
     let detectedDuration = '';
     try {
@@ -153,35 +151,19 @@ export default function AdminLessons() {
       setDetectingDuration(false);
     }
 
-    const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+    const publicUrl = await uploadVideo(file, 'videos');
 
-    const { error } = await supabase.storage
-      .from('videos')
-      .upload(fileName, file, {
-        cacheControl: '3600',
-        upsert: false,
-      });
+    if (!publicUrl) return;
 
-    if (error) {
-      console.error('Video upload error:', error);
-      toast.error('Failed to upload video');
-      setUploadingVideo(false);
-      return;
-    }
-
-    const { data: urlData } = supabase.storage.from('videos').getPublicUrl(fileName);
-    
     if (isEdit) {
-      setEditFormData({ ...editFormData, video_url: urlData.publicUrl });
-      // If editing and we detected duration, update the lesson directly
+      setEditFormData({ ...editFormData, video_url: publicUrl });
       if (detectedDuration && editingLesson) {
         await updateLesson(editingLesson.id, { duration: detectedDuration });
       }
     } else {
-      setFormData({ ...formData, video_url: urlData.publicUrl, duration: detectedDuration || formData.duration });
+      setFormData({ ...formData, video_url: publicUrl, duration: detectedDuration || formData.duration });
     }
     
-    setUploadingVideo(false);
     toast.success(`Video uploaded!${detectedDuration ? ` Duration: ${detectedDuration}` : ''}`);
   };
 
