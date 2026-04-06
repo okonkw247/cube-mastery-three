@@ -117,7 +117,7 @@ function CommunitySkeleton() {
 }
 
 export default function Community() {
-  const { posts, loading, createPost, deletePost } = useForumPosts();
+  const { posts, loading, createPost, getReplies, refetch } = useForumPosts();
   const { user } = useAuth();
   const { profile, isFree, isPro } = useProfile();
   const { isAdmin } = useAdmin();
