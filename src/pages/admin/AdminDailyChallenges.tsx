@@ -35,6 +35,17 @@ export default function AdminDailyChallenges() {
 
   useEffect(() => { fetchChallenges(); }, []);
 
+  // Realtime subscription
+  useEffect(() => {
+    const channel = supabase
+      .channel('admin-daily-challenges-rt')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_challenges' }, () => {
+        fetchChallenges();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
   const fetchChallenges = async () => {
     const { data } = await supabase
       .from('daily_challenges' as any)
