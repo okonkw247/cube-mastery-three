@@ -382,8 +382,19 @@ export default function AdminLessons() {
                         disabled={uploadingVideo}
                         className="hidden"
                       />
+                      {uploadingVideo && (
+                        <Button variant="ghost" size="icon" onClick={cancelUpload} className="h-8 w-8">
+                          <X className="w-4 h-4 text-destructive" />
+                        </Button>
+                      )}
                       <span className="text-xs text-muted-foreground">Max 5GB</span>
                     </div>
+                    {uploadingVideo && (
+                      <div className="space-y-1">
+                        <Progress value={uploadProgress} className="h-2" />
+                        <p className="text-xs text-muted-foreground">{uploadProgress}% uploaded</p>
+                      </div>
+                    )}
                     {formData.video_url && formData.video_url.includes('supabase') && (
                       <div className="flex items-center gap-2 text-xs text-green-500">
                         <Video className="w-3 h-3" /> Video will play directly on site
