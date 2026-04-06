@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Target, Plus, Trash2, Calendar, Edit3, Loader2 } from "lucide-react";
+import { AdminDailyChallengesSkeleton } from '@/components/skeletons/AdminDashboardSkeleton';
 import { toast } from "sonner";
 
 interface DailyChallenge {
