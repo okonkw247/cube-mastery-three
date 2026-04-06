@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { AdminAnalyticsSkeleton } from '@/components/skeletons/AdminDashboardSkeleton';
 
 export default function AdminAnalytics() {
-  const { stats, users } = useAdminData();
+  const { stats, users, loading } = useAdminData();
 
   const completionData = [
     { name: 'Completed', value: stats.lessonsCompleted },
