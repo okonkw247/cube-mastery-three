@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
+import { AdminDashboardSkeleton } from '@/components/skeletons/AdminDashboardSkeleton';
 
 export default function AdminDashboard() {
   const { t } = useTranslation();
