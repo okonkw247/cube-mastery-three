@@ -4,6 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import { toast } from 'sonner';
+import { AdminAnalyticsSkeleton } from '@/components/skeletons/AdminDashboardSkeleton';
 
 export default function AdminAnalytics() {
   const { stats, users } = useAdminData();
