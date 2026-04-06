@@ -4,9 +4,10 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import { toast } from 'sonner';
+import { AdminAnalyticsSkeleton } from '@/components/skeletons/AdminDashboardSkeleton';
 
 export default function AdminAnalytics() {
-  const { stats, users } = useAdminData();
+  const { stats, users, loading } = useAdminData();
 
   const completionData = [
     { name: 'Completed', value: stats.lessonsCompleted },
@@ -35,6 +36,7 @@ export default function AdminAnalytics() {
 
   return (
     <AdminLayout requiredPermission="view_analytics">
+      {loading ? <AdminAnalyticsSkeleton /> : (
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -75,6 +77,7 @@ export default function AdminAnalytics() {
           </div>
         </div>
       </div>
+      )}
     </AdminLayout>
   );
 }

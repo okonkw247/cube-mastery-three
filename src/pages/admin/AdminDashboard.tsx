@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
+import { AdminDashboardSkeleton } from '@/components/skeletons/AdminDashboardSkeleton';
 
 export default function AdminDashboard() {
   const { t } = useTranslation();
@@ -52,6 +53,7 @@ export default function AdminDashboard() {
 
   return (
     <AdminLayout>
+      {loading ? <AdminDashboardSkeleton /> : (
       <div className="space-y-6">
         <div>
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">{t('admin.adminDashboard')}</h1>
@@ -204,6 +206,7 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+      )}
 
       <CelebrationPopup
         open={celebration.open}

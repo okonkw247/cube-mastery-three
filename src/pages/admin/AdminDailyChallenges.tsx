@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Target, Plus, Trash2, Calendar, Edit3, Loader2 } from "lucide-react";
+import { AdminDailyChallengesSkeleton } from '@/components/skeletons/AdminDashboardSkeleton';
 import { toast } from "sonner";
 
 interface DailyChallenge {
@@ -33,6 +34,17 @@ export default function AdminDailyChallenges() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => { fetchChallenges(); }, []);
+
+  // Realtime subscription
+  useEffect(() => {
+    const channel = supabase
+      .channel('admin-daily-challenges-rt')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_challenges' }, () => {
+        fetchChallenges();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
 
   const fetchChallenges = async () => {
     const { data } = await supabase
@@ -88,7 +100,7 @@ export default function AdminDailyChallenges() {
         </div>
 
         {loading ? (
-          <div className="text-center py-12 text-muted-foreground">Loading...</div>
+          <AdminDailyChallengesSkeleton />
         ) : challenges.length === 0 ? (
           <div className="text-center py-12 bg-card rounded-xl border border-border">
             <Target className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-30" />

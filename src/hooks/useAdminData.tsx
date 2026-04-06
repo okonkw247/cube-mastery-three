@@ -292,12 +292,24 @@ export function useAdminData() {
         fetchTopPerformers();
         fetchUsers();
       })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'resources' }, () => {
+        fetchResources();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'challenges' }, () => {
+        fetchChallenges();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_challenges' }, () => {
+        // Signal for daily challenges - consumers can listen
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'platform_settings' }, () => {
+        // Signal for settings changes
+      })
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [isAdmin, fetchStats, fetchTopPerformers, fetchUsers]);
+  }, [isAdmin, fetchStats, fetchTopPerformers, fetchUsers, fetchResources, fetchChallenges]);
 
   return {
     stats,
