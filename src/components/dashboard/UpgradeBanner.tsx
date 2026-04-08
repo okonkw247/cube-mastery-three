@@ -13,7 +13,7 @@ export function UpgradeBanner() {
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-md">
+      <div className="fixed left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-md pwa-upgrade-banner" style={{ bottom: 0 }}>
         <div className="container mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-3">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">

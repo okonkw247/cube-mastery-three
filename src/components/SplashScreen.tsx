@@ -1,12 +1,17 @@
 import { useState, useEffect } from "react";
 
 export function SplashScreen() {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(() => {
+    const isPWA = window.matchMedia('(display-mode: standalone)').matches
+      || (window.navigator as any).standalone === true;
+    return isPWA;
+  });
   const [phase, setPhase] = useState<1 | 2>(1);
   const [showSpinner, setShowSpinner] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
+    if (!visible) return;
     const t1 = setTimeout(() => setPhase(2), 1600);
     const t2 = setTimeout(() => setShowSpinner(true), 2100);
     const t3 = setTimeout(() => setFadeOut(true), 2300);
