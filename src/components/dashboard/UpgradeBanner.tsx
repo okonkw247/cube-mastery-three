@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Zap } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
