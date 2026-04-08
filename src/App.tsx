@@ -12,6 +12,8 @@ import { PWAInstallPrompt } from "@/components/pwa/PWAInstallPrompt";
 import { PWAUpdatePrompt } from "@/components/pwa/PWAUpdatePrompt";
 import { OfflineBanner } from "@/components/pwa/OfflineBanner";
 import { PushNotificationPrompt } from "@/components/pwa/PushNotifications";
+import { SplashScreen } from "@/components/SplashScreen";
+import { BottomNav } from "@/components/BottomNav";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -50,6 +52,7 @@ const App = () => (
         <AdminProvider>
           <SettingsProvider>
             <TooltipProvider>
+            <SplashScreen />
             <Toaster />
             <Sonner />
             <PWAInstallPrompt />
@@ -87,6 +90,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
               </Suspense>
+              <BottomNav />
               </BrowserRouter>
               <Suspense fallback={null}>
                 <CubeCoachChat />
