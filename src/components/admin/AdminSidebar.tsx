@@ -18,21 +18,6 @@ import {
   GraduationCap,
   Target,
   Inbox,
-  BookOpen,
-  Users,
-  FolderOpen,
-  Timer,
-  BarChart3,
-  Settings,
-  LogOut,
-  Menu,
-  X,
-  ChevronLeft,
-  ChevronRight,
-  Shield,
-  Eye,
-  GraduationCap,
-  Target,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
