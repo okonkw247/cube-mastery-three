@@ -48,7 +48,7 @@ export function SplashScreen() {
             fill="none"
           />
         </svg>
-        <div style={{ fontSize: "9vw", maxFontSize: 42, fontWeight: 900, lineHeight: 1, whiteSpace: "nowrap", marginTop: -2 }}>
+        <div style={{ fontSize: "clamp(32px, 9vw, 42px)", fontWeight: 900, lineHeight: 1, whiteSpace: "nowrap", marginTop: -2 }}>
           <span style={{ color: "#ffffff" }}>JSN</span>
           <span style={{ color: "#00D4B4" }}>-MASTERY</span>
         </div>
