@@ -361,10 +361,16 @@ const Auth = () => {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
+    // Use production URL for PWA so OAuth callback returns to the app
+    const isPWA = window.matchMedia('(display-mode: standalone)').matches
+      || (window.navigator as any).standalone === true;
+    const redirectOrigin = isPWA
+      ? 'https://www.cube-mastery.site'
+      : window.location.origin;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/dashboard`,
+        redirectTo: `${redirectOrigin}/dashboard`,
       },
     });
     setIsLoading(false);
