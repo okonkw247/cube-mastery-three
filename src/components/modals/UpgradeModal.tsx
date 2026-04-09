@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Check, ArrowRight, Sparkles, Flame, Zap, Crown } from "lucide-react";
+import { Check, ArrowRight, Flame } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { WhopCheckoutModal } from "@/components/modals/WhopCheckoutModal";
 
@@ -49,19 +49,14 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
           <div className="h-1 w-full bg-gradient-to-r from-primary via-primary/60 to-primary" />
 
           <div className="p-5 sm:p-8">
-            {/* Header */}
-            <div className="flex items-center gap-3 mb-1">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Crown className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
-                  Sub 20 Mastery
-                </h2>
-                <p className="text-xs text-muted-foreground">
-                  Everything you need to break sub 20
-                </p>
-              </div>
+            {/* Header — no icon */}
+            <div className="mb-1">
+              <h2 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
+                Sub 20 Mastery
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Everything you need to break sub 20
+              </p>
             </div>
 
             {/* Price block */}
