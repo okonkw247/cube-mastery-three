@@ -17,6 +17,7 @@ import {
   Eye,
   GraduationCap,
   Target,
+  Inbox,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -41,6 +42,7 @@ const navItems: NavItem[] = [
   { label: 'Daily Challenges', icon: Target, path: '/admin/daily-challenges', permission: 'manage_challenges' },
   { label: 'Analytics', icon: BarChart3, path: '/admin/analytics', permission: 'view_analytics' },
   { label: 'Settings', icon: Settings, path: '/admin/settings', permission: 'manage_settings' },
+  { label: 'Support Inbox', icon: Inbox, path: '/admin/support' },
 ];
 
 export function AdminSidebar() {

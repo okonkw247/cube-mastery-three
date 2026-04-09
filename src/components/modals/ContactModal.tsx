@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ContactModalProps {
   open: boolean;
@@ -15,6 +16,7 @@ interface ContactModalProps {
 const ADMIN_EMAILS = ["adamsproject91@gmail.com", "jihadnasr042@gmail.com"];
 
 const ContactModal = ({ open, onOpenChange }: ContactModalProps) => {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -52,6 +54,18 @@ const ContactModal = ({ open, onOpenChange }: ContactModalProps) => {
       });
 
       if (error) throw error;
+
+      // Also create a support ticket if user is logged in
+      if (user) {
+        await supabase.from("support_tickets").insert({
+          user_id: user.id,
+          user_email: formData.email.trim(),
+          subject: formData.company.trim()
+            ? `Enterprise: ${formData.company.trim()}`
+            : `Contact from ${formData.name.trim()}`,
+          message: formData.message.trim(),
+        });
+      }
       
       toast.success("Message sent! We'll get back to you within 24 hours.");
       setFormData({ name: "", email: "", company: "", message: "" });
@@ -68,7 +82,7 @@ const ContactModal = ({ open, onOpenChange }: ContactModalProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Contact Us - Enterprise Inquiry</DialogTitle>
+          <DialogTitle>Contact Us</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-4">
@@ -91,7 +105,7 @@ const ContactModal = ({ open, onOpenChange }: ContactModalProps) => {
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="you@company.com"
+                  placeholder="you@email.com"
                   className="h-11"
                   required
                 />

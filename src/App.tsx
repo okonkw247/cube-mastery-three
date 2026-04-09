@@ -41,6 +41,7 @@ const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminDailyChallenges = lazy(() => import("./pages/admin/AdminDailyChallenges"));
 const AdminInviteAccept = lazy(() => import("./pages/admin/AdminInviteAccept"));
+const AdminSupportInbox = lazy(() => import("./pages/admin/AdminSupportInbox"));
 const CubeCoachChat = lazy(() => import("@/components/chat/CubeCoachChat").then(m => ({ default: m.CubeCoachChat })));
 
 const queryClient = new QueryClient();
@@ -86,6 +87,7 @@ const App = () => (
                 <Route path="/admin/settings" element={<AdminSettings />} />
                 <Route path="/admin/daily-challenges" element={<AdminDailyChallenges />} />
                 <Route path="/admin/invite/:token" element={<AdminInviteAccept />} />
+                <Route path="/admin/support" element={<AdminSupportInbox />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
