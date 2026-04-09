@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 interface Invitation {
   id: string;
@@ -46,6 +47,50 @@ export const InvitationTracker = ({ onInviteClick }: InvitationTrackerProps) => 
 
   useEffect(() => {
     fetchInvitations();
+  }, [user]);
+
+  // Realtime subscription for invitation status changes
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('friend-invitations-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'friend_invitations',
+          filter: `inviter_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const updated = payload.new as Invitation;
+          setInvitations((prev) =>
+            prev.map((inv) => (inv.id === updated.id ? { ...inv, ...updated } : inv))
+          );
+          if (updated.status === 'accepted') {
+            toast.success(`${updated.invitee_email} accepted your invitation! 🎉`);
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'friend_invitations',
+          filter: `inviter_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const newInv = payload.new as Invitation;
+          setInvitations((prev) => [newInv, ...prev]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   const pendingCount = invitations.filter(i => i.status === 'pending').length;
