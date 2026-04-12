@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useProfile } from './useProfile';
+import { useProgressEmails } from './useProgressEmails';
 
 export interface Lesson {
   id: string;
@@ -30,6 +31,7 @@ export interface LessonProgress {
 export function useLessons() {
   const { user } = useAuth();
   const { profile } = useProfile();
+  const { checkAndSendProgressEmail } = useProgressEmails();
   const [allLessons, setAllLessons] = useState<Lesson[]>([]);
   const [progress, setProgress] = useState<Record<string, LessonProgress>>({});
   const [loading, setLoading] = useState(true);
@@ -180,8 +182,13 @@ export function useLessons() {
       };
       setProgress(newProgress);
 
-      // Check if all accessible lessons are now complete → send course complete email
+      // Count completed lessons and trigger progress emails
       const newCompletedCount = Object.values(newProgress).filter((p) => p.completed).length;
+      
+      // Trigger progress emails (first lesson, milestones, free upsell)
+      await checkAndSendProgressEmail(newCompletedCount);
+
+      // Check if all accessible lessons are now complete → send course complete email
       if (lessons.length > 0 && newCompletedCount >= lessons.length) {
         try {
           await supabase.functions.invoke('send-engagement-email', {
