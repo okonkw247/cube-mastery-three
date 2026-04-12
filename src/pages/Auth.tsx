@@ -43,6 +43,7 @@ const Auth = () => {
     completeLogin,
     resetPasswordWithCode,
     sendWelcomeEmail,
+    sendLoginNotification,
     user, 
     loading 
   } = useAuth();
