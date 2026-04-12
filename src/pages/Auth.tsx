@@ -146,6 +146,9 @@ const Auth = () => {
       return;
     }
 
+    // Immediately sign out to prevent auto-session before OTP verification
+    await supabase.auth.signOut();
+
     const { error: otpError } = await sendOTP(formData.email, 'login');
     setIsLoading(false);
 
@@ -235,6 +238,9 @@ const Auth = () => {
       toast.error(error.message);
       return;
     }
+
+    // Send login notification email
+    sendLoginNotification(formData.email);
 
     // Check role from database and redirect accordingly
     const userRole = await getUserRoleByEmail(formData.email);
