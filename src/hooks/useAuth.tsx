@@ -31,10 +31,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Send welcome email for new Google OAuth signups
+        if (event === 'SIGNED_IN' && session?.user) {
+          const provider = session.user.app_metadata?.provider;
+          const createdAt = new Date(session.user.created_at).getTime();
+          const now = Date.now();
+          // If user was created within last 60 seconds via Google, send welcome email
+          if (provider === 'google' && (now - createdAt) < 60000) {
+            const welcomeKey = `welcome_sent_${session.user.id}`;
+            if (!localStorage.getItem(welcomeKey)) {
+              localStorage.setItem(welcomeKey, 'true');
+              const name = session.user.user_metadata?.full_name || session.user.email?.split('@')[0];
+              try {
+                await supabase.functions.invoke('send-welcome-email', {
+                  body: { email: session.user.email, name },
+                });
+              } catch (err) {
+                console.error('Failed to send welcome email for Google user:', err);
+              }
+            }
+          }
+        }
       }
     );
 
@@ -245,9 +267,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const sendWelcomeEmail = async (email: string, name?: string) => {
     try {
-      // Use new engagement email function for branded welcome
-      await supabase.functions.invoke('send-engagement-email', {
-        body: { type: 'welcome', email, name, data: { plan: 'free' } },
+      await supabase.functions.invoke('send-welcome-email', {
+        body: { email, name },
       });
     } catch (err) {
       console.error('Failed to send welcome email:', err);

@@ -5,18 +5,24 @@ import { ArrowRight, Play } from "lucide-react";
 import { Link } from "react-router-dom";
 import heroCube from "@/assets/hero-cube.jpg";
 import VideoPreviewModal from "@/components/modals/VideoPreviewModal";
+import CountdownTimer from "@/components/landing/CountdownTimer";
 
 interface HeroSectionProps {
   onPreviewModalChange?: (isOpen: boolean) => void;
+  launchMode?: boolean;
 }
 
-const HeroSection = ({ onPreviewModalChange }: HeroSectionProps) => {
+const HeroSection = ({ onPreviewModalChange, launchMode = false }: HeroSectionProps) => {
   const { t } = useTranslation();
   const [videoOpen, setVideoOpen] = useState(false);
 
   useEffect(() => {
     onPreviewModalChange?.(videoOpen);
   }, [videoOpen, onPreviewModalChange]);
+
+  const scrollToWaitlist = () => {
+    document.getElementById("waitlist")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
@@ -53,14 +59,28 @@ const HeroSection = ({ onPreviewModalChange }: HeroSectionProps) => {
             {t('landing.hero.subtitle')}
           </p>
 
+          {/* Countdown Timer (pre-launch only) */}
+          {!launchMode && (
+            <div className="mb-10">
+              <CountdownTimer />
+            </div>
+          )}
+
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: "0.2s" }}>
-            <Link to="/auth?mode=signup">
-              <Button variant="hero" size="xl" className="gap-3">
-                {t('landing.hero.startFree')}
+            {launchMode ? (
+              <Link to="/auth?mode=signup">
+                <Button variant="hero" size="xl" className="gap-3">
+                  {t('landing.hero.startFree')}
+                  <ArrowRight className="w-5 h-5" />
+                </Button>
+              </Link>
+            ) : (
+              <Button variant="hero" size="xl" className="gap-3" onClick={scrollToWaitlist}>
+                Join The Waitlist
                 <ArrowRight className="w-5 h-5" />
               </Button>
-            </Link>
+            )}
             <Button 
               variant="glass" 
               size="xl" 
