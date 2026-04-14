@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
-import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -45,7 +44,10 @@ interface WhopWebhookPayload {
 }
 
 async function verifyWhopSignature(payload: string, signature: string | null, secret: string): Promise<boolean> {
-  if (!signature || !secret) { console.warn("Missing signature or secret"); return true; }
+  if (!secret || !signature) {
+    console.warn("Missing signature or secret");
+    return false;
+  }
   try {
     const encoder = new TextEncoder();
     const key = await crypto.subtle.importKey("raw", encoder.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
