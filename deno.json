@@ -1,0 +1,14 @@
+{
+  "imports": {
+    "std/": "https://deno.land/std@0.190.0/",
+    "supabase": "https://esm.sh/@supabase/supabase-js@2.89.0",
+    "resend": "https://esm.sh/resend@2.0.0"
+  },
+  "tasks": {
+    "deploy": "supabase functions deploy whop-webhook"
+  },
+  "compilerOptions": {
+    "lib": ["deno.window"],
+    "strict": true
+  }
+}

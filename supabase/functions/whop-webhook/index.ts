@@ -57,10 +57,13 @@ async function verifyWhopSignature(payload: string, signature: string | null, se
 
 async function grantCourseAccess(supabase: any, userId: string, planType: string): Promise<void> {
   const limits = PLAN_ACCESS_LIMITS[planType] || PLAN_ACCESS_LIMITS["free"];
-  await supabase.from("course_access").delete().eq("user_id", userId);
+  const { data: existing } = await supabase.from("course_access").select("course_section").eq("user_id", userId);
+  const existingSections = new Set(existing?.map(e => e.course_section) || []);
   const accessRecords = [];
   for (let section = limits.start; section <= limits.end; section++) {
-    accessRecords.push({ user_id: userId, course_section: section, has_access: true, granted_at: new Date().toISOString() });
+    if (!existingSections.has(section)) {
+      accessRecords.push({ user_id: userId, course_section: section, has_access: true, granted_at: new Date().toISOString() });
+    }
   }
   if (accessRecords.length > 0) {
     const { error } = await supabase.from("course_access").insert(accessRecords);
@@ -79,9 +82,9 @@ async function updateUserProfile(supabase: any, userId: string, updates: { subsc
 }
 
 async function findUserByEmail(supabase: any, email: string): Promise<any | null> {
-  const { data: authUsers, error } = await supabase.auth.admin.listUsers();
-  if (error) { console.error("Error listing users:", error); return null; }
-  return authUsers.users.find((u: any) => u.email?.toLowerCase() === email.toLowerCase()) || null;
+  const { data: profile, error } = await supabase.from("profiles").select("user_id, full_name").eq("email", email.toLowerCase()).single();
+  if (error || !profile) return null;
+  return { id: profile.user_id, full_name: profile.full_name, email: email.toLowerCase() };
 }
 
 async function findUserByMembershipId(supabase: any, membershipId: string): Promise<string | null> {
@@ -90,7 +93,12 @@ async function findUserByMembershipId(supabase: any, membershipId: string): Prom
 }
 
 async function sendUserNotification(supabase: any, userId: string, title: string, message: string, type: string = "payment"): Promise<void> {
-  try { await supabase.from("notifications").insert({ user_id: userId, title, message, type }); } catch (error) { console.error("Error sending notification:", error); }
+  try { 
+    await supabase.from("notifications").insert({ user_id: userId, title, message, type }); 
+  } catch (error) { 
+    console.error("Error sending notification:", error); 
+    throw error; // Re-throw so caller knows about the error
+  }
 }
 
 async function logActivity(supabase: any, email: string | undefined, action: string, details: any): Promise<void> {
@@ -109,11 +117,12 @@ const handler = async (req: Request): Promise<Response> => {
     const rawBody = await req.text();
     const signature = req.headers.get("whop-signature");
 
-    if (whopWebhookSecret) {
-      const isValid = await verifyWhopSignature(rawBody, signature, whopWebhookSecret);
-      if (!isValid) {
-        return new Response(JSON.stringify({ error: "Invalid signature" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      }
+    if (!whopWebhookSecret) {
+      return new Response(JSON.stringify({ error: "Webhook secret not configured" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    const isValid = await verifyWhopSignature(rawBody, signature, whopWebhookSecret);
+    if (!isValid) {
+      return new Response(JSON.stringify({ error: "Invalid signature" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const payload: WhopWebhookPayload = JSON.parse(rawBody);
@@ -190,7 +199,27 @@ const handler = async (req: Request): Promise<Response> => {
         if (!userId && email) { const user = await findUserByEmail(supabase, email); if (user) userId = user.id; }
         if (userId) {
           await updateUserProfile(supabase, userId, { subscription_status: "active" });
-          await sendUserNotification(supabase, userId, "Payment Successful ✓", `Your payment has been processed successfully.`, "payment");
+          try {
+            await sendUserNotification(supabase, userId, "Payment Successful ✓", `Your payment has been processed successfully.`, "payment");
+          } catch (notifError) {
+            console.error("Notification error:", notifError);
+          }
+          // Send payment confirmation email
+          try {
+            const resendApiKey = Deno.env.get("RESEND_API_KEY");
+            if (resendApiKey && email) {
+              const user = await findUserByEmail(supabase, email);
+              if (user) {
+                const userName = user.full_name || email.split('@')[0];
+                const engagementUrl = `${supabaseUrl}/functions/v1/send-engagement-email`;
+                await fetch(engagementUrl, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${supabaseServiceKey}` },
+                  body: JSON.stringify({ type: 'payment_confirmed', email, name: userName, data: { planName: 'Sub 20 Mastery', price: '$24.99' } }),
+                });
+              }
+            }
+          } catch (emailErr) { console.error("Failed to send payment confirmation email:", emailErr); }
         }
         await logWebhookEvent(supabase, action, payload, "success");
         return new Response(JSON.stringify({ success: true, message: "Payment recorded" }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -202,7 +231,11 @@ const handler = async (req: Request): Promise<Response> => {
         if (!userId && email) { const user = await findUserByEmail(supabase, email); if (user) userId = user.id; }
         if (userId) {
           await updateUserProfile(supabase, userId, { subscription_status: "payment_failed" });
-          await sendUserNotification(supabase, userId, "Payment Failed ⚠️", `Your payment could not be processed. Reason: ${data.failure_reason || 'Unknown'}.`, "payment");
+          try {
+            await sendUserNotification(supabase, userId, "Payment Failed ⚠️", `Your payment could not be processed. Reason: ${data.failure_reason || 'Unknown'}.`, "payment");
+          } catch (notifError) {
+            console.error("Notification error:", notifError);
+          }
         }
         await logWebhookEvent(supabase, action, payload, "success", `Payment failed: ${data.failure_reason}`);
         return new Response(JSON.stringify({ success: true, message: "Payment failure recorded" }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -265,3 +298,7 @@ const handler = async (req: Request): Promise<Response> => {
 };
 
 serve(handler);
+
+// Add at the end of the file
+// TODO: Add comprehensive unit tests using a mocking library (e.g., https://deno.land/x/mock)
+// Example: deno test --allow-env --allow-net whop-webhook.test.ts
