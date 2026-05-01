@@ -58,18 +58,7 @@ const BonusSection = React.forwardRef<HTMLElement>((_, ref) => {
     };
   }, []);
 
-  const handleClick = async (item: KitResource) => {
-    // Fire-and-forget download/view counter
-    try {
-      const field = item.type === "pdf" ? "download_count" : "view_count";
-      await (supabase.rpc as any)("noop"); // no-op to keep types happy
-      await supabase
-        .from("resources")
-        .update({ [field]: (1 as any) })
-        .eq("id", item.id);
-    } catch {
-      // ignore; counts are nice-to-have
-    }
+  const handleClick = (item: KitResource) => {
     toast.success(item.type === "pdf" ? "Opening download…" : "Opening resource…");
   };
 
