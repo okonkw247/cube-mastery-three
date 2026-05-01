@@ -11,11 +11,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Search, Ban, UserCheck, CreditCard, RefreshCw, Loader2, Filter, ChevronDown, ChevronUp, Copy } from 'lucide-react';
+import { Search, Ban, UserCheck, CreditCard, RefreshCw, Loader2, Filter, ChevronDown, ChevronUp, Copy, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { logAdminAction } from '@/lib/auditLog';
 
 interface WebhookLog {
   id: string;
@@ -31,6 +32,9 @@ export default function AdminUsers() {
   const { suspendUser, updateUserProfile, updating } = useAdminUsers();
   const [search, setSearch] = useState('');
   const [tierFilter, setTierFilter] = useState('all');
+  const [statusFilterUser, setStatusFilterUser] = useState('all');
+  const [createdFrom, setCreatedFrom] = useState('');
+  const [createdTo, setCreatedTo] = useState('');
   const [webhookLogs, setWebhookLogs] = useState<WebhookLog[]>([]);
   const [logsLoading, setLogsLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -40,14 +44,41 @@ export default function AdminUsers() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [expandedLogs, setExpandedLogs] = useState<Set<string>>(new Set());
 
+  // Log page view (once on mount)
+  useEffect(() => {
+    logAdminAction('view_users_page');
+  }, []);
+
   const filteredUsers = users.filter(u => {
-    const matchesSearch = !search || u.full_name?.toLowerCase().includes(search.toLowerCase());
+    const term = search.trim().toLowerCase();
+    const matchesSearch =
+      !term ||
+      u.full_name?.toLowerCase().includes(term) ||
+      u.email?.toLowerCase().includes(term);
     const matchesTier = tierFilter === 'all' || u.subscription_tier === tierFilter;
-    return matchesSearch && matchesTier;
+    const matchesStatus =
+      statusFilterUser === 'all' || (u.subscription_status || 'inactive') === statusFilterUser;
+    const created = new Date(u.created_at).getTime();
+    const matchesFrom = !createdFrom || created >= new Date(createdFrom).getTime();
+    const matchesTo =
+      !createdTo || created <= new Date(createdTo).getTime() + 86400000 - 1;
+    return matchesSearch && matchesTier && matchesStatus && matchesFrom && matchesTo;
   });
+
+  const clearFilters = () => {
+    setSearch('');
+    setTierFilter('all');
+    setStatusFilterUser('all');
+    setCreatedFrom('');
+    setCreatedTo('');
+  };
 
   const handleSuspend = async (userId: string, suspend: boolean) => {
     await suspendUser(userId, suspend);
+    logAdminAction(suspend ? 'suspend_user' : 'unsuspend_user', {
+      targetType: 'user',
+      targetId: userId,
+    });
     fetchUsers();
   };
 
@@ -130,6 +161,11 @@ export default function AdminUsers() {
 
     if (success) {
       await grantCourseAccessManually(selectedUser.user_id, newPlan);
+      logAdminAction('update_user_plan', {
+        targetType: 'user',
+        targetId: selectedUser.user_id,
+        details: { from: selectedUser.subscription_tier, to: newPlan },
+      });
       toast.success(`Updated ${selectedUser.full_name || 'user'} to ${newPlan} plan`);
       setEditPlanOpen(false);
       setSelectedUser(null);
@@ -253,29 +289,73 @@ export default function AdminUsers() {
           </TabsList>
 
           <TabsContent value="users" className="space-y-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input 
-                  placeholder="Search users..." 
-                  value={search} 
-                  onChange={e => setSearch(e.target.value)} 
-                  className="pl-10" 
-                />
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by name or email…"
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select value={tierFilter} onValueChange={setTierFilter}>
+                  <SelectTrigger className="w-full sm:w-40">
+                    <SelectValue placeholder="Tier" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Tiers</SelectItem>
+                    <SelectItem value="free">Free</SelectItem>
+                    <SelectItem value="starter">Starter</SelectItem>
+                    <SelectItem value="pro">Pro</SelectItem>
+                    <SelectItem value="enterprise">Enterprise</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={statusFilterUser} onValueChange={setStatusFilterUser}>
+                  <SelectTrigger className="w-full sm:w-44">
+                    <SelectValue placeholder="Subscription status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="payment_pending">Processing</SelectItem>
+                    <SelectItem value="payment_failed">Payment Failed</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <Select value={tierFilter} onValueChange={setTierFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Filter tier" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Tiers</SelectItem>
-                  <SelectItem value="free">Free</SelectItem>
-                  <SelectItem value="starter">Starter</SelectItem>
-                  <SelectItem value="pro">Pro</SelectItem>
-                  <SelectItem value="enterprise">Enterprise</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">Joined from</span>
+                  <Input
+                    type="date"
+                    value={createdFrom}
+                    onChange={e => setCreatedFrom(e.target.value)}
+                    className="w-44"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">to</span>
+                  <Input
+                    type="date"
+                    value={createdTo}
+                    onChange={e => setCreatedTo(e.target.value)}
+                    className="w-44"
+                  />
+                </div>
+                {(search || tierFilter !== 'all' || statusFilterUser !== 'all' || createdFrom || createdTo) && (
+                  <Button variant="ghost" size="sm" onClick={clearFilters} className="gap-1">
+                    <X className="w-3.5 h-3.5" /> Clear filters
+                  </Button>
+                )}
+                <span className="text-xs text-muted-foreground sm:ml-auto">
+                  {filteredUsers.length} of {users.length} users
+                </span>
+              </div>
             </div>
+
 
             <div className="bg-card rounded-xl border border-border overflow-x-auto">
               <Table className="min-w-[500px]">
@@ -298,10 +378,13 @@ export default function AdminUsers() {
                             <AvatarImage src={user.avatar_url || ''} />
                             <AvatarFallback>{user.full_name?.[0] || '?'}</AvatarFallback>
                           </Avatar>
-                          <div>
-                            <p className="font-medium">{user.full_name || 'Unknown'}</p>
+                          <div className="min-w-0">
+                            <p className="font-medium truncate">{user.full_name || 'Unknown'}</p>
+                            {user.email && (
+                              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                            )}
                             {user.is_suspended && (
-                              <Badge variant="destructive" className="text-xs">Suspended</Badge>
+                              <Badge variant="destructive" className="text-xs mt-1">Suspended</Badge>
                             )}
                           </div>
                         </div>

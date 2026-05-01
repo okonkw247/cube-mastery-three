@@ -29,6 +29,7 @@ export interface TopPerformer {
 export interface UserWithProgress {
   id: string;
   user_id: string;
+  email: string | null;
   full_name: string | null;
   avatar_url: string | null;
   subscription_tier: string;
@@ -196,12 +197,13 @@ export function useAdminData() {
   const fetchUsers = useCallback(async () => {
     if (!isAdmin) return;
 
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const { data: overview, error } = await (supabase as any).rpc('get_admin_users_overview');
+    if (error) {
+      console.error('Failed to load users overview:', error);
+      return;
+    }
 
-    if (profiles) {
+    if (overview) {
       // Get lesson completion counts
       const { data: progressData } = await supabase
         .from('lesson_progress')
@@ -209,13 +211,14 @@ export function useAdminData() {
         .eq('completed', true);
 
       const completionCounts: Record<string, number> = {};
-      progressData?.forEach(p => {
+      progressData?.forEach((p: any) => {
         completionCounts[p.user_id] = (completionCounts[p.user_id] || 0) + 1;
       });
 
-      setUsers(profiles.map(p => ({
+      setUsers(overview.map((p: any) => ({
         id: p.id,
         user_id: p.user_id,
+        email: p.email ?? null,
         full_name: p.full_name,
         avatar_url: p.avatar_url,
         subscription_tier: p.subscription_tier,
