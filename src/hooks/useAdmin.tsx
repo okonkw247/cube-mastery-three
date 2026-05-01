@@ -28,6 +28,7 @@ const SUPER_ADMIN_PERMISSIONS = [
   'manage_admins',
   'manage_lessons',
   'manage_users',
+  'view_users',
   'manage_resources',
   'manage_challenges',
   'view_analytics',
