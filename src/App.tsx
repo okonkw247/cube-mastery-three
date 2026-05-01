@@ -89,6 +89,7 @@ const App = () => (
                 <Route path="/admin/daily-challenges" element={<AdminDailyChallenges />} />
                 <Route path="/admin/invite/:token" element={<AdminInviteAccept />} />
                 <Route path="/admin/support" element={<AdminSupportInbox />} />
+                <Route path="/admin/waitlist" element={<AdminWaitlist />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
