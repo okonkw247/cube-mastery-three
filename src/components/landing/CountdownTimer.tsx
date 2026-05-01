@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const LAUNCH_DATE = new Date("2026-05-11T00:00:00Z");
+const LAUNCH_DATE = new Date("2026-09-01T00:00:00Z");
 
 function pad(n: number) {
   return String(n).padStart(2, "0");
