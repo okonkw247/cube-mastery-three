@@ -32,6 +32,9 @@ export default function AdminUsers() {
   const { suspendUser, updateUserProfile, updating } = useAdminUsers();
   const [search, setSearch] = useState('');
   const [tierFilter, setTierFilter] = useState('all');
+  const [statusFilterUser, setStatusFilterUser] = useState('all');
+  const [createdFrom, setCreatedFrom] = useState('');
+  const [createdTo, setCreatedTo] = useState('');
   const [webhookLogs, setWebhookLogs] = useState<WebhookLog[]>([]);
   const [logsLoading, setLogsLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -41,14 +44,41 @@ export default function AdminUsers() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [expandedLogs, setExpandedLogs] = useState<Set<string>>(new Set());
 
+  // Log page view (once on mount)
+  useEffect(() => {
+    logAdminAction('view_users_page');
+  }, []);
+
   const filteredUsers = users.filter(u => {
-    const matchesSearch = !search || u.full_name?.toLowerCase().includes(search.toLowerCase());
+    const term = search.trim().toLowerCase();
+    const matchesSearch =
+      !term ||
+      u.full_name?.toLowerCase().includes(term) ||
+      u.email?.toLowerCase().includes(term);
     const matchesTier = tierFilter === 'all' || u.subscription_tier === tierFilter;
-    return matchesSearch && matchesTier;
+    const matchesStatus =
+      statusFilterUser === 'all' || (u.subscription_status || 'inactive') === statusFilterUser;
+    const created = new Date(u.created_at).getTime();
+    const matchesFrom = !createdFrom || created >= new Date(createdFrom).getTime();
+    const matchesTo =
+      !createdTo || created <= new Date(createdTo).getTime() + 86400000 - 1;
+    return matchesSearch && matchesTier && matchesStatus && matchesFrom && matchesTo;
   });
+
+  const clearFilters = () => {
+    setSearch('');
+    setTierFilter('all');
+    setStatusFilterUser('all');
+    setCreatedFrom('');
+    setCreatedTo('');
+  };
 
   const handleSuspend = async (userId: string, suspend: boolean) => {
     await suspendUser(userId, suspend);
+    logAdminAction(suspend ? 'suspend_user' : 'unsuspend_user', {
+      targetType: 'user',
+      targetId: userId,
+    });
     fetchUsers();
   };
 
