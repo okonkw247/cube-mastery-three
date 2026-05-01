@@ -11,11 +11,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Search, Ban, UserCheck, CreditCard, RefreshCw, Loader2, Filter, ChevronDown, ChevronUp, Copy } from 'lucide-react';
+import { Search, Ban, UserCheck, CreditCard, RefreshCw, Loader2, Filter, ChevronDown, ChevronUp, Copy, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { logAdminAction } from '@/lib/auditLog';
 
 interface WebhookLog {
   id: string;
