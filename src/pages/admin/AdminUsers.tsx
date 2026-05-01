@@ -161,6 +161,11 @@ export default function AdminUsers() {
 
     if (success) {
       await grantCourseAccessManually(selectedUser.user_id, newPlan);
+      logAdminAction('update_user_plan', {
+        targetType: 'user',
+        targetId: selectedUser.user_id,
+        details: { from: selectedUser.subscription_tier, to: newPlan },
+      });
       toast.success(`Updated ${selectedUser.full_name || 'user'} to ${newPlan} plan`);
       setEditPlanOpen(false);
       setSelectedUser(null);
