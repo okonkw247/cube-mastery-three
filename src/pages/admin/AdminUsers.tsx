@@ -378,10 +378,13 @@ export default function AdminUsers() {
                             <AvatarImage src={user.avatar_url || ''} />
                             <AvatarFallback>{user.full_name?.[0] || '?'}</AvatarFallback>
                           </Avatar>
-                          <div>
-                            <p className="font-medium">{user.full_name || 'Unknown'}</p>
+                          <div className="min-w-0">
+                            <p className="font-medium truncate">{user.full_name || 'Unknown'}</p>
+                            {user.email && (
+                              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                            )}
                             {user.is_suspended && (
-                              <Badge variant="destructive" className="text-xs">Suspended</Badge>
+                              <Badge variant="destructive" className="text-xs mt-1">Suspended</Badge>
                             )}
                           </div>
                         </div>
