@@ -29,6 +29,7 @@ export interface TopPerformer {
 export interface UserWithProgress {
   id: string;
   user_id: string;
+  email: string | null;
   full_name: string | null;
   avatar_url: string | null;
   subscription_tier: string;
