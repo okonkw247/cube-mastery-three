@@ -19,6 +19,7 @@ import {
   Target,
   Inbox,
   Mail,
+  ShieldCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
