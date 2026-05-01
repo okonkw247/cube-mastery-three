@@ -46,6 +46,7 @@ const navItems: NavItem[] = [
   { label: 'Settings', icon: Settings, path: '/admin/settings', permission: 'manage_settings' },
   { label: 'Support Inbox', icon: Inbox, path: '/admin/support' },
   { label: 'Waitlist', icon: Mail, path: '/admin/waitlist' },
+  { label: 'Audit Log', icon: ShieldCheck, path: '/admin/audit-log' },
 ];
 
 export function AdminSidebar() {
