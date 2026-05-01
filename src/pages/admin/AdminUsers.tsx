@@ -289,29 +289,73 @@ export default function AdminUsers() {
           </TabsList>
 
           <TabsContent value="users" className="space-y-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input 
-                  placeholder="Search users..." 
-                  value={search} 
-                  onChange={e => setSearch(e.target.value)} 
-                  className="pl-10" 
-                />
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by name or email…"
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select value={tierFilter} onValueChange={setTierFilter}>
+                  <SelectTrigger className="w-full sm:w-40">
+                    <SelectValue placeholder="Tier" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Tiers</SelectItem>
+                    <SelectItem value="free">Free</SelectItem>
+                    <SelectItem value="starter">Starter</SelectItem>
+                    <SelectItem value="pro">Pro</SelectItem>
+                    <SelectItem value="enterprise">Enterprise</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={statusFilterUser} onValueChange={setStatusFilterUser}>
+                  <SelectTrigger className="w-full sm:w-44">
+                    <SelectValue placeholder="Subscription status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="payment_pending">Processing</SelectItem>
+                    <SelectItem value="payment_failed">Payment Failed</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <Select value={tierFilter} onValueChange={setTierFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Filter tier" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Tiers</SelectItem>
-                  <SelectItem value="free">Free</SelectItem>
-                  <SelectItem value="starter">Starter</SelectItem>
-                  <SelectItem value="pro">Pro</SelectItem>
-                  <SelectItem value="enterprise">Enterprise</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">Joined from</span>
+                  <Input
+                    type="date"
+                    value={createdFrom}
+                    onChange={e => setCreatedFrom(e.target.value)}
+                    className="w-44"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">to</span>
+                  <Input
+                    type="date"
+                    value={createdTo}
+                    onChange={e => setCreatedTo(e.target.value)}
+                    className="w-44"
+                  />
+                </div>
+                {(search || tierFilter !== 'all' || statusFilterUser !== 'all' || createdFrom || createdTo) && (
+                  <Button variant="ghost" size="sm" onClick={clearFilters} className="gap-1">
+                    <X className="w-3.5 h-3.5" /> Clear filters
+                  </Button>
+                )}
+                <span className="text-xs text-muted-foreground sm:ml-auto">
+                  {filteredUsers.length} of {users.length} users
+                </span>
+              </div>
             </div>
+
 
             <div className="bg-card rounded-xl border border-border overflow-x-auto">
               <Table className="min-w-[500px]">
