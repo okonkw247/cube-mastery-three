@@ -42,6 +42,7 @@ const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminDailyChallenges = lazy(() => import("./pages/admin/AdminDailyChallenges"));
 const AdminInviteAccept = lazy(() => import("./pages/admin/AdminInviteAccept"));
 const AdminSupportInbox = lazy(() => import("./pages/admin/AdminSupportInbox"));
+const AdminWaitlist = lazy(() => import("./pages/admin/AdminWaitlist"));
 const CubeCoachChat = lazy(() => import("@/components/chat/CubeCoachChat").then(m => ({ default: m.CubeCoachChat })));
 
 const queryClient = new QueryClient();
