@@ -398,16 +398,7 @@ const Settings = () => {
       // Disconnect
       await toggleConnectedApp(appName);
     } else {
-      // Discord → redirect to community page for admins
-      if (appName === "Discord") {
-        if (profile?.is_admin) {
-          navigate('/community');
-        } else {
-          window.open(connectUrl, '_blank', 'noopener,noreferrer');
-        }
-      } else {
-        window.open(connectUrl, '_blank', 'noopener,noreferrer');
-      }
+      window.open(connectUrl, '_blank', 'noopener,noreferrer');
       await toggleConnectedApp(appName);
     }
   };
