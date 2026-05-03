@@ -53,7 +53,7 @@ const PricingSection = () => {
     "Lookahead & finger tricks training",
     "Sub 20 practice routines and drills",
     "Progress tracking dashboard",
-    "Private Discord community access",
+    "Private Whop community access",
     "Lifetime access and updates",
   ];
 
