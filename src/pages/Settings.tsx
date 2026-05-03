@@ -174,11 +174,11 @@ const pluginConfigs = [
     color: "bg-blue-500/10"
   },
   { 
-    name: "Discord", 
-    description: "Join our community server for tips and support", 
-    icon: "💬",
-    connectUrl: "https://discord.gg/cubemastery",
-    color: "bg-indigo-500/10"
+    name: "Whop Community", 
+    description: "Join the JSN Cubing community (members only)", 
+    icon: "✨",
+    connectUrl: "https://whop.com/jsn-cubing",
+    color: "bg-primary/10"
   },
   { 
     name: "Notion", 
