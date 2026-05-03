@@ -12,12 +12,12 @@ import { LogoWithGlow } from "@/components/LogoWithGlow";
 import { UpgradeModal } from "@/components/modals/UpgradeModal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, MessageSquare, Pin, Send, ChevronDown, ChevronUp, Trophy, Lock, Crown, Megaphone, Trash2, ExternalLink } from "lucide-react";
+import { ArrowLeft, MessageSquare, Pin, Send, ChevronDown, ChevronUp, Trophy, Lock, Crown, Megaphone, Trash2, ExternalLink, Sparkles, Users } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 
-// Discord invite link — update this to your server's permanent invite
-const DISCORD_INVITE_URL = "https://discord.gg/your-server";
+// Whop community — paid members only
+const WHOP_COMMUNITY_URL = "https://whop.com/jsn-cubing";
 
 function ReplySection({ postId }: { postId: string }) {
   const [replies, setReplies] = useState<ForumPost[]>([]);
