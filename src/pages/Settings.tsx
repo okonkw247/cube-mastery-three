@@ -917,7 +917,7 @@ const Settings = () => {
                       <ul className="text-sm text-muted-foreground space-y-1">
                         <li>• 20+ HD video lessons</li>
                         <li>• Complete sub 20 system</li>
-                        <li>• Private Discord community</li>
+                        <li>• Private Whop community access</li>
                         <li>• Lifetime access & updates</li>
                       </ul>
                     </div>
