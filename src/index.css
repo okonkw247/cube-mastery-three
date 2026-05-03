@@ -374,6 +374,32 @@
   }
 }
 
+/* Premium gradient sweep for upgrade banner */
+@keyframes gradient-sweep {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.gradient-sweep {
+  background: linear-gradient(110deg, hsl(175 80% 50%) 0%, hsl(190 90% 55%) 35%, hsl(210 100% 60%) 50%, hsl(190 90% 55%) 65%, hsl(175 80% 50%) 100%);
+  background-size: 250% 250%;
+  animation: gradient-sweep 6s ease-in-out infinite;
+}
+@keyframes shine-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+.btn-shine::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, hsl(0 0% 100% / 0.25) 50%, transparent 70%);
+  transform: translateX(-100%);
+  pointer-events: none;
+}
+.btn-shine:hover::before {
+  animation: shine-sweep 0.9s ease-out;
+}
+
 /* Subtitle styling */
 video::cue {
   background: rgba(0, 0, 0, 0.75);

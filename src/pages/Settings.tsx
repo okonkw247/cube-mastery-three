@@ -174,11 +174,11 @@ const pluginConfigs = [
     color: "bg-blue-500/10"
   },
   { 
-    name: "Discord", 
-    description: "Join our community server for tips and support", 
-    icon: "💬",
-    connectUrl: "https://discord.gg/cubemastery",
-    color: "bg-indigo-500/10"
+    name: "Whop Community", 
+    description: "Join the JSN Cubing community (members only)", 
+    icon: "✨",
+    connectUrl: "https://whop.com/jsn-cubing",
+    color: "bg-primary/10"
   },
   { 
     name: "Notion", 
@@ -398,16 +398,7 @@ const Settings = () => {
       // Disconnect
       await toggleConnectedApp(appName);
     } else {
-      // Discord → redirect to community page for admins
-      if (appName === "Discord") {
-        if (profile?.is_admin) {
-          navigate('/community');
-        } else {
-          window.open(connectUrl, '_blank', 'noopener,noreferrer');
-        }
-      } else {
-        window.open(connectUrl, '_blank', 'noopener,noreferrer');
-      }
+      window.open(connectUrl, '_blank', 'noopener,noreferrer');
       await toggleConnectedApp(appName);
     }
   };
@@ -926,7 +917,7 @@ const Settings = () => {
                       <ul className="text-sm text-muted-foreground space-y-1">
                         <li>• 20+ HD video lessons</li>
                         <li>• Complete sub 20 system</li>
-                        <li>• Private Discord community</li>
+                        <li>• Private Whop community access</li>
                         <li>• Lifetime access & updates</li>
                       </ul>
                     </div>

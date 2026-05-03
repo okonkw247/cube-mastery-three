@@ -12,12 +12,12 @@ import { LogoWithGlow } from "@/components/LogoWithGlow";
 import { UpgradeModal } from "@/components/modals/UpgradeModal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, MessageSquare, Pin, Send, ChevronDown, ChevronUp, Trophy, Lock, Crown, Megaphone, Trash2, ExternalLink } from "lucide-react";
+import { ArrowLeft, MessageSquare, Pin, Send, ChevronDown, ChevronUp, Trophy, Lock, Crown, Megaphone, Trash2, ExternalLink, Sparkles, Users } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 
-// Discord invite link — update this to your server's permanent invite
-const DISCORD_INVITE_URL = "https://discord.gg/your-server";
+// Whop community — paid members only
+const WHOP_COMMUNITY_URL = "https://whop.com/jsn-cubing";
 
 function ReplySection({ postId }: { postId: string }) {
   const [replies, setReplies] = useState<ForumPost[]>([]);
@@ -256,7 +256,7 @@ export default function Community() {
             <div className="space-y-2 text-sm text-left bg-secondary/50 rounded-lg p-4">
               <div className="flex items-center gap-2"><Crown className="w-4 h-4 text-primary" /> Post threads & replies</div>
               <div className="flex items-center gap-2"><Megaphone className="w-4 h-4 text-primary" /> Get announcements first</div>
-              <div className="flex items-center gap-2"><MessageSquare className="w-4 h-4 text-primary" /> Private Discord community</div>
+              <div className="flex items-center gap-2"><MessageSquare className="w-4 h-4 text-primary" /> Private Whop community access</div>
               <div className="flex items-center gap-2"><Trophy className="w-4 h-4 text-primary" /> Earn XP for participation</div>
             </div>
             <Button onClick={() => setUpgradeOpen(true)} className="w-full gap-2" size="lg">
@@ -293,19 +293,37 @@ export default function Community() {
       </header>
 
       <main className="container mx-auto px-4 sm:px-6 py-6 max-w-3xl">
-        {/* Discord Banner */}
-        <div className="bg-[#5865F2]/10 border border-[#5865F2]/30 rounded-xl p-4 mb-6 flex flex-col sm:flex-row items-center gap-4">
-          <div className="flex-1">
-            <h3 className="font-semibold text-sm">Join the Discord Community</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">Chat with other cubers, get real-time help, and join live events.</p>
+        {/* Whop Community Hero — premium gradient card */}
+        <div className="relative rounded-2xl p-[1.5px] gradient-sweep mb-6 shadow-[0_8px_40px_-12px_hsl(175_80%_50%/0.4)]">
+          <div className="relative rounded-[14px] bg-[hsl(220_22%_6%/0.95)] backdrop-blur-xl p-5 sm:p-7 overflow-hidden">
+            <div className="pointer-events-none absolute -inset-px opacity-70"
+                 style={{ background: "radial-gradient(700px circle at 100% 0%, hsl(175 80% 50% / 0.18), transparent 45%)" }} />
+            <div className="relative flex flex-col sm:flex-row sm:items-center gap-5">
+              <div className="flex items-center gap-4 flex-1 min-w-0">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/5 border border-primary/30 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-6 h-6 text-primary" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[10px] font-semibold tracking-widest uppercase text-primary">Members Only</span>
+                    <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
+                    <span className="text-[10px] text-muted-foreground">Whop</span>
+                  </div>
+                  <h2 className="text-lg sm:text-xl font-bold tracking-tight">Join JSN Cubing on Whop</h2>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+                    Live drills, weekly challenges, and direct access to the team.
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={() => window.open(WHOP_COMMUNITY_URL, '_blank', 'noopener,noreferrer')}
+                className="btn-shine relative overflow-hidden gap-2 px-5 h-10 font-semibold rounded-xl bg-gradient-to-br from-primary to-[hsl(190_90%_45%)] text-primary-foreground hover:shadow-[0_0_28px_-4px_hsl(175_80%_50%/0.6)] hover:scale-[1.02] transition-all shrink-0"
+              >
+                <span className="relative z-10">Join Community on Whop</span>
+                <ExternalLink className="w-4 h-4 relative z-10" />
+              </Button>
+            </div>
           </div>
-          <Button
-            onClick={() => window.open(DISCORD_INVITE_URL, '_blank', 'noopener,noreferrer')}
-            className="gap-2 bg-[#5865F2] hover:bg-[#4752C4] text-white shrink-0"
-          >
-            <ExternalLink className="w-4 h-4" />
-            Join Discord
-          </Button>
         </div>
 
         <div className="flex items-center justify-between mb-6">
