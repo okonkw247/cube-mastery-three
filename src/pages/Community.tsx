@@ -256,7 +256,7 @@ export default function Community() {
             <div className="space-y-2 text-sm text-left bg-secondary/50 rounded-lg p-4">
               <div className="flex items-center gap-2"><Crown className="w-4 h-4 text-primary" /> Post threads & replies</div>
               <div className="flex items-center gap-2"><Megaphone className="w-4 h-4 text-primary" /> Get announcements first</div>
-              <div className="flex items-center gap-2"><MessageSquare className="w-4 h-4 text-primary" /> Private Discord community</div>
+              <div className="flex items-center gap-2"><MessageSquare className="w-4 h-4 text-primary" /> Private Whop community access</div>
               <div className="flex items-center gap-2"><Trophy className="w-4 h-4 text-primary" /> Earn XP for participation</div>
             </div>
             <Button onClick={() => setUpgradeOpen(true)} className="w-full gap-2" size="lg">
