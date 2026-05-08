@@ -16,15 +16,14 @@ const brands = [
 const allBrands = [...brands, ...brands];
 
 const LetterAvatar = ({ name }: { name: string }) => (
-  <span style={{
-    width: 32, height: 32, borderRadius: 6,
-    background: "#00d4d4", color: "#000",
-    fontWeight: 700, fontSize: 16,
-    display: "inline-flex", alignItems: "center", justifyContent: "center",
-    flexShrink: 0,
-  }}>
-    {name.charAt(0)}
-  </span>
+  <img
+    src={`https://i.pravatar.cc/64?u=${encodeURIComponent(name)}`}
+    alt={name}
+    width={32}
+    height={32}
+    style={{ borderRadius: 6, objectFit: "cover", flexShrink: 0 }}
+    loading="lazy"
+  />
 );
 
 const BrandLogo = ({ name, logo }: { name: string; logo: string | null }) => {

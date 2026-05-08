@@ -296,7 +296,7 @@ export function CourseView({
               <h2 className="text-2xl font-bold mb-4">About this Course</h2>
               <p className="text-muted-foreground leading-relaxed">
                 The exact system to take you from solving in 30-40 seconds to breaking sub 20.
-                20+ HD video lessons covering finger tricks, F2L efficiency, OLL shortcuts,
+                10+ 4K video lessons covering finger tricks, F2L efficiency, OLL shortcuts,
                 PLL mastery, and full solve breakdowns.
               </p>
             </div>
