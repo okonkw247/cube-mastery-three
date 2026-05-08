@@ -47,7 +47,7 @@ const PricingSection = () => {
   ];
 
   const paidFeatures = [
-    "20+ HD video lessons",
+    "10+ 4K video lessons",
     "Complete sub 20 system",
     "Advanced algorithm library",
     "Lookahead & finger tricks training",

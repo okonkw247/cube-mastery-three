@@ -915,7 +915,7 @@ const Settings = () => {
                       <p className="font-semibold mb-1">Sub 20 Mastery (Pro)</p>
                       <p className="text-2xl font-bold mb-2">$24.99 <span className="text-sm font-normal text-muted-foreground">one-time</span></p>
                       <ul className="text-sm text-muted-foreground space-y-1">
-                        <li>• 20+ HD video lessons</li>
+                        <li>• 10+ 4K video lessons</li>
                         <li>• Complete sub 20 system</li>
                         <li>• Private Whop community access</li>
                         <li>• Lifetime access & updates</li>

@@ -8,7 +8,7 @@ import { WhopCheckoutModal } from "@/components/modals/WhopCheckoutModal";
 const LAUNCH_END = new Date("2026-03-31T23:59:59Z");
 
 const features = [
-  "20+ HD video lessons",
+  "10+ 4K video lessons",
   "Complete sub 20 system",
   "Advanced algorithm library",
   "Speed techniques masterclass",
