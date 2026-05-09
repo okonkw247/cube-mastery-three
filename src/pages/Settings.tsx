@@ -395,10 +395,15 @@ const Settings = () => {
 
   // Plugin connection with real URL redirect
   const handleConnectApp = async (appName: string, connectUrl: string) => {
+    if (connectUrl === "focus-music") {
+      setFocusMusicOpen(true);
+      if (!settings?.connected_apps?.includes(appName)) {
+        await toggleConnectedApp(appName);
+      }
+      return;
+    }
     const isConnected = settings?.connected_apps?.includes(appName);
-    
     if (isConnected) {
-      // Disconnect
       await toggleConnectedApp(appName);
     } else {
       window.open(connectUrl, '_blank', 'noopener,noreferrer');
