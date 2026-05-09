@@ -81,11 +81,29 @@ const BonusSection = React.forwardRef<HTMLElement>((_, ref) => {
           </p>
 
           {loading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mb-8 sm:mb-10 md:mb-12">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="card-gradient rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 border border-border/60 animate-pulse"
+                >
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-muted/40 mx-auto mb-3 sm:mb-4" />
+                  <div className="h-3.5 w-3/5 bg-muted/40 rounded mx-auto mb-2" />
+                  <div className="h-3 w-4/5 bg-muted/30 rounded mx-auto mb-1" />
+                  <div className="h-3 w-2/5 bg-muted/30 rounded mx-auto" />
+                </div>
+              ))}
             </div>
           ) : items.length === 0 ? (
-            <p className="text-muted-foreground py-8">Speed Kit coming soon — check back shortly.</p>
+            <div className="card-gradient rounded-2xl border border-dashed border-border p-8 sm:p-10 mb-8 sm:mb-10 md:mb-12 max-w-xl mx-auto text-center animate-on-scroll">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
+                <Download className="w-5 h-5 text-primary" />
+              </div>
+              <h3 className="font-semibold text-base sm:text-lg mb-1.5">Speed Kit drops soon</h3>
+              <p className="text-sm text-muted-foreground">
+                Free PDFs, drills, and timer presets are being finalized — sign up to get notified the moment they go live.
+              </p>
+            </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mb-8 sm:mb-10 md:mb-12">
               {items.map((item, index) => {

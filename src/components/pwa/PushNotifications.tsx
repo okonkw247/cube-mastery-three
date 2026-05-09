@@ -176,7 +176,7 @@ export const PushNotificationPrompt = React.forwardRef<HTMLDivElement>(function 
   if (!show) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 z-[80] max-w-sm p-4 rounded-xl bg-card border border-border shadow-lg animate-in slide-in-from-bottom duration-300">
+    <div className="fixed bottom-20 sm:bottom-4 left-4 right-4 sm:right-auto z-[80] max-w-sm p-4 rounded-xl bg-card border border-border shadow-lg animate-in slide-in-from-bottom duration-300" style={{ marginBottom: "env(safe-area-inset-bottom, 0px)" }}>
       <div className="flex items-start gap-3">
         <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 shrink-0">
           <Bell className="w-5 h-5 text-primary" />
