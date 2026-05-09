@@ -37,8 +37,8 @@ export function UpgradeBanner() {
   return (
     <>
       <div
-        className="fixed left-0 right-0 z-40 px-2 sm:px-4 pb-2 sm:pb-3"
-        style={{ bottom: isPWA ? 64 : 0 }}
+        className="fixed left-0 right-0 z-[60] px-2 sm:px-4 pb-2 sm:pb-3"
+        style={{ bottom: isPWA ? "calc(64px + env(safe-area-inset-bottom, 0px))" : 0 }}
       >
         <div className="container mx-auto max-w-5xl">
           {/* Animated gradient border wrapper */}
