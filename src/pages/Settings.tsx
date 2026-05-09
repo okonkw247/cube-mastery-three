@@ -274,6 +274,7 @@ const Settings = () => {
   const { settings, loading: settingsLoading, updateSetting, toggleConnectedApp } = useUserSettings();
   
   const [activeTab, setActiveTab] = useState("profile");
+  const [focusMusicOpen, setFocusMusicOpen] = useState(false);
   
   // Modal states
   const [editProfileOpen, setEditProfileOpen] = useState(false);
