@@ -1,47 +1,74 @@
 import { useState } from "react";
 
-const brands = [
-  { name: "GAN", domain: "gancube.com" },
-  { name: "MoYu", domain: "moyucube.com" },
-  { name: "QiYi", domain: "qiyicube.com" },
-  { name: "SpeedCubeShop", domain: "speedcubeshop.com" },
-  { name: "Cubelelo", domain: "cubelelo.com" },
+type Brand =
+  | { name: string; type: "image"; src: string }
+  | { name: string; type: "text" };
+
+const brands: Brand[] = [
+  { name: "GAN", type: "image", src: "https://www.gancube.com/favicon.ico" },
+  { name: "MoYu", type: "text" },
+  { name: "QiYi", type: "image", src: "https://www.qiyi.com/favicon.ico" },
+  { name: "SpeedCubeShop", type: "image", src: "https://speedcubeshop.com/favicon.ico" },
+  { name: "Cubelelo", type: "image", src: "https://www.cubelelo.com/favicon.ico" },
 ];
 
 const allBrands = [...brands, ...brands, ...brands];
 
-const BrandLogo = ({ name, domain }: { name: string; domain: string }) => {
+const BrandLogo = ({ brand }: { brand: Brand }) => {
   const [failed, setFailed] = useState(false);
-  if (failed) {
+
+  if (brand.type === "text" || failed) {
     return (
       <span
         style={{
-          fontSize: 18,
+          display: "inline-flex",
+          alignItems: "center",
+          padding: "6px 14px",
+          borderRadius: 8,
+          border: "1px solid rgba(255,255,255,0.18)",
+          background: "rgba(255,255,255,0.04)",
+          fontSize: 16,
           fontWeight: 700,
-          letterSpacing: 0.5,
-          color: "#cfcfcf",
+          letterSpacing: 0.6,
+          color: "#f5f5f5",
           fontFamily: "'Poppins', sans-serif",
+          height: 36,
         }}
       >
-        {name}
+        {brand.name}
       </span>
     );
   }
+
   return (
-    <img
-      src={`https://logo.clearbit.com/${domain}`}
-      alt={name}
-      height={28}
-      style={{
-        height: 28,
-        width: "auto",
-        objectFit: "contain",
-        filter: "grayscale(1) brightness(2)",
-        opacity: 0.75,
-      }}
-      loading="lazy"
-      onError={() => setFailed(true)}
-    />
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+      <img
+        src={brand.src}
+        alt={brand.name}
+        height={28}
+        width={28}
+        style={{
+          height: 28,
+          width: 28,
+          objectFit: "contain",
+          filter: "brightness(0) invert(1)",
+          opacity: 0.9,
+        }}
+        loading="lazy"
+        onError={() => setFailed(true)}
+      />
+      <span
+        style={{
+          fontSize: 15,
+          fontWeight: 600,
+          color: "#e5e5e5",
+          letterSpacing: 0.4,
+          fontFamily: "'Poppins', sans-serif",
+        }}
+      >
+        {brand.name}
+      </span>
+    </span>
   );
 };
 
@@ -68,11 +95,10 @@ const BrandMarquee = () => (
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: 32,
               paddingRight: 56,
             }}
           >
-            <BrandLogo name={b.name} domain={b.domain} />
+            <BrandLogo brand={b} />
           </span>
         ))}
       </div>

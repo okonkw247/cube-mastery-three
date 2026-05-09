@@ -39,6 +39,7 @@ import EditProfileModal from "@/components/modals/EditProfileModal";
 import ChangePasswordModal from "@/components/modals/ChangePasswordModal";
 import DeleteAccountModal from "@/components/modals/DeleteAccountModal";
 import { SettingsSkeleton } from "@/components/skeletons/SettingsSkeleton";
+import { FocusMusicPlayer } from "@/components/FocusMusicPlayer";
 
 const getSettingsTabs = (t: (key: string) => string) => [
   { id: "profile", label: t('settings.profile'), icon: User },
@@ -166,33 +167,34 @@ const timezones = [
 
 // Plugin configurations with real links
 const pluginConfigs = [
-  { 
-    name: "Google Calendar", 
-    description: "Sync practice reminders with your calendar", 
+  {
+    name: "Google Calendar",
+    description: "Sync practice reminders with your calendar",
     icon: "📅",
     connectUrl: "https://calendar.google.com",
-    color: "bg-blue-500/10"
+    color: "bg-blue-500/10",
   },
-  { 
-    name: "Whop Community", 
-    description: "Join the JSN Cubing community (members only)", 
+  {
+    name: "Focus Music",
+    description: "Play lo-fi focus music while you practice",
+    icon: "🎵",
+    connectUrl: "focus-music",
+    color: "bg-primary/10",
+    builtIn: true,
+  },
+  {
+    name: "YouTube",
+    description: "Get notified when new JSN Cubing videos drop",
+    icon: "▶️",
+    connectUrl: "https://www.youtube.com/@JSNCubing",
+    color: "bg-red-500/10",
+  },
+  {
+    name: "Whop Community",
+    description: "Join the JSN Cubing community for tips, support and live events",
     icon: "✨",
     connectUrl: "https://whop.com/jsn-cubing",
-    color: "bg-primary/10"
-  },
-  { 
-    name: "Notion", 
-    description: "Export notes and progress to your Notion workspace", 
-    icon: "📝",
-    connectUrl: "https://notion.so",
-    color: "bg-gray-500/10"
-  },
-  { 
-    name: "Spotify", 
-    description: "Listen to focus playlists while practicing", 
-    icon: "🎵",
-    connectUrl: "https://open.spotify.com/playlist/37i9dQZF1DX8Uebhn9wzrS",
-    color: "bg-green-500/10"
+    color: "bg-primary/10",
   },
 ];
 
@@ -272,6 +274,7 @@ const Settings = () => {
   const { settings, loading: settingsLoading, updateSetting, toggleConnectedApp } = useUserSettings();
   
   const [activeTab, setActiveTab] = useState("profile");
+  const [focusMusicOpen, setFocusMusicOpen] = useState(false);
   
   // Modal states
   const [editProfileOpen, setEditProfileOpen] = useState(false);
@@ -392,10 +395,15 @@ const Settings = () => {
 
   // Plugin connection with real URL redirect
   const handleConnectApp = async (appName: string, connectUrl: string) => {
+    if (connectUrl === "focus-music") {
+      setFocusMusicOpen(true);
+      if (!settings?.connected_apps?.includes(appName)) {
+        await toggleConnectedApp(appName);
+      }
+      return;
+    }
     const isConnected = settings?.connected_apps?.includes(appName);
-    
     if (isConnected) {
-      // Disconnect
       await toggleConnectedApp(appName);
     } else {
       window.open(connectUrl, '_blank', 'noopener,noreferrer');
@@ -1096,6 +1104,7 @@ const Settings = () => {
         userEmail={email}
         onConfirm={handleSignOut}
       />
+      <FocusMusicPlayer open={focusMusicOpen} onClose={() => setFocusMusicOpen(false)} />
     </div>
   );
 };
