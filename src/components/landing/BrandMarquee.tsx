@@ -1,76 +1,31 @@
-import { useState } from "react";
-
-type Brand =
-  | { name: string; type: "image"; src: string }
-  | { name: string; type: "text" };
-
-const brands: Brand[] = [
-  { name: "GAN", type: "image", src: "https://www.gancube.com/favicon.ico" },
-  { name: "MoYu", type: "text" },
-  { name: "QiYi", type: "image", src: "https://www.qiyi.com/favicon.ico" },
-  { name: "SpeedCubeShop", type: "image", src: "https://speedcubeshop.com/favicon.ico" },
-  { name: "Cubelelo", type: "image", src: "https://www.cubelelo.com/favicon.ico" },
-];
+const brands = ["GAN", "MoYu", "QiYi", "SpeedCubeShop", "Cubelelo", "TheCubicle"];
 
 const allBrands = [...brands, ...brands, ...brands];
 
-const BrandLogo = ({ brand }: { brand: Brand }) => {
-  const [failed, setFailed] = useState(false);
-
-  if (brand.type === "text" || failed) {
-    return (
-      <span
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          padding: "6px 14px",
-          borderRadius: 8,
-          border: "1px solid rgba(255,255,255,0.18)",
-          background: "rgba(255,255,255,0.04)",
-          fontSize: 16,
-          fontWeight: 700,
-          letterSpacing: 0.6,
-          color: "#f5f5f5",
-          fontFamily: "'Poppins', sans-serif",
-          height: 36,
-        }}
-      >
-        {brand.name}
-      </span>
-    );
-  }
-
-  return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
-      <img
-        src={brand.src}
-        alt={brand.name}
-        height={28}
-        width={28}
-        style={{
-          height: 28,
-          width: 28,
-          objectFit: "contain",
-          filter: "brightness(0) invert(1)",
-          opacity: 0.9,
-        }}
-        loading="lazy"
-        onError={() => setFailed(true)}
-      />
-      <span
-        style={{
-          fontSize: 15,
-          fontWeight: 600,
-          color: "#e5e5e5",
-          letterSpacing: 0.4,
-          fontFamily: "'Poppins', sans-serif",
-        }}
-      >
-        {brand.name}
-      </span>
-    </span>
-  );
-};
+const BrandWordmark = ({ name }: { name: string }) => (
+  <span
+    style={{
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "10px 22px",
+      borderRadius: 10,
+      border: "1px solid rgba(255,255,255,0.12)",
+      background: "rgba(255,255,255,0.02)",
+      fontSize: 16,
+      fontWeight: 700,
+      letterSpacing: "0.12em",
+      color: "#ffffff",
+      textTransform: "uppercase",
+      fontFamily: "'Poppins', 'Inter', sans-serif",
+      height: 44,
+      whiteSpace: "nowrap",
+      boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.02)",
+    }}
+  >
+    {name}
+  </span>
+);
 
 const BrandMarquee = () => (
   <section style={{ padding: "48px 0", background: "transparent" }}>
@@ -88,17 +43,17 @@ const BrandMarquee = () => (
     </p>
     <div className="marquee-outer">
       <div className="marquee-track" style={{ minHeight: 80, alignItems: "center" }}>
-        {allBrands.map((b, i) => (
+        {allBrands.map((name, i) => (
           <span
             key={i}
             className="marquee-item"
             style={{
               display: "inline-flex",
               alignItems: "center",
-              paddingRight: 56,
+              paddingRight: 24,
             }}
           >
-            <BrandLogo brand={b} />
+            <BrandWordmark name={name} />
           </span>
         ))}
       </div>
