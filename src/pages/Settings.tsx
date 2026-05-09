@@ -166,33 +166,34 @@ const timezones = [
 
 // Plugin configurations with real links
 const pluginConfigs = [
-  { 
-    name: "Google Calendar", 
-    description: "Sync practice reminders with your calendar", 
+  {
+    name: "Google Calendar",
+    description: "Sync practice reminders with your calendar",
     icon: "📅",
     connectUrl: "https://calendar.google.com",
-    color: "bg-blue-500/10"
+    color: "bg-blue-500/10",
   },
-  { 
-    name: "Whop Community", 
-    description: "Join the JSN Cubing community (members only)", 
+  {
+    name: "Focus Music",
+    description: "Play lo-fi focus music while you practice",
+    icon: "🎵",
+    connectUrl: "focus-music",
+    color: "bg-primary/10",
+    builtIn: true,
+  },
+  {
+    name: "YouTube",
+    description: "Get notified when new JSN Cubing videos drop",
+    icon: "▶️",
+    connectUrl: "https://www.youtube.com/@JSNCubing",
+    color: "bg-red-500/10",
+  },
+  {
+    name: "Whop Community",
+    description: "Join the JSN Cubing community for tips, support and live events",
     icon: "✨",
     connectUrl: "https://whop.com/jsn-cubing",
-    color: "bg-primary/10"
-  },
-  { 
-    name: "Notion", 
-    description: "Export notes and progress to your Notion workspace", 
-    icon: "📝",
-    connectUrl: "https://notion.so",
-    color: "bg-gray-500/10"
-  },
-  { 
-    name: "Spotify", 
-    description: "Listen to focus playlists while practicing", 
-    icon: "🎵",
-    connectUrl: "https://open.spotify.com/playlist/37i9dQZF1DX8Uebhn9wzrS",
-    color: "bg-green-500/10"
+    color: "bg-primary/10",
   },
 ];
 
