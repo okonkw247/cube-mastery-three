@@ -1104,6 +1104,7 @@ const Settings = () => {
         userEmail={email}
         onConfirm={handleSignOut}
       />
+      <FocusMusicPlayer open={focusMusicOpen} onClose={() => setFocusMusicOpen(false)} />
     </div>
   );
 };
