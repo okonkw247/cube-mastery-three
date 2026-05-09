@@ -561,7 +561,7 @@
       "plans": {
         "free": { "name": "Free Plan", "desc": "Preview the system before committing.", "f1": "Access to 3 free lessons", "f2": "Basic algorithm reference", "f3": "Community forum access", "f4": "Sample practice drills" },
         "starter": { "name": "Starter Plan", "desc": "For solvers ready to break through 30 seconds.", "f1": "Access to 15 video lessons", "f2": "Core algorithm library", "f3": "Structured practice routines", "f4": "Community forum access", "f5": "Weekly progress reports", "f6": "Email support" },
-        "pro": { "name": "Pro Plan", "desc": "The complete sub-20 system.", "f1": "50+ HD video lessons", "f2": "Full OLL/PLL algorithm library", "f3": "Advanced F2L masterclass", "f4": "Targeted drills & practice plans", "f5": "Split time tracking dashboard", "f6": "Private community of fast solvers", "f7": "1-on-1 coaching session", "f8": "Lifetime access & updates" },
+        "pro": { "name": "Pro Plan", "desc": "The complete sub-20 system.", "f1": "10+ 4K video lessons", "f2": "Full OLL/PLL algorithm library", "f3": "Advanced F2L masterclass", "f4": "Targeted drills & practice plans", "f5": "Split time tracking dashboard", "f6": "Private community of fast solvers", "f7": "1-on-1 coaching session", "f8": "Lifetime access & updates" },
         "enterprise": { "name": "Enterprise", "desc": "For cubing clubs and training groups." }
       }
     },

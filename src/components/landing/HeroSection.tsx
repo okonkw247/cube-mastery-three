@@ -96,12 +96,13 @@ const HeroSection = ({ onPreviewModalChange, launchMode = false }: HeroSectionPr
           <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-8 animate-fade-in" style={{ animationDelay: "0.4s" }}>
             <div className="flex -space-x-3">
               {[1, 2, 3, 4, 5].map((i) => (
-                <div
+                <img
                   key={i}
-                  className="w-10 h-10 rounded-full bg-secondary border-2 border-background flex items-center justify-center text-xs font-semibold text-muted-foreground"
-                >
-                  {String.fromCharCode(64 + i)}
-                </div>
+                  src={`https://i.pravatar.cc/150?img=${i}`}
+                  alt={`Student ${i}`}
+                  loading="lazy"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-background bg-secondary"
+                />
               ))}
             </div>
             <div className="text-left">

@@ -1,38 +1,45 @@
 import { useState } from "react";
 
 const brands = [
-  { name: "MoYu", logo: "https://logo.clearbit.com/moyucube.com" },
-  { name: "GAN", logo: "https://logo.clearbit.com/gancube.com" },
-  { name: "QY Toys", logo: "https://logo.clearbit.com/qytoys.com" },
-  { name: "BLVCK Paris", logo: null },
-  { name: "GoCube", logo: "https://logo.clearbit.com/gocube.com" },
-  { name: "Energize Lab", logo: "https://logo.clearbit.com/energizelab.com" },
-  { name: "Ocoopa", logo: null },
-  { name: "OLIGHT", logo: "https://logo.clearbit.com/olightstore.com" },
-  { name: "LIVING.AI", logo: null },
-  { name: "CARD MAFIA", logo: null },
+  { name: "GAN", domain: "gancube.com" },
+  { name: "MoYu", domain: "moyucube.com" },
+  { name: "QiYi", domain: "qiyicube.com" },
+  { name: "SpeedCubeShop", domain: "speedcubeshop.com" },
+  { name: "Cubelelo", domain: "cubelelo.com" },
 ];
 
-const allBrands = [...brands, ...brands];
+const allBrands = [...brands, ...brands, ...brands];
 
-const LetterAvatar = ({ name }: { name: string }) => (
-  <img
-    src={`https://i.pravatar.cc/64?u=${encodeURIComponent(name)}`}
-    alt={name}
-    width={32}
-    height={32}
-    style={{ borderRadius: 6, objectFit: "cover", flexShrink: 0 }}
-    loading="lazy"
-  />
-);
-
-const BrandLogo = ({ name, logo }: { name: string; logo: string | null }) => {
+const BrandLogo = ({ name, domain }: { name: string; domain: string }) => {
   const [failed, setFailed] = useState(false);
-  if (!logo || failed) return <LetterAvatar name={name} />;
+  if (failed) {
+    return (
+      <span
+        style={{
+          fontSize: 18,
+          fontWeight: 700,
+          letterSpacing: 0.5,
+          color: "#cfcfcf",
+          fontFamily: "'Poppins', sans-serif",
+        }}
+      >
+        {name}
+      </span>
+    );
+  }
   return (
     <img
-      src={logo} alt={name} width={32} height={32}
-      style={{ borderRadius: 6, objectFit: "cover", flexShrink: 0 }}
+      src={`https://logo.clearbit.com/${domain}`}
+      alt={name}
+      height={28}
+      style={{
+        height: 28,
+        width: "auto",
+        objectFit: "contain",
+        filter: "grayscale(1) brightness(2)",
+        opacity: 0.75,
+      }}
+      loading="lazy"
       onError={() => setFailed(true)}
     />
   );
@@ -40,19 +47,32 @@ const BrandLogo = ({ name, logo }: { name: string; logo: string | null }) => {
 
 const BrandMarquee = () => (
   <section style={{ padding: "48px 0", background: "transparent" }}>
-    <p style={{
-      textAlign: "center", color: "#888", fontSize: "14px",
-      marginBottom: "32px", letterSpacing: "1px", textTransform: "uppercase",
-    }}>
+    <p
+      style={{
+        textAlign: "center",
+        color: "#888",
+        fontSize: "14px",
+        marginBottom: "32px",
+        letterSpacing: "1px",
+        textTransform: "uppercase",
+      }}
+    >
       Trusted by the world's top cube brands
     </p>
     <div className="marquee-outer">
       <div className="marquee-track" style={{ minHeight: 80, alignItems: "center" }}>
         {allBrands.map((b, i) => (
-          <span key={i} className="marquee-item" style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
-            <BrandLogo name={b.name} logo={b.logo} />
-            {b.name}
-            <span style={{ marginLeft: 38, color: "#333" }}>•</span>
+          <span
+            key={i}
+            className="marquee-item"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 32,
+              paddingRight: 56,
+            }}
+          >
+            <BrandLogo name={b.name} domain={b.domain} />
           </span>
         ))}
       </div>
