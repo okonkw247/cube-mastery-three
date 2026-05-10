@@ -141,9 +141,7 @@ function courseCompleteEmail(name: string, planType: string) {
 // EMAIL TYPE 5: PAYMENT CONFIRMED
 // ═══════════════════════════════════
 function paymentConfirmedEmail(name: string, planName: string, price: string) {
-  const accessDesc = planName.toLowerCase().includes('starter')
-    ? '15 video lessons, algorithm library, practice routines, community forum, and weekly progress reports'
-    : 'All lessons, advanced algorithms, priority support, full community access, and downloadable resources';
+  const accessDesc = 'All 10+ 4K video lessons, advanced algorithms, downloadable resources, offline access, full community access, and priority support';
 
   return emailWrapper(`
     <div class="header">
