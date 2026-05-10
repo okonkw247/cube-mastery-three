@@ -221,10 +221,10 @@ const handler = async (req: Request): Promise<Response> => {
       // ═══ 3. COURSE COMPLETE — 100% completion ═══
       if (pct === 100 && !(await hasEverSentEmail(supabase, authUser.id, "course_complete"))) {
         try {
-          const isMaxPlan = profile.subscription_tier === "pro" || profile.subscription_tier === "enterprise";
+          const isMaxPlan = profile.subscription_tier === "paid" || profile.subscription_tier === "pro" || profile.subscription_tier === "enterprise";
           const upgradeSection = isMaxPlan ? "" : `
-            <p>Ready for the next level? Upgrade your plan to unlock advanced techniques and exclusive content.</p>
-            <div class="cta"><a href="https://whop.com/cube-mastery/" class="btn">Upgrade Now →</a></div>
+            <p>Ready for the next level? Upgrade to <strong>Sub 20 Mastery</strong> to unlock advanced techniques and exclusive content.</p>
+            <div class="cta"><a href="https://whop.com/jsn-cubing" class="btn">Upgrade Now →</a></div>
           `;
 
           const html = emailWrapper(`
