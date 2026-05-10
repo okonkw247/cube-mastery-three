@@ -47,12 +47,11 @@ function emailWrapper(content: string) {
 // EMAIL TYPE 1: WELCOME
 // ═══════════════════════════════════
 function welcomeEmail(name: string, plan: string) {
-  const planLabel = plan === 'free' ? 'Free Plan' : plan === 'starter' ? 'Starter Plan' : 'Pro Plan';
-  const accessDesc = plan === 'free' 
-    ? '3 free beginner lessons, basic algorithm reference, and limited practice tips'
-    : plan === 'starter' 
-    ? '15 video lessons, algorithm library, practice routines, and community access'
-    : 'All lessons, advanced algorithms, priority support, and full community access';
+  const isPaid = plan === 'paid' || plan === 'pro' || plan === 'starter' || plan === 'enterprise';
+  const planLabel = isPaid ? 'Sub 20 Mastery' : 'Free Plan';
+  const accessDesc = isPaid
+    ? 'All 10+ 4K video lessons, advanced algorithms, downloadable resources, full community access, and priority support'
+    : '2 free lessons to get a feel for the platform — upgrade to Sub 20 Mastery to unlock everything';
 
   return emailWrapper(`
     <div class="header">
