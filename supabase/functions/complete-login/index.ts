@@ -116,52 +116,8 @@ const handler = async (req: Request): Promise<Response> => {
       details: { email: email.toLowerCase(), isNewUser }
     });
 
-    // Send login notification email
-    const userAgent = "Web Browser";
-    const loginTime = new Date().toLocaleString("en-US", {
-      dateStyle: "full",
-      timeStyle: "short",
-    });
-
-    try {
-      await resend.emails.send({
-        from: "Cube Mastery <security@cube-mastery.site>",
-        to: [email],
-        subject: "New Sign-in to Your Cube Mastery Account",
-        html: `
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <style>
-              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a2e; color: #ffffff; padding: 40px; }
-              .container { max-width: 500px; margin: 0 auto; background: #2d2d44; border-radius: 16px; padding: 40px; }
-              .alert { background: #22c55e20; border: 1px solid #22c55e40; border-radius: 8px; padding: 16px; margin: 16px 0; }
-              h1 { text-align: center; margin-bottom: 16px; }
-              p { color: #ccc; line-height: 1.6; }
-              .footer { text-align: center; color: #888; font-size: 12px; margin-top: 24px; }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <h1>🔐 New Sign-in Detected</h1>
-              <div class="alert">
-                <p><strong>Time:</strong> ${loginTime}</p>
-                <p><strong>Device:</strong> ${userAgent}</p>
-              </div>
-              <p>If this was you, you can safely ignore this email.</p>
-              <p>If you didn't sign in, please secure your account immediately by changing your password.</p>
-              <div class="footer">
-                <p>© ${new Date().getFullYear()} Cube Mastery. All rights reserved.</p>
-              </div>
-            </div>
-          </body>
-          </html>
-        `,
-      });
-    } catch (emailErr) {
-      console.error("Failed to send login notification:", emailErr);
-      // Don't fail the login if notification fails
-    }
+    // Note: Login notification email is sent by the frontend via send-login-notification
+    // (it has access to the real userAgent). Do NOT send it here — would cause duplicates.
 
     // Extract token from link URL
     const url = new URL(linkData.properties.action_link);
