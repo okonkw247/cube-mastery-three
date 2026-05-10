@@ -237,15 +237,10 @@ const handler = async (req: Request): Promise<Response> => {
             <div class="section">
               <h2>${content.upgradeTitle}</h2>
               <p style="margin: 0 0 16px 0;">${content.upgradeDesc}</p>
-              <div class="plans">
-                <div class="plan">
-                  <h4>${content.starterPlan}</h4>
-                  <div class="price">$15</div>
-                  <div class="note">${content.oneTime}</div>
-                </div>
-                <div class="plan">
-                  <h4>${content.proPlan}</h4>
-                  <div class="price">$40</div>
+              <div class="plans" style="display:block;">
+                <div class="plan" style="text-align:center;">
+                  <h4>Sub 20 Mastery</h4>
+                  <div class="price">$24.99</div>
                   <div class="note">${content.oneTime}</div>
                 </div>
               </div>

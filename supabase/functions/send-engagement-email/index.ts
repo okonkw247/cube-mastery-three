@@ -47,12 +47,11 @@ function emailWrapper(content: string) {
 // EMAIL TYPE 1: WELCOME
 // ═══════════════════════════════════
 function welcomeEmail(name: string, plan: string) {
-  const planLabel = plan === 'free' ? 'Free Plan' : plan === 'starter' ? 'Starter Plan' : 'Pro Plan';
-  const accessDesc = plan === 'free' 
-    ? '3 free beginner lessons, basic algorithm reference, and limited practice tips'
-    : plan === 'starter' 
-    ? '15 video lessons, algorithm library, practice routines, and community access'
-    : 'All lessons, advanced algorithms, priority support, and full community access';
+  const isPaid = plan === 'paid' || plan === 'pro' || plan === 'starter' || plan === 'enterprise';
+  const planLabel = isPaid ? 'Sub 20 Mastery' : 'Free Plan';
+  const accessDesc = isPaid
+    ? 'All 10+ 4K video lessons, advanced algorithms, downloadable resources, full community access, and priority support'
+    : '2 free lessons to get a feel for the platform — upgrade to Sub 20 Mastery to unlock everything';
 
   return emailWrapper(`
     <div class="header">
@@ -118,10 +117,10 @@ function halfwayEmail(name: string, progressPct: number) {
 // EMAIL TYPE 4: COURSE COMPLETE
 // ═══════════════════════════════════
 function courseCompleteEmail(name: string, planType: string) {
-  const isMaxPlan = planType === 'pro' || planType === 'enterprise';
-  const upgradeSection = isMaxPlan ? '' : `
-    <p>Ready for the next level? Upgrade your plan to unlock advanced techniques and exclusive content.</p>
-    <div class="cta"><a href="https://whop.com/cube-mastery/" class="btn">Upgrade Now →</a></div>
+  const isPaid = planType === 'paid' || planType === 'pro' || planType === 'enterprise';
+  const upgradeSection = isPaid ? '' : `
+    <p>Ready for the next level? Upgrade to <strong>Sub 20 Mastery</strong> to unlock advanced techniques and exclusive content.</p>
+    <div class="cta"><a href="https://whop.com/jsn-cubing" class="btn">Upgrade Now →</a></div>
   `;
   return emailWrapper(`
     <div class="header">
@@ -142,9 +141,7 @@ function courseCompleteEmail(name: string, planType: string) {
 // EMAIL TYPE 5: PAYMENT CONFIRMED
 // ═══════════════════════════════════
 function paymentConfirmedEmail(name: string, planName: string, price: string) {
-  const accessDesc = planName.toLowerCase().includes('starter')
-    ? '15 video lessons, algorithm library, practice routines, community forum, and weekly progress reports'
-    : 'All lessons, advanced algorithms, priority support, full community access, and downloadable resources';
+  const accessDesc = 'All 10+ 4K video lessons, advanced algorithms, downloadable resources, offline access, full community access, and priority support';
 
   return emailWrapper(`
     <div class="header">
