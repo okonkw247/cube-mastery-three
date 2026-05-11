@@ -75,8 +75,7 @@ export function useProfile() {
           console.log('Profile updated in real-time:', payload);
           if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
             const rawTier = (payload.new as any).subscription_tier || 'free';
-            const normalizedTier = (rawTier === 'starter' || rawTier === 'pro' || rawTier === 'enterprise' || rawTier === 'paid')
-              ? 'paid' : 'free';
+            const normalizedTier = rawTier === 'free' ? 'free' : 'paid';
             setProfile({ ...payload.new, subscription_tier: normalizedTier } as Profile);
           }
         }
