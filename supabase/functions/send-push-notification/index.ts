@@ -13,7 +13,7 @@ const VAPID_PUBLIC_KEY = Deno.env.get("VAPID_PUBLIC_KEY")!;
 const VAPID_PRIVATE_KEY = Deno.env.get("VAPID_PRIVATE_KEY")!;
 
 webpush.setVapidDetails(
-  "mailto:hello@cube-mastery.site",
+  "mailto:team@cube-mastery.site",
   VAPID_PUBLIC_KEY,
   VAPID_PRIVATE_KEY
 );
