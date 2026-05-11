@@ -12,7 +12,7 @@ const corsHeaders = {
 };
 
 const SITE_URL = "https://www.cube-mastery.site";
-const FROM_EMAIL = "Cube Mastery <hello@cube-mastery.site>";
+const FROM_EMAIL = "Cube Mastery <team@cube-mastery.site>";
 
 // Brand colors
 const PRIMARY = "#2dd4bf";
