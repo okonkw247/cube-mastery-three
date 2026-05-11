@@ -11,8 +11,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SITE_URL = "https://cube-mastery.site";
-const FROM_EMAIL = "Cube Mastery <hello@cube-mastery.site>";
+const SITE_URL = "https://www.cube-mastery.site";
+const FROM_EMAIL = "Cube Mastery <team@cube-mastery.site>";
 const PRIMARY = "#2dd4bf";
 const BG_DARK = "#0a0b14";
 const CARD_BG = "#151827";
