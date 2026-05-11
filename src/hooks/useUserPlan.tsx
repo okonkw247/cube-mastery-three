@@ -35,8 +35,7 @@ export function useUserPlan() {
 
       if (data) {
         const rawTier = data.subscription_tier || 'free';
-        const normalizedTier = (rawTier === 'starter' || rawTier === 'pro' || rawTier === 'enterprise' || rawTier === 'paid')
-          ? 'paid' : 'free';
+        const normalizedTier: 'free' | 'paid' = rawTier === 'free' ? 'free' : 'paid';
         setPlan({
           subscription_tier: normalizedTier as 'free' | 'paid',
           subscription_status: (data.subscription_status as UserPlan['subscription_status']) || 'inactive',
