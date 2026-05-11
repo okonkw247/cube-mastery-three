@@ -29,7 +29,7 @@ export function LessonResources({ lesson, userTier }: LessonResourcesProps) {
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const isPaid = userTier === 'paid' || userTier === 'starter' || userTier === 'pro' || userTier === 'enterprise';
+  const isPaid = userTier !== 'free' && !!userTier;
   const isFreePlan = !isPaid;
   const isLockedContent = !lesson.is_free && lesson.plan_access !== 'free';
 
