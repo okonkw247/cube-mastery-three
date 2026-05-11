@@ -175,10 +175,8 @@ export default function AdminUsers() {
 
   const grantCourseAccessManually = async (userId: string, planType: string) => {
     const limits: Record<string, { start: number; end: number }> = {
-      'free': { start: 1, end: 3 },
-      'starter': { start: 1, end: 15 },
-      'pro': { start: 1, end: 50 },
-      'enterprise': { start: 1, end: 50 },
+      'free': { start: 1, end: 2 },
+      'paid': { start: 1, end: 10 },
     };
 
     const { start, end } = limits[planType] || limits['free'];
@@ -222,12 +220,11 @@ export default function AdminUsers() {
 
   const getPlanBadge = (tier: string) => {
     switch (tier) {
+      case 'paid':
       case 'pro':
-        return <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Pro</Badge>;
       case 'starter':
-        return <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Starter</Badge>;
       case 'enterprise':
-        return <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">Enterprise</Badge>;
+        return <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Paid</Badge>;
       default:
         return <Badge variant="secondary">Free</Badge>;
     }
@@ -307,9 +304,7 @@ export default function AdminUsers() {
                   <SelectContent>
                     <SelectItem value="all">All Tiers</SelectItem>
                     <SelectItem value="free">Free</SelectItem>
-                    <SelectItem value="starter">Starter</SelectItem>
-                    <SelectItem value="pro">Pro</SelectItem>
-                    <SelectItem value="enterprise">Enterprise</SelectItem>
+                    <SelectItem value="paid">Paid</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={statusFilterUser} onValueChange={setStatusFilterUser}>
@@ -495,13 +490,13 @@ export default function AdminUsers() {
               <CardContent>
                 <div className="flex items-center gap-2">
                   <code className="flex-1 bg-muted px-3 py-2 rounded text-sm break-all">
-                    https://gskwncwyzatkecizuvzn.supabase.co/functions/v1/whop-webhook
+                    https://sdtxohevlsyjdrfcqihf.supabase.co/functions/v1/whop-webhook
                   </code>
                   <Button 
                     variant="outline" 
                     size="sm"
                     onClick={() => {
-                      navigator.clipboard.writeText('https://gskwncwyzatkecizuvzn.supabase.co/functions/v1/whop-webhook');
+                      navigator.clipboard.writeText('https://sdtxohevlsyjdrfcqihf.supabase.co/functions/v1/whop-webhook');
                       toast.success('Webhook URL copied!');
                     }}
                   >
@@ -594,10 +589,8 @@ export default function AdminUsers() {
                 <SelectValue placeholder="Select plan" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="free">Free (Sections 1-3)</SelectItem>
-                <SelectItem value="starter">Starter (Sections 1-15)</SelectItem>
-                <SelectItem value="pro">Pro (Sections 1-50)</SelectItem>
-                <SelectItem value="enterprise">Enterprise (All Access)</SelectItem>
+                <SelectItem value="free">Free (Sections 1-2)</SelectItem>
+                <SelectItem value="paid">Paid (Sections 1-10)</SelectItem>
               </SelectContent>
             </Select>
           </div>
