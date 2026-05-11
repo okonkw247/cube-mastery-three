@@ -323,7 +323,8 @@ export default function AdminLessons() {
   const sortedLessons = [...lessons].sort((a, b) => a.order_index - b.order_index);
   const filteredLessons = planFilter === 'all' ? sortedLessons : sortedLessons.filter(l => {
     if (planFilter === 'free') return l.is_free || l.plan_access === 'free';
-    return l.plan_access === planFilter || l.plan_access === 'starter' || l.plan_access === 'pro' || l.plan_access === 'enterprise';
+    // paid: anything not explicitly free (covers legacy 'starter'/'pro'/'enterprise' values too)
+    return !l.is_free && l.plan_access !== 'free';
   });
   const planCounts = {
     all: sortedLessons.length,
