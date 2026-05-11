@@ -106,9 +106,6 @@ export default function PublicProfile() {
     const colors: Record<string, string> = {
       free: "bg-secondary text-muted-foreground",
       paid: "bg-primary/20 text-primary",
-      starter: "bg-primary/20 text-primary",
-      pro: "bg-primary/20 text-primary",
-      enterprise: "bg-primary/20 text-primary",
     };
     return colors[tier] || colors.free;
   };
