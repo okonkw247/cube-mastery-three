@@ -18,7 +18,7 @@ const WHOP_PLAN_MAPPING: Record<string, string> = {
 // Plan access limits
 const PLAN_ACCESS_LIMITS: Record<string, { start: number; end: number }> = {
   "free": { start: 1, end: 1 },
-  "paid": { start: 1, end: 50 },
+  "paid": { start: 1, end: 10 },
 };
 
 type SubscriptionStatus = 'active' | 'inactive' | 'payment_pending' | 'payment_failed' | 'cancelled';
