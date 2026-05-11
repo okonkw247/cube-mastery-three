@@ -117,7 +117,7 @@ function halfwayEmail(name: string, progressPct: number) {
 // EMAIL TYPE 4: COURSE COMPLETE
 // ═══════════════════════════════════
 function courseCompleteEmail(name: string, planType: string) {
-  const isPaid = planType === 'paid' || planType === 'pro' || planType === 'enterprise';
+  const isPaid = planType !== 'free' && !!planType;
   const upgradeSection = isPaid ? '' : `
     <p>Ready for the next level? Upgrade to <strong>Sub 20 Mastery</strong> to unlock advanced techniques and exclusive content.</p>
     <div class="cta"><a href="https://whop.com/jsn-cubing" class="btn">Upgrade Now →</a></div>
