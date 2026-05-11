@@ -63,7 +63,7 @@ export function useUserPlan() {
         (payload) => {
           const d = payload.new as any;
           const rawTier = d.subscription_tier || 'free';
-          const normalizedTier = (rawTier === 'starter' || rawTier === 'pro' || rawTier === 'enterprise' || rawTier === 'paid') ? 'paid' : 'free';
+          const normalizedTier: 'free' | 'paid' = rawTier === 'free' ? 'free' : 'paid';
           setPlan({ subscription_tier: normalizedTier as 'free' | 'paid', subscription_status: d.subscription_status || 'inactive', whop_membership_id: d.whop_membership_id });
         })
       .subscribe();
