@@ -81,8 +81,7 @@ const Auth = () => {
           // Check if user came from a plan selection
           const planParam = searchParams.get("plan");
           const WHOP_PLAN_IDS: Record<string, string> = {
-            starter: "plan_7NRvNAxpWhOse",
-            pro: "plan_aeLinh43MkIpm",
+            paid: "plan_aeLinh43MkIpm",
           };
 
           if (planParam && planParam !== 'free' && WHOP_PLAN_IDS[planParam]) {

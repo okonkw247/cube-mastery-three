@@ -211,8 +211,8 @@ export function useLessons() {
     if (lesson.plan_access === 'free') return true;
     if (!userTier) return false;
     
-    // New simplified model: free or paid
-    const isPaid = userTier === 'paid' || userTier === 'starter' || userTier === 'pro' || userTier === 'enterprise';
+    // Simplified model: free or paid (normalize any legacy tier values)
+    const isPaid = userTier !== 'free' && userTier !== '';
     return isPaid;
   }, []);
 

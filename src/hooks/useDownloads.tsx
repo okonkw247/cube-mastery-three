@@ -28,9 +28,7 @@ export interface DownloadedVideo {
 // One-time payment: download ALL courses you have access to
 const PLAN_DOWNLOAD_LIMITS: Record<string, number> = {
   free: 0,
-  starter: 15,
-  pro: 50,
-  enterprise: Infinity,
+  paid: Infinity,
 };
 
 const MAX_DEVICES = 2;

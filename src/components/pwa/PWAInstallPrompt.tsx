@@ -116,7 +116,7 @@ export function PWAInstallPrompt() {
         <div className="w-full max-w-md mx-4 mb-4 p-6 rounded-2xl bg-card border border-border space-y-4 animate-in slide-in-from-bottom duration-300">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
-            <img src="/icons/icon-192.png" alt="Rubiks Academy" className="w-12 h-12 rounded-xl" />
+            <img src="/icons/jsn-icon-192.png" alt="Rubiks Academy" className="w-12 h-12 rounded-xl" />
               <div>
                 <h3 className="font-semibold text-foreground">Install Rubiks Academy</h3>
                 <p className="text-sm text-muted-foreground">Works offline too ⬇️</p>
@@ -150,7 +150,7 @@ export function PWAInstallPrompt() {
       <div className="w-full max-w-md mx-4 mb-4 p-6 rounded-2xl bg-card border border-border space-y-4 animate-in slide-in-from-bottom duration-300">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <img src="/icons/icon-192.png" alt="Rubiks Academy" className="w-12 h-12 rounded-xl" />
+            <img src="/icons/jsn-icon-192.png" alt="Rubiks Academy" className="w-12 h-12 rounded-xl" />
             <div>
               <h3 className="font-semibold text-foreground">Install Rubiks Academy</h3>
               <p className="text-sm text-muted-foreground">For easy access! Works offline too ⬇️</p>

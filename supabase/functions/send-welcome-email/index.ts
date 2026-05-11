@@ -29,8 +29,6 @@ const getLocalizedContent = (language: string) => {
     step3Desc: string;
     upgradeTitle: string;
     upgradeDesc: string;
-    starterPlan: string;
-    proPlan: string;
     oneTime: string;
     ctaButton: string;
     helpTitle: string;
@@ -51,8 +49,6 @@ const getLocalizedContent = (language: string) => {
       step3Desc: "Use our Practice Coach to time your solves and improve your speed.",
       upgradeTitle: "💎 Upgrade Your Learning",
       upgradeDesc: "Unlock all lessons and advanced content with our plans:",
-      starterPlan: "Starter Plan",
-      proPlan: "Pro Plan",
       oneTime: "One-time payment",
       ctaButton: "Go to Your Dashboard →",
       helpTitle: "📖 Need Help?",
@@ -73,8 +69,6 @@ const getLocalizedContent = (language: string) => {
       step3Desc: "Usa nuestro Entrenador de Práctica para cronometrar tus soluciones.",
       upgradeTitle: "💎 Mejora Tu Aprendizaje",
       upgradeDesc: "Desbloquea todas las lecciones con nuestros planes:",
-      starterPlan: "Plan Básico",
-      proPlan: "Plan Pro",
       oneTime: "Pago único",
       ctaButton: "Ir a Tu Panel →",
       helpTitle: "📖 ¿Necesitas Ayuda?",
@@ -95,8 +89,6 @@ const getLocalizedContent = (language: string) => {
       step3Desc: "Utilisez notre Coach de Pratique pour chronométrer vos résolutions.",
       upgradeTitle: "💎 Améliorez Votre Apprentissage",
       upgradeDesc: "Débloquez toutes les leçons avec nos plans :",
-      starterPlan: "Plan Starter",
-      proPlan: "Plan Pro",
       oneTime: "Paiement unique",
       ctaButton: "Accéder à Votre Tableau de Bord →",
       helpTitle: "📖 Besoin d'Aide ?",
@@ -117,8 +109,6 @@ const getLocalizedContent = (language: string) => {
       step3Desc: "Nutze unseren Übungs-Coach, um deine Lösungszeit zu messen.",
       upgradeTitle: "💎 Erweitere Dein Lernen",
       upgradeDesc: "Schalte alle Lektionen mit unseren Plänen frei:",
-      starterPlan: "Starter-Plan",
-      proPlan: "Pro-Plan",
       oneTime: "Einmalzahlung",
       ctaButton: "Zum Dashboard →",
       helpTitle: "📖 Brauchst Du Hilfe?",
@@ -139,8 +129,6 @@ const getLocalizedContent = (language: string) => {
       step3Desc: "Use nosso Coach de Prática para cronometrar suas soluções.",
       upgradeTitle: "💎 Melhore Seu Aprendizado",
       upgradeDesc: "Desbloqueie todas as aulas com nossos planos:",
-      starterPlan: "Plano Inicial",
-      proPlan: "Plano Pro",
       oneTime: "Pagamento único",
       ctaButton: "Ir para Seu Painel →",
       helpTitle: "📖 Precisa de Ajuda?",
