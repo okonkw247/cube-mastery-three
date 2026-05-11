@@ -221,9 +221,6 @@ export default function AdminUsers() {
   const getPlanBadge = (tier: string) => {
     switch (tier) {
       case 'paid':
-      case 'pro':
-      case 'starter':
-      case 'enterprise':
         return <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Paid</Badge>;
       default:
         return <Badge variant="secondary">Free</Badge>;
