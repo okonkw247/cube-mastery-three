@@ -47,7 +47,7 @@ function emailWrapper(content: string) {
 // EMAIL TYPE 1: WELCOME
 // ═══════════════════════════════════
 function welcomeEmail(name: string, plan: string) {
-  const isPaid = plan === 'paid' || plan === 'pro' || plan === 'starter' || plan === 'enterprise';
+  const isPaid = plan !== 'free' && !!plan;
   const planLabel = isPaid ? 'Sub 20 Mastery' : 'Free Plan';
   const accessDesc = isPaid
     ? 'All 10+ 4K video lessons, advanced algorithms, downloadable resources, full community access, and priority support'
