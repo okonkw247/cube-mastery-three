@@ -66,11 +66,11 @@ function salesEmail(name: string) {
     <p>You've completed all your free lessons — amazing progress! But there's so much more to learn.</p>
     <p style="color:${TEXT_LIGHT}; font-weight: 600;">Unlock Sub 20 Mastery and get:</p>
     <ul style="color:${TEXT_MUTED}; font-size: 14px; line-height: 2;">
-      <li>✅ 20+ HD video lessons covering every technique</li>
+      <li>✅ 10+ 4K video lessons covering every technique</li>
       <li>✅ Advanced algorithm library with finger tricks</li>
       <li>✅ Speed-optimized practice routines</li>
       <li>✅ Cross, F2L, OLL, PLL deep dives</li>
-      <li>✅ Private Discord community of cubers</li>
+      <li>✅ Private Whop community of cubers</li>
       <li>✅ Progress tracking & practice tools</li>
       <li>✅ Lifetime access — pay once, learn forever</li>
     </ul>
