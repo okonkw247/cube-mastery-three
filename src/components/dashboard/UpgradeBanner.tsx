@@ -54,10 +54,10 @@ export function UpgradeBanner() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-[13px] sm:text-sm font-semibold text-foreground tracking-tight truncate">
-                    You're <span className="text-primary">one click</span> from sub-20.
+                    Ready to go <span className="text-primary">Sub-20</span>?
                   </p>
                   <p className="hidden sm:block text-xs text-muted-foreground/90 mt-0.5">
-                    Every lesson, every drill, every algorithm — lifetime access.
+                    Unlock the complete system used by 2,000+ cubers.
                   </p>
                 </div>
               </div>
@@ -68,7 +68,7 @@ export function UpgradeBanner() {
                   onClick={() => setUpgradeOpen(true)}
                   className="btn-shine relative overflow-hidden gap-1.5 text-xs sm:text-sm px-3.5 sm:px-5 h-8 sm:h-9 font-semibold rounded-lg bg-gradient-to-br from-primary to-[hsl(190_90%_45%)] text-primary-foreground hover:shadow-[0_0_28px_-4px_hsl(175_80%_50%/0.6)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
                 >
-                  <span className="relative z-10">Upgrade to Pro</span>
+                  <span className="relative z-10">Upgrade Now</span>
                   <ArrowRight className="w-3.5 h-3.5 relative z-10 transition-transform group-hover:translate-x-0.5" />
                 </Button>
                 <button
