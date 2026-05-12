@@ -300,14 +300,19 @@ export default function Community() {
                  style={{ background: "radial-gradient(700px circle at 100% 0%, hsl(175 80% 50% / 0.18), transparent 45%)" }} />
             <div className="relative flex flex-col sm:flex-row sm:items-center gap-5">
               <div className="flex items-center gap-4 flex-1 min-w-0">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/5 border border-primary/30 flex items-center justify-center shrink-0">
-                  <Sparkles className="w-6 h-6 text-primary" />
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white border border-primary/30 flex items-center justify-center shrink-0 shadow-[0_4px_20px_-4px_hsl(175_80%_50%/0.4)]">
+                  <img
+                    src="https://whop.com/favicon.ico"
+                    alt="Whop"
+                    className="w-7 h-7 sm:w-8 sm:h-8 object-contain"
+                  />
                 </div>
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[10px] font-semibold tracking-widest uppercase text-primary">Members Only</span>
-                    <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
-                    <span className="text-[10px] text-muted-foreground">Whop</span>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/30 mb-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                    <span className="text-[10px] font-semibold tracking-wide uppercase text-primary">
+                      Join our growing community
+                    </span>
                   </div>
                   <h2 className="text-lg sm:text-xl font-bold tracking-tight">Join JSN Cubing on Whop</h2>
                   <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
