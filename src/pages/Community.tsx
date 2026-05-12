@@ -331,18 +331,21 @@ export default function Community() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Community Forum</h1>
-            <p className="text-sm text-muted-foreground">Share tips, ask questions, and connect with cubers</p>
+        {/* Forum header — only show if posts exist OR user can post */}
+        {(canPost || sortedPosts.length > 0 || loading) && (
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold">Community Forum</h1>
+              <p className="text-sm text-muted-foreground">Share tips, ask questions, and connect with cubers</p>
+            </div>
+            {canPost && (
+              <Button onClick={() => setShowForm(!showForm)} className="gap-2">
+                <MessageSquare className="w-4 h-4" />
+                New Post
+              </Button>
+            )}
           </div>
-          {canPost && (
-            <Button onClick={() => setShowForm(!showForm)} className="gap-2">
-              <MessageSquare className="w-4 h-4" />
-              New Post
-            </Button>
-          )}
-        </div>
+        )}
 
         {/* New post form */}
         {showForm && canPost && (
@@ -367,15 +370,10 @@ export default function Community() {
           </div>
         )}
 
-        {/* Posts */}
+        {/* Posts — hidden entirely when none exist (and user can't post) */}
         {loading ? (
           <CommunitySkeleton />
-        ) : sortedPosts.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p>No posts yet. Be the first to start a discussion!</p>
-          </div>
-        ) : (
+        ) : sortedPosts.length === 0 ? null : (
           <div className="space-y-3">
             {sortedPosts.map(post => (
               <div key={post.id} className={`bg-card border rounded-xl p-4 hover:border-primary/30 transition-colors ${post.is_pinned ? 'border-primary/40 bg-primary/5' : 'border-border'}`}>
